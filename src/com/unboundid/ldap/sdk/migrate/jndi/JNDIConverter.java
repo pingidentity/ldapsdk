@@ -65,6 +65,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -134,7 +135,9 @@ public final class JNDIConverter
    * and the array should contain only the value and not the type (also known as
    * the tag) and the length.
    */
-  private static volatile boolean includeTypeAndLengthInControlValues;
+  private static volatile boolean includeTypeAndLengthInControlValues =
+       PropertyManager.getBoolean(
+            PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_CONTROL_VALUES, false);
 
 
 
@@ -161,34 +164,9 @@ public final class JNDIConverter
    * actually the case, and the array should contain only the value and not
    * the type (also known as the tag) and the length.
    */
-  private static volatile boolean includeTypeAndLengthInExtendedOpValues;
-  static
-  {
-    final String controlPropertyValue = StaticUtils.getSystemProperty(
-         PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_CONTROL_VALUES);
-    if (controlPropertyValue == null)
-    {
-      includeTypeAndLengthInControlValues = false;
-    }
-    else
-    {
-      includeTypeAndLengthInControlValues =
-           controlPropertyValue.equalsIgnoreCase("true");
-    }
-
-
-    final String extOpPropertyValue = StaticUtils.getSystemProperty(
-         PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_EXTENDED_OP_VALUES);
-    if (extOpPropertyValue == null)
-    {
-      includeTypeAndLengthInExtendedOpValues = false;
-    }
-    else
-    {
-      includeTypeAndLengthInExtendedOpValues =
-           extOpPropertyValue.equalsIgnoreCase("true");
-    }
-  }
+  private static volatile boolean includeTypeAndLengthInExtendedOpValues =
+       PropertyManager.getBoolean(
+            PROPERTY_INCLUDE_TYPE_AND_LENGTH_IN_EXTENDED_OP_VALUES, false);
 
 
 

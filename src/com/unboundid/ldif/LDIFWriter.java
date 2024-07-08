@@ -55,6 +55,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -135,7 +136,7 @@ public final class LDIFWriter
   static
   {
     final String propertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_BASE64_ENCODING_STRATEGY);
+         PropertyManager.get(PROPERTY_BASE64_ENCODING_STRATEGY);
     if (propertyValue != null)
     {
       switch (StaticUtils.toUpperCase(propertyValue).replace('-', '_'))

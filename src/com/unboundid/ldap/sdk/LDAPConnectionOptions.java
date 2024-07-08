@@ -74,6 +74,7 @@ import com.unboundid.util.DebugType;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -235,7 +236,7 @@ public final class LDAPConnectionOptions
    * default of {@code false} will be used.
    */
   private static final boolean DEFAULT_ABANDON_ON_TIMEOUT =
-       getSystemProperty(PROPERTY_DEFAULT_ABANDON_ON_TIMEOUT, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_ABANDON_ON_TIMEOUT, false);
 
 
 
@@ -272,7 +273,8 @@ public final class LDAPConnectionOptions
    * Otherwise, a default of {@code true} will be used.
    */
   private static final boolean DEFAULT_BIND_WITH_DN_REQUIRES_PASSWORD =
-       getSystemProperty(PROPERTY_DEFAULT_BIND_WITH_DN_REQUIRES_PASSWORD, true);
+       PropertyManager.getBoolean(
+            PROPERTY_DEFAULT_BIND_WITH_DN_REQUIRES_PASSWORD, true);
 
 
 
@@ -300,7 +302,8 @@ public final class LDAPConnectionOptions
    * Otherwise, a default of {@code false} will be used.
    */
   private static final boolean DEFAULT_CAPTURE_CONNECT_STACK_TRACE =
-       getSystemProperty(PROPERTY_DEFAULT_CAPTURE_CONNECT_STACK_TRACE, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_CAPTURE_CONNECT_STACK_TRACE,
+            false);
 
 
 
@@ -327,7 +330,7 @@ public final class LDAPConnectionOptions
    * default of {@code false} will be used.
    */
   private static final boolean DEFAULT_FOLLOW_REFERRALS =
-       getSystemProperty(PROPERTY_DEFAULT_FOLLOW_REFERRALS, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_FOLLOW_REFERRALS, false);
 
 
 
@@ -353,7 +356,7 @@ public final class LDAPConnectionOptions
    * default value of 5 will be used.
    */
   private static final int DEFAULT_REFERRAL_HOP_LIMIT =
-       getSystemProperty(PROPERTY_DEFAULT_REFERRAL_HOP_LIMIT, 5);
+       PropertyManager.getInt(PROPERTY_DEFAULT_REFERRAL_HOP_LIMIT, 5);
 
 
 
@@ -379,7 +382,7 @@ public final class LDAPConnectionOptions
    * will be used.  Otherwise, a default value of {@code false} will be used.
    */
   private static final boolean DEFAULT_USE_SCHEMA =
-       getSystemProperty(PROPERTY_DEFAULT_USE_SCHEMA, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_SCHEMA, false);
 
 
 
@@ -406,7 +409,7 @@ public final class LDAPConnectionOptions
    * default of {@code false} will be used.
    */
   private static final boolean DEFAULT_USE_POOLED_SCHEMA =
-       getSystemProperty(PROPERTY_DEFAULT_USE_POOLED_SCHEMA, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_POOLED_SCHEMA, false);
 
 
 
@@ -460,7 +463,7 @@ public final class LDAPConnectionOptions
    * {@code true} will be used.
    */
   private static final boolean DEFAULT_USE_KEEPALIVE =
-       getSystemProperty(PROPERTY_DEFAULT_USE_KEEPALIVE, true);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_KEEPALIVE, true);
 
 
 
@@ -487,7 +490,7 @@ public final class LDAPConnectionOptions
    * {@code true} will be used.
    */
   private static final boolean DEFAULT_USE_LINGER =
-       getSystemProperty(PROPERTY_DEFAULT_USE_LINGER, true);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_LINGER, true);
 
 
 
@@ -514,7 +517,7 @@ public final class LDAPConnectionOptions
    * default linger timeout of 5 seconds will be used.
    */
   private static final int DEFAULT_LINGER_TIMEOUT_SECONDS =
-       getSystemProperty(PROPERTY_DEFAULT_LINGER_TIMEOUT_SECONDS, 5);
+       PropertyManager.getInt(PROPERTY_DEFAULT_LINGER_TIMEOUT_SECONDS, 5);
 
 
 
@@ -541,7 +544,7 @@ public final class LDAPConnectionOptions
    * default value of {@code true} will be used.
    */
   private static final boolean DEFAULT_USE_REUSE_ADDRESS =
-       getSystemProperty(PROPERTY_DEFAULT_USE_REUSE_ADDRESS, true);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_REUSE_ADDRESS, true);
 
 
 
@@ -569,7 +572,7 @@ public final class LDAPConnectionOptions
    * default value of {@code false} will be used.
    */
   private static final boolean DEFAULT_USE_SYNCHRONOUS_MODE =
-       getSystemProperty(PROPERTY_DEFAULT_USE_SYNCHRONOUS_MODE, false);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_SYNCHRONOUS_MODE, false);
 
 
 
@@ -596,7 +599,7 @@ public final class LDAPConnectionOptions
    * default value of {@code true} will be used.
    */
   private static final boolean DEFAULT_USE_TCP_NODELAY =
-       getSystemProperty(PROPERTY_DEFAULT_USE_TCP_NODELAY, true);
+       PropertyManager.getBoolean(PROPERTY_DEFAULT_USE_TCP_NODELAY, true);
 
 
 
@@ -623,7 +626,7 @@ public final class LDAPConnectionOptions
    * default of 10,000 milliseconds (10 seconds) will be used.
    */
   private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS =
-       getSystemProperty(PROPERTY_DEFAULT_CONNECT_TIMEOUT_MILLIS, 10_000);
+       PropertyManager.getInt(PROPERTY_DEFAULT_CONNECT_TIMEOUT_MILLIS, 10_000);
 
 
 
@@ -651,7 +654,8 @@ public final class LDAPConnectionOptions
    * be used.
    */
   private static final int DEFAULT_MAX_MESSAGE_SIZE_BYTES =
-       getSystemProperty(PROPERTY_DEFAULT_MAX_MESSAGE_SIZE_BYTES, 20_971_520);
+       PropertyManager.getInt(PROPERTY_DEFAULT_MAX_MESSAGE_SIZE_BYTES,
+            20_971_520);
 
 
 
@@ -679,7 +683,7 @@ public final class LDAPConnectionOptions
    * receive buffer size should be used.
    */
   private static final int DEFAULT_RECEIVE_BUFFER_SIZE_BYTES =
-       getSystemProperty(PROPERTY_DEFAULT_RECEIVE_BUFFER_SIZE_BYTES, 0);
+       PropertyManager.getInt(PROPERTY_DEFAULT_RECEIVE_BUFFER_SIZE_BYTES, 0);
 
 
 
@@ -706,7 +710,7 @@ public final class LDAPConnectionOptions
    * buffer size should be used.
    */
   private static final int DEFAULT_SEND_BUFFER_SIZE_BYTES =
-       getSystemProperty(PROPERTY_DEFAULT_SEND_BUFFER_SIZE_BYTES, 0);
+       PropertyManager.getInt(PROPERTY_DEFAULT_SEND_BUFFER_SIZE_BYTES, 0);
 
 
 
@@ -960,7 +964,7 @@ public final class LDAPConnectionOptions
     final HashMap<String,Long> timeoutsByExtOpType =
          new HashMap<>(StaticUtils.computeMapCapacity(10));
 
-    final String allOpsPropertyValue = StaticUtils.getSystemProperty(
+    final String allOpsPropertyValue = PropertyManager.get(
          PROPERTY_DEFAULT_RESPONSE_TIMEOUT_MILLIS);
     if (allOpsPropertyValue != null)
     {
@@ -1007,26 +1011,26 @@ public final class LDAPConnectionOptions
       timeoutsByOpType.put(OperationType.UNBIND, 10_000L);
 
       timeoutsByOpType.put(OperationType.ADD,
-           getSystemProperty(PROPERTY_DEFAULT_ADD_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_ADD_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.BIND,
-           getSystemProperty(PROPERTY_DEFAULT_BIND_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_BIND_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.COMPARE,
-           getSystemProperty(PROPERTY_DEFAULT_COMPARE_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_COMPARE_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.DELETE,
-           getSystemProperty(PROPERTY_DEFAULT_DELETE_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_DELETE_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.MODIFY,
-           getSystemProperty(PROPERTY_DEFAULT_MODIFY_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_MODIFY_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.MODIFY_DN,
-           getSystemProperty(PROPERTY_DEFAULT_MODIFY_DN_RESPONSE_TIMEOUT_MILLIS,
-                30_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_MODIFY_DN_RESPONSE_TIMEOUT_MILLIS, 30_000L));
       timeoutsByOpType.put(OperationType.SEARCH,
-           getSystemProperty(PROPERTY_DEFAULT_SEARCH_RESPONSE_TIMEOUT_MILLIS,
-                300_000L));
+           PropertyManager.getLong(
+                PROPERTY_DEFAULT_SEARCH_RESPONSE_TIMEOUT_MILLIS, 300_000L));
 
       final String extendedOperationTypePrefix =
            PROPERTY_DEFAULT_EXTENDED_RESPONSE_TIMEOUT_MILLIS + '.';
@@ -1035,7 +1039,7 @@ public final class LDAPConnectionOptions
       {
         if (propertyName.startsWith(extendedOperationTypePrefix))
         {
-          final Long value = getSystemProperty(propertyName, null);
+          final Long value = PropertyManager.getLong(propertyName, null);
           if (value != null)
           {
             final String oid = propertyName.substring(
@@ -1048,7 +1052,7 @@ public final class LDAPConnectionOptions
 
       // Get the default response timeout for different types of extended
       // operations.
-      final Long extendedOpTimeout = getSystemProperty(
+      final Long extendedOpTimeout = PropertyManager.getLong(
            PROPERTY_DEFAULT_EXTENDED_RESPONSE_TIMEOUT_MILLIS, null);
       if (extendedOpTimeout == null)
       {
@@ -1166,8 +1170,8 @@ public final class LDAPConnectionOptions
    * client connections.
    */
   private static final boolean DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE =
-       getSystemProperty(PROPERTY_DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE,
-            true);
+       PropertyManager.getBoolean(
+            PROPERTY_DEFAULT_ALLOW_CONCURRENT_SOCKET_FACTORY_USE, true);
 
 
 
@@ -1197,7 +1201,8 @@ public final class LDAPConnectionOptions
    * performing extra validation for {@code SSLSocket} instances.
    */
   @NotNull private static final SSLSocketVerifier DEFAULT_SSL_SOCKET_VERIFIER =
-       getSystemProperty(PROPERTY_DEFAULT_VERIFY_CERTIFICATE_HOSTNAMES, false)
+       PropertyManager.getBoolean(
+            PROPERTY_DEFAULT_VERIFY_CERTIFICATE_HOSTNAMES, false)
             ? new HostNameSSLSocketVerifier(true)
             : TrustAllSSLSocketVerifier.getInstance();
 
@@ -2525,197 +2530,6 @@ public final class LDAPConnectionOptions
     else
     {
       this.sslSocketVerifier = sslSocketVerifier;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the value of the specified system property as a boolean.
-   *
-   * @param  propertyName  The name of the system property whose value should be
-   *                       retrieved.
-   * @param  defaultValue  The default value that will be returned if the system
-   *                       property is not defined or if its value cannot be
-   *                       parsed as a boolean.
-   *
-   * @return  The value of the specified system property as an boolean, or the
-   *          default value if the system property is not set with a valid
-   *          value.
-   */
-  static boolean getSystemProperty(@NotNull final String propertyName,
-                                   final boolean defaultValue)
-  {
-    final String propertyValue = StaticUtils.getSystemProperty(propertyName);
-    if (propertyValue == null)
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.FINE, DebugType.OTHER,
-             "Using the default value of " + defaultValue + " for system " +
-                  "property '" + propertyName + "' that is not set.");
-      }
-
-      return defaultValue;
-    }
-
-    if (propertyValue.equalsIgnoreCase("true"))
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.INFO, DebugType.OTHER,
-             "Using value '" + propertyValue + "' set for system property '" +
-                  propertyName + "'.");
-      }
-
-      return true;
-    }
-    else if (propertyValue.equalsIgnoreCase("false"))
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.INFO, DebugType.OTHER,
-             "Using value '" + propertyValue + "' set for system property '" +
-                  propertyName + "'.");
-      }
-
-      return false;
-    }
-    else
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.WARNING, DebugType.OTHER,
-             "Invalid value '" + propertyValue + "' set for system property '" +
-                  propertyName + "'.  The value was expected to be either " +
-                  "'true' or 'false'.  The default value of " + defaultValue +
-                  " will be used instead of the configured value.");
-      }
-
-      return defaultValue;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the value of the specified system property as an integer.
-   *
-   * @param  propertyName  The name of the system property whose value should be
-   *                       retrieved.
-   * @param  defaultValue  The default value that will be returned if the system
-   *                       property is not defined or if its value cannot be
-   *                       parsed as an integer.
-   *
-   * @return  The value of the specified system property as an integer, or the
-   *          default value if the system property is not set with a valid
-   *          value.
-   */
-  static int getSystemProperty(@NotNull final String propertyName,
-                               final int defaultValue)
-  {
-    final String propertyValueString =
-         StaticUtils.getSystemProperty(propertyName);
-    if (propertyValueString == null)
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.FINE, DebugType.OTHER,
-             "Using the default value of " + defaultValue + " for system " +
-                  "property '" + propertyName + "' that is not set.");
-      }
-
-      return defaultValue;
-    }
-
-    try
-    {
-      final int propertyValueInt = Integer.parseInt(propertyValueString);
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.INFO, DebugType.OTHER,
-             "Using value " + propertyValueInt + " set for system property '" +
-                  propertyName + "'.");
-      }
-
-      return propertyValueInt;
-    }
-    catch (final Exception e)
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debugException(e);
-        Debug.debug(Level.WARNING, DebugType.OTHER,
-             "Invalid value '" + propertyValueString + "' set for system " +
-                  "property '" + propertyName + "'.  The value was expected " +
-                  "to be an integer.  The default value of " + defaultValue +
-                  "will be used instead of the configured value.",
-             e);
-      }
-
-      return defaultValue;
-    }
-  }
-
-
-
-  /**
-   * Retrieves the value of the specified system property as a long.
-   *
-   * @param  propertyName  The name of the system property whose value should be
-   *                       retrieved.
-   * @param  defaultValue  The default value that will be returned if the system
-   *                       property is not defined or if its value cannot be
-   *                       parsed as a long.
-   *
-   * @return  The value of the specified system property as a long, or the
-   *          default value if the system property is not set with a valid
-   *          value.
-   */
-  @Nullable()
-  static Long getSystemProperty(@NotNull final String propertyName,
-                                @Nullable final Long defaultValue)
-  {
-    final String propertyValueString =
-         StaticUtils.getSystemProperty(propertyName);
-    if (propertyValueString == null)
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.FINE, DebugType.OTHER,
-             "Using the default value of " + defaultValue + " for system " +
-                  "property '" + propertyName + "' that is not set.");
-      }
-
-      return defaultValue;
-    }
-
-    try
-    {
-      final long propertyValueLong = Long.parseLong(propertyValueString);
-      if (Debug.debugEnabled())
-      {
-        Debug.debug(Level.INFO, DebugType.OTHER,
-             "Using value " + propertyValueLong + " set for system property '" +
-                  propertyName + "'.");
-      }
-
-      return propertyValueLong;
-    }
-    catch (final Exception e)
-    {
-      if (Debug.debugEnabled())
-      {
-        Debug.debugException(e);
-        Debug.debug(Level.WARNING, DebugType.OTHER,
-             "Invalid value '" + propertyValueString + "' set for system " +
-                  "property '" + propertyName + "'.  The value was expected " +
-                  "to be a long.  The default value of " + defaultValue +
-                  "will be used instead of the configured value.",
-             e);
-      }
-
-      return defaultValue;
     }
   }
 

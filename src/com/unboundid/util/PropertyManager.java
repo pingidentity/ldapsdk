@@ -40,6 +40,7 @@ package com.unboundid.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -564,6 +565,38 @@ public final class PropertyManager
     }
 
     return Collections.unmodifiableList(items);
+  }
+
+
+
+  /**
+   * Retrieves a {@code Properties} object with values for any of the specified
+   * properties that are currently set.
+   *
+   * @param  propertyNames  The name of the properties whose values should be
+   *                        retrieved.  It must not be {@code null}, but may be
+   *                        empty.
+   *
+   * @return  A {@code Properties} object with any of the specified properties
+   *          that are set as either JVM system properties or environment
+   *          variables.  It may be empty if none of the specified properties
+   *          have been set.
+   */
+  @NotNull()
+  public static Properties getProperties(@NotNull final String... propertyNames)
+  {
+    final Properties properties = new Properties();
+
+    for (final String propertyName : propertyNames)
+    {
+      final String propertyValue = get(propertyName);
+      if (propertyValue != null)
+      {
+        properties.setProperty(propertyName, propertyValue);
+      }
+    }
+
+    return properties;
   }
 
 

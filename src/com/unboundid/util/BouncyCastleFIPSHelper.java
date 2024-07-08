@@ -258,13 +258,10 @@ public final class BouncyCastleFIPSHelper
   {
     LOGGER.setUseParentHandlers(false);
 
-    final String enabledPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ENABLE_LOGGING);
-    if ("true".equalsIgnoreCase(enabledPropertyValue))
+    if (PropertyManager.getBoolean(PROPERTY_ENABLE_LOGGING, false))
     {
       Level level = Level.INFO;
-      final String levelPropertyValue =
-           StaticUtils.getSystemProperty(PROPERTY_LOG_LEVEL);
+      final String levelPropertyValue = PropertyManager.get(PROPERTY_LOG_LEVEL);
       if (levelPropertyValue != null)
       {
         switch (StaticUtils.toUpperCase(levelPropertyValue))

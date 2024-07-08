@@ -251,12 +251,12 @@ public final class Debug
 
   static
   {
-    initialize(StaticUtils.getSystemProperties(PROPERTY_DEBUG_ENABLED,
+    initialize(PropertyManager.getProperties(PROPERTY_DEBUG_ENABLED,
          PROPERTY_DEBUG_LEVEL, PROPERTY_DEBUG_TYPE,
          PROPERTY_INCLUDE_STACK_TRACE));
 
     final String logFilePropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_DEBUG_FILE);
+         PropertyManager.get(PROPERTY_DEBUG_FILE);
     if (logFilePropertyValue != null)
     {
       try

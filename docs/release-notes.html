@@ -16,7 +16,10 @@ ${TARGET="offline"}                <br>
                 <li>
                   Added a new PropertyManager class that can be used to retrieve the values of
                   system properties or environment variables, optionally parsing the values as
-                  Booleans, numbers, or comma-delimited lists.
+                  Booleans, numbers, or comma-delimited lists.  Most uses of system properties
+                  within the LDAP SDK have been updated to use the PropertyManager, so those
+                  properties can now be set as environment variables as an alternative to Java
+                  system properties.
                   <br><br>
                 </li>
               </ul>

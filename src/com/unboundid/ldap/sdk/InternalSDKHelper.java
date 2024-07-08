@@ -60,6 +60,7 @@ import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.PasswordFileReader;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -612,7 +613,7 @@ public final class InternalSDKHelper
   @Nullable()
   public static File getPingIdentityServerRoot()
   {
-    final String propertyValue = StaticUtils.getSystemProperty(
+    final String propertyValue = PropertyManager.get(
          "com.unboundid.directory.server.ServerRoot");
     if (propertyValue != null)
     {

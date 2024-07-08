@@ -67,6 +67,7 @@ import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalSecureRandom;
 import com.unboundid.util.ThreadSafety;
@@ -1611,7 +1612,7 @@ public final class SSLUtil
 
     // Determine the set of TLS protocols that should be enabled.
     final String enabledProtocolsPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_PROTOCOLS);
+         PropertyManager.get(PROPERTY_ENABLED_SSL_PROTOCOLS);
     final Set<String> enabledProtocols = new LinkedHashSet<>();
     if (enabledProtocolsPropertyValue != null)
     {
@@ -1656,7 +1657,7 @@ public final class SSLUtil
     // Determine the default TLS protocol.
     final String defaultProtocol;
     final String defaultProtocolPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_SSL_PROTOCOL);
+         PropertyManager.get(PROPERTY_DEFAULT_SSL_PROTOCOL);
     if (defaultProtocolPropertyValue != null)
     {
       defaultProtocol = defaultProtocolPropertyValue;
@@ -1672,7 +1673,7 @@ public final class SSLUtil
     // Determine the set of TLS cipher suites to enable by default.
     TLSCipherSuiteSelector.recompute();
     final String enabledSuitesPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ENABLED_SSL_CIPHER_SUITES);
+         PropertyManager.get(PROPERTY_ENABLED_SSL_CIPHER_SUITES);
     final LinkedHashSet<String> enabledCipherSuites = new LinkedHashSet<>();
     if ((enabledSuitesPropertyValue != null) &&
          (! enabledSuitesPropertyValue.isEmpty()))

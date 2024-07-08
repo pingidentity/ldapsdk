@@ -68,6 +68,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -223,33 +224,14 @@ public final class TLSCipherSuiteSelector
 
   static
   {
-    final boolean allowRSA;
-    final String allowRSAPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ALLOW_RSA_KEY_EXCHANGE);
-    if (allowRSAPropertyValue != null)
-    {
-      allowRSA = allowRSAPropertyValue.equalsIgnoreCase("true");
-    }
-    else
-    {
-      allowRSA = false;
-    }
-
-    final boolean allowSHA1;
-    final String allowSHA1PropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ALLOW_SHA_1);
-    if (allowSHA1PropertyValue != null)
-    {
-      allowSHA1 = allowSHA1PropertyValue.equalsIgnoreCase("true");
-    }
-    else
-    {
-      allowSHA1 = false;
-    }
+    final boolean allowRSA =
+         PropertyManager.getBoolean(PROPERTY_ALLOW_RSA_KEY_EXCHANGE, false);
+    final boolean allowSHA1 =
+         PropertyManager.getBoolean(PROPERTY_ALLOW_SHA_1, false);
 
     final boolean allowSSLPrefix;
     final String allowSSLPrefixPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ALLOW_SSL_PREFIX);
+         PropertyManager.get(PROPERTY_ALLOW_SSL_PREFIX);
     if (allowSSLPrefixPropertyValue != null)
     {
       allowSSLPrefix = allowSSLPrefixPropertyValue.equalsIgnoreCase("true");

@@ -52,6 +52,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -417,21 +418,8 @@ public final class FewestConnectionsServerSet
    */
   private static long getDefaultBlacklistCheckIntervalMillis()
   {
-    final String propertyValue = StaticUtils.getSystemProperty(
-         PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS);
-    if (propertyValue != null)
-    {
-      try
-      {
-        return Long.parseLong(propertyValue);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
-    }
-
-    return 30_000L;
+    return PropertyManager.getLong(
+         PROPERTY_DEFAULT_BLACKLIST_CHECK_INTERVAL_MILLIS, 30_000L);
   }
 
 

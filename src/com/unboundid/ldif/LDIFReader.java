@@ -76,6 +76,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.LDAPSDKThreadFactory;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -240,23 +241,9 @@ public final class LDIFReader
    * which the line immediately after the DN starts with "control" will be
    * interpreted as a control specification.
    */
-  @NotNull private static final AtomicBoolean SUPPORT_CONTROLS;
-  static
-  {
-    final String propertyName =
-         LDIFReader.class.getName() + ".disableControlSupport";
-    final String disableControlSupportPropertyValue =
-         StaticUtils.getSystemProperty(propertyName);
-    if ((disableControlSupportPropertyValue != null) &&
-         (disableControlSupportPropertyValue.equalsIgnoreCase("true")))
-    {
-      SUPPORT_CONTROLS = new AtomicBoolean(false);
-    }
-    else
-    {
-      SUPPORT_CONTROLS = new AtomicBoolean(true);
-    }
-  }
+  @NotNull private static final AtomicBoolean SUPPORT_CONTROLS =
+       new AtomicBoolean(! PropertyManager.getBoolean(
+            LDIFReader.class.getName() + ".disableControlSupport", false));
 
 
 
@@ -266,29 +253,9 @@ public final class LDIFReader
    * unless overridden by the
    * {@code com.unboundid.ldif.LDIFReader.maxURLFileSizeBytes} system property.
    */
-  private static final long MAX_URL_FILE_SIZE;
-  static
-  {
-    // Use a default size of 10 megabytes, but allow it to be o
-    long maxURLFileSize = 10L * 1024L * 1024L;
-
-    final String propertyName =
-         LDIFReader.class.getName() + ".maxURLFileSizeBytes";
-    final String propertyValue = StaticUtils.getSystemProperty(propertyName);
-    if (propertyValue != null)
-    {
-      try
-      {
-        maxURLFileSize = Long.parseLong(propertyValue);
-      }
-      catch (final Exception e)
-      {
-        Debug.debugException(e);
-      }
-    }
-
-    MAX_URL_FILE_SIZE = maxURLFileSize;
-  }
+  private static final long MAX_URL_FILE_SIZE = PropertyManager.getLong(
+       LDIFReader.class.getName() + ".maxURLFileSizeBytes",
+       (10L * 1024L * 1024L));
 
 
 

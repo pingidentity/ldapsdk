@@ -61,6 +61,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadLocalRandom;
 import com.unboundid.util.ThreadSafety;
@@ -924,7 +925,7 @@ public final class RoundRobinDNSServerSet
   InetAddress[] getDefaultAddresses()
   {
     final String defaultAddrsStr =
-         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_ADDRESSES);
+         PropertyManager.get(PROPERTY_DEFAULT_ADDRESSES);
     if (defaultAddrsStr == null)
     {
       return null;

@@ -92,6 +92,7 @@ import com.unboundid.util.Nullable;
 import com.unboundid.util.OID;
 import com.unboundid.util.ObjectPair;
 import com.unboundid.util.PasswordReader;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -181,7 +182,7 @@ public final class ManageCertificates
   static
   {
     final String propertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_KEYSTORE_TYPE);
+         PropertyManager.get(PROPERTY_DEFAULT_KEYSTORE_TYPE);
     if (CryptoHelper.usingFIPSMode() ||
          ((propertyValue != null) && propertyValue.equalsIgnoreCase(
               BCFKS_KEYSTORE_TYPE)))

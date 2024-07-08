@@ -40,7 +40,6 @@ package com.unboundid.ldap.sdk;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.EnumSet;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.testng.annotations.Test;
@@ -72,8 +71,6 @@ import com.unboundid.ldap.sdk.unboundidds.extensions.
             StartAdministrativeSessionExtendedRequest;
 import com.unboundid.ldap.sdk.unboundidds.extensions.
             ValidateTOTPPasswordExtendedRequest;
-import com.unboundid.util.Debug;
-import com.unboundid.util.DebugType;
 import com.unboundid.util.LDAPSDKUsageException;
 import com.unboundid.util.SynchronizedSocketFactory;
 import com.unboundid.util.SynchronizedSSLSocketFactory;
@@ -1272,147 +1269,5 @@ public class LDAPConnectionOptionsTestCase
     assertTrue(opts.getNameResolver() instanceof DefaultNameResolver);
 
     assertNotNull(opts.toString());
-  }
-
-
-
-  /**
-   * Provides test coverage for the {@code getSystemProperty} methods.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testGetSystemProperty()
-         throws Exception
-  {
-    final boolean originalDebugEnabled = Debug.debugEnabled();
-    final EnumSet<DebugType> originalDebugTypes = Debug.getDebugTypes();
-    Debug.setEnabled(true, EnumSet.of(DebugType.LDAP));
-
-    try
-    {
-      System.setProperty("booleanPropertyName", "true");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
-           true);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
-                false),
-           true);
-
-      System.setProperty("booleanPropertyName", "false");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
-           false);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
-                false),
-           false);
-
-      System.setProperty("booleanPropertyName", "malformed");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
-           true);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
-                false),
-           false);
-
-      System.clearProperty("booleanPropertyName");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName", true),
-           true);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("booleanPropertyName",
-                false),
-           false);
-
-
-      System.setProperty("intPropertyName", "1234");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
-           1234);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
-           1234);
-
-      System.setProperty("intPropertyName", "-5678");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", -1234),
-           -5678);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", -5678),
-           -5678);
-
-      System.setProperty("intPropertyName", "malformed");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
-           1234);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
-           5678);
-
-      System.clearProperty("intPropertyName");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 1234),
-           1234);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("intPropertyName", 5678),
-           5678);
-
-
-      System.setProperty("longPropertyName", "1234");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                1234L).longValue(),
-           1234L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                5678L).longValue(),
-           1234L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                null).longValue(),
-           1234L);
-
-      System.setProperty("longPropertyName", "-5678");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                -1234L).longValue(),
-           -5678L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                -5678L).longValue(),
-           -5678L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                null).longValue(),
-           -5678L);
-
-      System.setProperty("longPropertyName", "malformed");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                1234L).longValue(),
-           1234L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName",
-                5678L).longValue(),
-           5678L);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
-           null);
-
-      System.clearProperty("longPropertyName");
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
-           null);
-      assertEquals(
-           LDAPConnectionOptions.getSystemProperty("longPropertyName", null),
-           null);
-    }
-    finally
-    {
-      Debug.setEnabled(originalDebugEnabled, originalDebugTypes);
-    }
   }
 }

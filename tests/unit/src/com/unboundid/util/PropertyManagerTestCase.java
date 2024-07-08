@@ -41,6 +41,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -893,5 +895,64 @@ public final class PropertyManagerTestCase
         Arrays.asList("foo", "", "bar")
       },
     };
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code getProperties} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testGetProperties()
+         throws Exception
+  {
+    final String[] nameArray = new String[10];
+    final Map<String,String> propertyMap = new TreeMap<>();
+    while (propertyMap.size() < 10)
+    {
+      final String propertyName = StaticUtils.randomAlphabeticString(20, true);
+      if (PropertyManager.get(propertyName) == null)
+      {
+        nameArray[propertyMap.size()] = propertyName;
+        propertyMap.put(propertyName,
+             StaticUtils.randomAlphabeticString(20, true));
+      }
+    }
+
+
+    assertNotNull(PropertyManager.getProperties(nameArray));
+    assertTrue(PropertyManager.getProperties(nameArray).isEmpty());
+
+
+    for (int i=0; i < 10; i++)
+    {
+      final String propertyName = nameArray[i];
+      assertNotNull(propertyName);
+
+      final String propertyValue = propertyMap.get(propertyName);
+      assertNotNull(propertyValue);
+
+      StaticUtils.setSystemProperty(propertyName, propertyValue);
+
+      final Properties properties = PropertyManager.getProperties(nameArray);
+      assertNotNull(properties);
+      assertEquals(properties.size(), (i + 1));
+
+      for (int j=0; j < 10; j++)
+      {
+        if (j <= i)
+        {
+          assertNotNull(properties.getProperty(nameArray[j]));
+          assertEquals(properties.getProperty(nameArray[j]),
+               propertyMap.get(nameArray[j]));
+        }
+        else
+        {
+          assertNull(properties.getProperty(nameArray[j]));
+        }
+      }
+    }
   }
 }

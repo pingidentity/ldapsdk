@@ -250,7 +250,7 @@ public final class CryptoHelper
          "com.ibm.security.sasl.IBMSASL"));
 
     final String preserveProviderPropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_ALLOWED_FIPS_MODE_PROVIDER);
+         PropertyManager.get(PROPERTY_ALLOWED_FIPS_MODE_PROVIDER);
     if (preserveProviderPropertyValue != null)
     {
       final StringTokenizer tokenizer = new StringTokenizer(
@@ -267,7 +267,7 @@ public final class CryptoHelper
 
 
     final String fipsModePropertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_FIPS_MODE);
+         PropertyManager.get(PROPERTY_FIPS_MODE);
     if (fipsModePropertyValue == null)
     {
       FIPS_MODE = new AtomicBoolean(false);
@@ -275,7 +275,7 @@ public final class CryptoHelper
     else if (fipsModePropertyValue.equalsIgnoreCase("true"))
     {
       final String fipsProviderPropertyValue =
-           StaticUtils.getSystemProperty(PROPERTY_FIPS_PROVIDER);
+           PropertyManager.get(PROPERTY_FIPS_PROVIDER);
       if ((fipsProviderPropertyValue != null) &&
            (! fipsProviderPropertyValue.equalsIgnoreCase(
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME)))
@@ -305,7 +305,7 @@ public final class CryptoHelper
         FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM.set(
              BouncyCastleFIPSHelper.DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM);
 
-        final String prunePropertyValue = StaticUtils.getSystemProperty(
+        final String prunePropertyValue = PropertyManager.get(
              PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS);
         if (prunePropertyValue != null)
         {
@@ -407,7 +407,7 @@ public final class CryptoHelper
   {
     final String defaultKeyStoreType;
     final String propertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_DEFAULT_KEY_STORE_TYPE);
+         PropertyManager.get(PROPERTY_DEFAULT_KEY_STORE_TYPE);
     if (propertyValue == null)
     {
       if (FIPS_MODE.get())

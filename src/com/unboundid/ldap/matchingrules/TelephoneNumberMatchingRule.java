@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -481,7 +482,7 @@ public final class TelephoneNumberMatchingRule
     // Determine the appropriate default validation policy.
     TelephoneNumberValidationPolicy validationPolicy = null;
     final String validationPropertyValue =
-         StaticUtils.getSystemProperty(DEFAULT_VALIDATION_POLICY_PROPERTY);
+         PropertyManager.get(DEFAULT_VALIDATION_POLICY_PROPERTY);
     if (validationPropertyValue != null)
     {
       final String normalizedPropertyValue =
@@ -507,7 +508,7 @@ public final class TelephoneNumberMatchingRule
     // Determine the appropriate default comparison policy.
     TelephoneNumberComparisonPolicy comparisonPolicy = null;
     final String comparisonPropertyValue =
-         StaticUtils.getSystemProperty(DEFAULT_COMPARISON_POLICY_PROPERTY);
+         PropertyManager.get(DEFAULT_COMPARISON_POLICY_PROPERTY);
     if (comparisonPropertyValue != null)
     {
       final String normalizedPropertyValue =

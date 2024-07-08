@@ -73,7 +73,7 @@ public final class FormattableColumn
   {
     char escapeCharacter = '"';
     final String propertyValue =
-         StaticUtils.getSystemProperty(CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY);
+         PropertyManager.get(CSV_QUOTE_ESCAPE_CHARACTER_PROPERTY);
     if ((propertyValue != null) && (propertyValue.length() == 1))
     {
       escapeCharacter = propertyValue.charAt(0);

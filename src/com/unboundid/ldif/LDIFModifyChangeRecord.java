@@ -55,6 +55,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -88,19 +89,8 @@ public final class LDIFModifyChangeRecord
    * Indicates whether to always include a trailing dash after the last change
    * in the LDIF representation.
    */
-  private static boolean alwaysIncludeTrailingDash = true;
-
-
-
-  static
-  {
-    final String propValue =
-         StaticUtils.getSystemProperty(PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH);
-    if ((propValue != null) && (propValue.equalsIgnoreCase("false")))
-    {
-      alwaysIncludeTrailingDash = false;
-    }
-  }
+  private static boolean alwaysIncludeTrailingDash = PropertyManager.getBoolean(
+       PROPERTY_ALWAYS_INCLUDE_TRAILING_DASH, true);
 
 
 

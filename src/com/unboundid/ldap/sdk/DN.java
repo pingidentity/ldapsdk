@@ -49,6 +49,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -164,7 +165,7 @@ public final class DN
   static
   {
     final String propertyValue =
-         StaticUtils.getSystemProperty(PROPERTY_DN_ESCAPING_STRATEGY);
+         PropertyManager.get(PROPERTY_DN_ESCAPING_STRATEGY);
     if (propertyValue != null)
     {
       switch (StaticUtils.toUpperCase(propertyValue))

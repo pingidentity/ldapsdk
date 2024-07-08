@@ -61,6 +61,7 @@ import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.ObjectPair;
+import com.unboundid.util.PropertyManager;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -105,19 +106,9 @@ public final class HostNameSSLSocketVerifier
    * subject DN when that certificate also contains a subject alternative name
    * extension.
    */
-  static final boolean DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT;
-  static
-  {
-    boolean checkCN = true;
-    final String propValue = StaticUtils.getSystemProperty(
-         PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT);
-    if ((propValue != null) && propValue.equalsIgnoreCase("false"))
-    {
-      checkCN = false;
-    }
-
-    DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT = checkCN;
-  }
+  static final boolean DEFAULT_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT =
+       PropertyManager.getBoolean(
+            PROPERTY_CHECK_CN_WHEN_SUBJECT_ALT_NAME_IS_PRESENT, true);
 
 
 
