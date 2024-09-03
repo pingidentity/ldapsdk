@@ -1,22 +1,22 @@
 
 
 RADSA                                                         J. Coretta
-Internet-Draft                                         February 29, 2024
+Internet-Draft                                           August 27, 2024
 Intended status: Experimental
 Obsoletes: X660LDAP
-Expires: August 27, 2024
+Expires: February 23, 2025
 
 
                    The OID Directory: The RA DSA
-                 draft-coretta-oiddir-radsa-00.txt
+                 draft-coretta-oiddir-radsa-01.txt
 
 Abstract
 
-   In service to the "OID Directory" ID series, this ID covers design
+   In service to the "OID Directory" I-D series, this I-D covers design
    considerations and basic requirements for the server component of
    the OID Directory Registration Authority client/server model.
 
-   See the RADIR ID for a complete draft series manifest.
+   See the RADIR I-D for a complete draft series manifest.
 
 Status of This Memo
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 27, 2024.
+   This Internet-Draft will expire on February 23, 2025.
 
 Copyright Notice
 
@@ -55,9 +55,9 @@ Copyright Notice
 
 
 
-Coretta                Expires August 27, 2024                  [Page 1]
+Coretta               Expires February 23, 2025                 [Page 1]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
 Table of Contents
@@ -95,7 +95,7 @@ Table of Contents
 1.  Introduction
 
    The X.500 Directory System Agent represents the provider of directory
-   services to be leveraged by clients.  Within the context of this ID
+   services to be leveraged by clients.  Within the context of this I-D
    series, it houses an information base and potentially extends certain
    features meant to facilitate effective management of and/or access to
    OID registration and registrant content.
@@ -110,43 +110,42 @@ Table of Contents
 
 1.2.  Acronyms Used
 
-   See Section 1.3 of the RADIR ID for all acronym references.
+   See Section 1.3 of the RADIR I-D for all acronym references.
 
 
-Coretta                Expires August 27, 2024                  [Page 2]
+Coretta               Expires February 23, 2025                 [Page 2]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
 1.2.1.  Definitions
 
-   The composite acronym "RA DSA" is hereby introduced within this ID.
+   The composite acronym "RA DSA" is hereby introduced within this I-D.
    The acronym abbreviates the aforementioned 'Registration Authority
    Directory System Agent' term, which describes the 'server' component
-   implied within the client/server model construct relevant to this ID
+   implied within the client/server model construct relevant to this I-D
    series.
 
-   The composite acronym "RA DIT" used throughout this ID is defined in
-   Section 1.2.1 of the RADIT ID.
+   The composite acronym "RA DIT" used throughout this I-D is defined in
+   Section 1.2.1 of the RADIT I-D.
 
-   The composite acronym "RA DUA" used throughout this ID is defined in
-   Section 1.2.1 of the RADUA ID.
+   The composite acronym "RA DUA" used throughout this I-D is defined in
+   Section 1.2.1 of the RADUA I-D.
 
 1.3.  Intended Audience
 
-   This ID is intended for X.500/LDAP architects and administrative
+   This I-D is intended for X.500/LDAP architects and administrative
    personnel tasked with designing, supporting and/or maintaining any
-   number of RA DSAs within the terms of this ID series.
+   number of RA DSAs within the terms of this I-D series.
 
    General familiarity with the broad X.500/LDAP specification, as well
-   as with the RASCHEMA, RADUA and RADIT IDs is STRONGLY
-   RECOMMENDED.
+   as with the RASCHEMA, RADUA and RADIT I-Ds is STRONGLY RECOMMENDED.
 
 2.  The RA DSA
 
    The RA DSA is a traditional X.500/LDAP server -- fully compliant with
    the core standards defined throughout ITU-T Rec. [X.500], [RFC4510],
-   et al., that has been OPTIMIZED for use within the terms of this ID
+   et al, that has been OPTIMIZED for use within the terms of this I-D
    series.
 
 2.1.  Defined Parameters
@@ -157,35 +156,36 @@ Coretta                Expires August 27, 2024                  [Page 2]
 
    Native services and protocols managed in parallel by the RA DSA --
    such as DOP or DSP -- have no specific function within the terms of
-   this ID series and thus are unimportant.  Replication services such
+   this I-D series and thus are unimportant.  Replication services such
    as DISP, however, may be indicated in certain scenarios to enhance
    the performance and reliability of an implementation; a concept that
-   is largely out of scope for this ID series.
+   is largely out of scope for this I-D series.
 
    No particular software license applied to the RA DSA is assumed.
 
-   Within the operational terms of this ID series, the RA DSA MUST fully
+   In the operational terms of this I-D series, the RA DSA MUST fully
    support the Search and Read operations -- as executed by any RA DUAs
    interacting with the service -- for the purpose of entry retrieval as
-   it pertains to registration and registrant contexts.
+   it pertains to registration and registrant contexts.  This is a hard
+   requirement.
 
 
 
-Coretta                Expires August 27, 2024                  [Page 3]
+Coretta               Expires February 23, 2025                 [Page 3]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
    The RA DSA may or may not allow write-based operations -- such as Add
    or Modify -- to be executed by client entities.  This may be due to
    the access control model employed by the RA DSA, shadowing contexts
-   or some other condition in effect.
+   or some other condition in effect that would preclude writes.
 
 2.2.  Core Capabilities
 
    The core capabilities defined in this section represent features that
    are assumed to be common to virtually any practical implementation of
-   the RA DSA component.  These are REQUIRED in virtually all cases.
+   the RA DSA component.  These are REQUIRED in all cases.
 
 2.2.1.  Schema Availability
 
@@ -193,45 +193,45 @@ Coretta                Expires August 27, 2024                  [Page 3]
    appropriate directory schema definitions.  The RA DSA MUST allow for
    the inclusion of such definitions.
 
-   Section 2 of the RASCHEMA ID defines many suitable attribute type,
+   Section 2 of the RASCHEMA I-D defines many suitable attribute type,
    object class and name form definitions for use in creating a viable
    RA DIT to be served by way of the RA DSA.  Examples involving use of
-   these definitions can be found throughout the RADIT ID as well
-   as this document.
+   these definitions can be found throughout the RADIT I-D as well as
+   this document.
 
    The RA DSA MUST have up-to-date knowledge of all attribute types and
-   object classes defined in Sections 2.3 and 2.5 of the RASCHEMA ID
-   respectively.  This is an absolute requirement.  The RA DSA MUST also
+   object classes defined in Sections 2.3 and 2.5 of the RASCHEMA I-D
+   respectively.  This is a critical requirement.  The RA DSA MUST also
    be prepared to support sub typed attribute types.  See the beginning
-   of Section 2.3 of the RASCHEMA ID for dependency details.
+   of Section 2.3 of the RASCHEMA I-D for dependency details.
 
    Sections 4.1.1 and 4.1.2 of [RFC4512] and clauses 13.3.3 and 13.4.8
    of ITU-T Rec. [X.501] define the object class and attribute type
    definition syntaxes respectively.
 
    The inclusion of name form definitions defined in Section 2.7 of the
-   RASCHEMA ID is RECOMMENDED ONLY if support for DIT structure rules
+   RASCHEMA I-D is ONLY RECOMMENDED if support for DIT structure rules
    is positive within the directory architecture.  These name forms are
    designed to enforce the certain recommended DN syntax schemes based
    on the intended directory structure, however they serve no purpose if
-   they are not referenced by any DIT structure rules.
+   they are not referenced by any active DIT structure rules.
 
-   This ID series does not officially define any DIT structure rules,
+   This I-D series does not officially define any DIT structure rules,
    leaving that task to RA DSA administrative personnel because of the
    significant variations in their creation that are likely to manifest
-   among various implementations of this ID.
+   among the various implementations of this I-D.
 
-   Section 4.1.7 of [RFC4512] and clause 13.7 of ITU-T Rec. [X.501] 
+   Section 4.1.7 of [RFC4512] and clause 13.7 of ITU-T Rec. [X.501]
    cover the DIT structure rule and name form definitions.
 
-   No DIT content rule definitions are defined within this ID series for
+   No DIT content rule definitions are defined in this I-D series for
    the same reasons stated regarding DIT structure rules.  These types
    of definitions are better suited for tailored design rather than mass
    adoption.
 
-Coretta                Expires August 27, 2024                  [Page 4]
+Coretta               Expires February 23, 2025                 [Page 4]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
    DIT content rules are covered in Section 4.1.6 of [RFC4512] as well
@@ -244,16 +244,16 @@ Coretta                Expires August 27, 2024                  [Page 4]
    other DSAs.
 
    Facilitation may involve local storage of content, or distributed
-   sourcing from external sources into a backend, or storage area.
+   sourcing from external sources into a backend or storage area.
 
-   This ID makes no recommendations that specifically influence the
+   This I-D makes no recommendations that specifically influence the
    design or operation of any content source facility.  These concepts,
    and the available options, may differ greatly among the various
    X.500/LDAP DSA products available today.
 
 2.2.3.  Access Medium
 
-   Although no specific medium or protocol is implied, this ID assumes
+   Although no specific medium or protocol is implied, this I-D assumes
    that any implemented RA DSA service is accessible and fosters some
    manner of interaction with relevant individuals, entities or local
    services.
@@ -267,11 +267,11 @@ Coretta                Expires August 27, 2024                  [Page 4]
 
    This section identifies operations common between DAP and LDAP, and
    establishes generalized terms for the purpose of brevity throughout
-   this ID.  As these operations apply to both RA DUAs and RA DSAs, they
-   are cited through Sections 1.7 and 1.8 of the RADIR ID.
+   this I-D.  As these operations apply to both RA DUAs and RA DSAs,
+   they are cited through Sections 1.7 and 1.8 of the RADIR I-D.
 
    Note that operations not explicitly used for any procedure defined
-   in this ID series -- such as the Bind Operation -- are not covered.
+   in this I-D series -- such as the Bind Operation -- are not covered.
 
    The DAP Search, DAP List and LDAP Search operations are the most
    critical of those required by the RA DUA construct, and is necessary
@@ -283,18 +283,18 @@ Coretta                Expires August 27, 2024                  [Page 4]
    creating new registration and registrant entries within the RA DIT.
 
    The DAP Modify DN or LDAP Modify DN operations are only used within
-   the terms of this ID series for the purpose of relocating submitted
+   the terms of this I-D series for the purpose of relocating submitted
    registration or registrant entries previously located in a request
    staging area following an approval process.
 
-Coretta                Expires August 27, 2024                  [Page 5]
+Coretta               Expires February 23, 2025                 [Page 5]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
    The DAP Modify Entry or LDAP Modify operations are used for the
    routine modification of authority-related contact information and
-   occasionally registrations. 
+   occasionally registrations.
 
    The DAP Remove Entry or LDAP Delete operations are used for the
    occasional removal of registrant information, and in considerably
@@ -302,7 +302,7 @@ Coretta                Expires August 27, 2024                  [Page 5]
 
 2.3.  Optimizations
 
-   Throughout this ID series, certain specialized capabilities are cited
+   Throughout the I-D series, certain specialized capabilities are cited
    in reference to a particular condition or task within the RA DIT and
    the RA DUA.  The following subsections briefly describe features that
    may be facilitated by way of the RA DSA, and how they fit into the
@@ -313,22 +313,24 @@ Coretta                Expires August 27, 2024                  [Page 5]
    DSA(s) in question.
 
    Directory architects may use these subsections when considering a
-   potential X.500/LDAP directory product for use related to this ID
+   potential X.500/LDAP directory product for use related to this I-D
    series, given specific requirements.
 
 2.3.1.  Collective Attributes
 
    Attribute types can be applied for an entire subtree context by way
-   of collective attributes, defined within [RFC3671], [RFC3672] and
+   of collective attributes, described within [RFC3671], [RFC3672] and
    ITU-T Rec. [X.501].
 
-   In particularly large and mission-critical implementations of this ID
-   series, this may be a CRITICAL feature.
+   In particularly large and mission-critical implementations of this
+   I-D series, this may be a CRITICAL feature.  This may also benefit
+   large implementations which are maintained by engineers subject to
+   significant time constraints.
 
-   The RASCHEMA ID defines several collective types for use within the
-   terms of this ID series.  The RADIT ID provides examples regarding
+   The RASCHEMA I-D defines several collective types for use within the
+   terms of this I-D series.  The RADIT I-D provides examples regarding
    use of the 'subtreeSpecification' type to that end.
- 
+
 2.3.2.  Attribute Value Uniqueness
 
    Depending on the indicated attribute type(s) and relative context, it
@@ -338,39 +340,37 @@ Coretta                Expires August 27, 2024                  [Page 5]
    within the relevant portions of the directory.
 
    If it is not possible to ensure uniqueness among specified values
-   as recommended by some reasonable means, this ID series may not be   
+   as recommended by some reasonable means, this I-D series may not be
    practical for adoption in certain mission-critical scenarios.
 
 
 
+Coretta               Expires February 23, 2025                 [Page 6]
 
-
-Coretta                Expires August 27, 2024                  [Page 6]
-
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
 2.3.3.  Attribute Value Constraints
 
-   The syntactical constraints afforded by the OID Directory schema, as 
-   defined in Section 2 of the RASCHEMA ID, do not thoroughly conform
+   The syntactical constraints afforded by the OID Directory schema, as
+   defined in Section 2 of the RASCHEMA I-D, do not thoroughly conform
    to the constraints defined by the underlying standards -- for example
-   ITU-T Recommendations [X.660] and [X.680] -- upon which this ID
+   ITU-T Recommendations [X.660] and [X.680] -- upon which this I-D
    series is conceptually based.  This concern is mentioned in Section
-   2.1 of the RASCHEMA ID.
+   2.1 of the RASCHEMA I-D.
 
-   Section 2.3 of the RASCHEMA ID references or defines appropriate
+   Section 2.3 of the RASCHEMA I-D references, or devises, appropriate
    ABNF productions for every attribute type defined.  This is done to
-   aid adopters in constraining values to conform with originating
+   aid adopters in constraining values for conformance with originating
    standards, as opposed to reliance upon attribute syntax alone.
 
-   If it is not possible to constrain values using the ABNF productions 
-   as recommended by some reasonable means, this ID series may not be   
+   If it is not possible to constrain values using the ABNF productions
+   as recommended, by some reasonable means, this I-D series may not be
    practical for adoption in certain mission-critical scenarios.
 
 2.3.4.  Proxy Authorization
 
-   In certain implementations of this ID series, it may be advantageous
+   In certain implementations of this I-D series, it may be advantageous
    for the RA DSA to support the Proxy Authorization Control [RFC4370]
    and the capability it extends.
 
@@ -383,7 +383,7 @@ Coretta                Expires August 27, 2024                  [Page 6]
 
 2.3.5.  Distribution
 
-   Though not specifically recommended through this ID series, the RA
+   Though not specifically recommended through this I-D series, the RA
    DIT may represent only a single component of a larger information
    base.  This may be especially common in the case of official public
    facing RAs, where the information base as a whole is fractured in the
@@ -394,8 +394,8 @@ Coretta                Expires August 27, 2024                  [Page 6]
    replication.
 
    While no recommendations for or against any of these features can be
-   made, this ID series acknowledges the likelihood and importance of
-   such design strategies.  At no point in this ID series do any of the
+   made, this I-D series acknowledges the likelihood and importance of
+   such design strategies.  At no point in this I-D series do any of the
    concepts or procedures set forth conflict with, preclude or require
    any of these capabilities.
 
@@ -403,9 +403,9 @@ Coretta                Expires August 27, 2024                  [Page 6]
    ITU-T Rec. [X.518].  Directory replication is discussed throughout
    ITU-T Rec. [X.525].
 
-Coretta                Expires August 27, 2024                  [Page 7]
+Coretta               Expires February 23, 2025                 [Page 7]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
 2.3.6.  Root DSE Extensibility
@@ -416,9 +416,9 @@ Coretta                Expires August 27, 2024                  [Page 7]
 
    This involves the addition of relevant attribute types extended by
    way of the 'rADUAConfig' AUXILIARY object class defined in Section
-   2.5 of the RASCHEMA ID.
+   2.5 of the RASCHEMA I-D.
 
-   RA DUAs that comply with Section 2.2.2 of the RADUA ID will attempt
+   RA DUAs that comply with Section 2.2.2 of the RADUA I-D will attempt
    retrieval of this additive content from the root DSE -- by way of the
    Read Operation -- and will adjust their behaviors accordingly.
 
@@ -429,7 +429,7 @@ Coretta                Expires August 27, 2024                  [Page 7]
    the root DSE and the distinct RA DUA configuration options available.
 
    These examples are expressed as LDIF.  Note that other attribute type
-   and object class instances unrelated to this ID series may be present
+   and object class instances unrelated to this I-D series may be found
    within the root DSE and may be disregarded.
 
 2.3.6.1.  Single RA DIT
@@ -454,16 +454,16 @@ Coretta                Expires August 27, 2024                  [Page 7]
       rADITProfile: o=example
 
    The following examples are the example root suffix entries referenced
-   by way of the 'rADITProfile' attribute type instances added to the 
+   by way of the 'rADITProfile' attribute type instances added to the
    root DSE.
 
    These example entries have been modified to include the 'rADUAConfig'
    AUXILIARY object class, which is expected and required by the RA DUA.
 
 
-Coretta                Expires August 27, 2024                  [Page 8]
+Coretta               Expires February 23, 2025                 [Page 8]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
       dn: dc=example,dc=com
@@ -477,19 +477,20 @@ Coretta                Expires August 27, 2024                  [Page 8]
       rARegistrationBase: ou=OIDs,o=example
 
    The 'domain' STRUCTURAL object class is defined in Section 3.4 of
-   [RFC4524].  The 'organization' STRUCTURAL object class is defined
-   in Section 3.8 of [RFC4519].
+   [RFC4524].  The 'organization' STRUCTURAL object class is defined in
+   Section 3.8 of [RFC4519].  These classes are used here merely for the
+   sake of example, and will vary among real-life DITs in the wild.
 
 2.3.7.  Content Replication
 
    Depending on the desired fault tolerance of an implementation, as
    well as the authoritative layout and placement of registration data,
    use of a directory replication system -- such as DISP or some other
-   proprietary solution of similar design -- may be indicated.
+   proprietary solution of a similar design -- may be indicated.
 
    This may be especially important in public-facing RA implementations
    in which various registration subtrees are sourced from appropriate
-   authorities and served as shadowed information.
+   authorities and served as shadowed contexts.
 
    DISP originates in ITU-T Rec. [X.525].
 
@@ -499,29 +500,28 @@ Coretta                Expires August 27, 2024                  [Page 8]
 
 4.  Security Considerations
 
-4.1.  Confidentiality                                                   
-                                                                        
-   Network security mechanisms -- such as TLS or IPSEC VPN -- may be    
+4.1.  Confidentiality
+
+   Network security mechanisms -- such as TLS or IPSEC VPN -- may be
    indicated when an RA DSA allows authenticated logins or disclosure
    of sensitive entries by authorized parties.  This is especially true
    for cases in which the RA DUA is not local to the RA DSA.
-                                                                        
-   This ID makes no recommendations regarding "Best Practices", strength
-   factors or key generation strategies, nor does any of subject matter 
-   set forth in this ID necessarily rely on any such concepts.
+
+   The I-D makes no recommendations regarding "Best Practices", strength
+   factors or key generation strategies, nor does any of subject matter
+   set forth in this I-D necessarily rely on any such concepts.
 
 4.2.  Network Exposure
 
    Historically, it is unusual for an X.500/LDAP service to be directly
    accessible over public networks in an overt or advertised fashion.
 
-   While there may be precedents for this sort of exposure, this ID has
+   While there may be precedents for this sort of exposure, this I-D has
    no official position regarding this strategy.
 
+Coretta               Expires February 23, 2025                 [Page 9]
 
-Coretta                Expires August 27, 2024                  [Page 9]
-
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
    Depending on the scope of implementation as well as the potential use
@@ -540,7 +540,7 @@ Coretta                Expires August 27, 2024                  [Page 9]
 
    The topic of access control mechanisms available through the various
    X.500/LDAP products available today is well outside of scope for this
-   ID series.  Generally, adoption of the models defined in clause 8 of
+   I-D series.  Generally, adoption of the models defined in clause 8 of
    ITU-T. Rec. [X.501], or some other mechanism, is indicated.
 
 5.  References
@@ -548,49 +548,49 @@ Coretta                Expires August 27, 2024                  [Page 9]
 5.1.  Normative References
 
    RADIR      Coretta, J., "The OID Directory: A Technical Roadmap",
-              draft-coretta-oiddir-roadmap, February 2024.
+              draft-coretta-oiddir-roadmap,   August 2024.
 
    RADIT      Coretta, J., "The OID Directory: The RA DIT",
-              draft-coretta-oiddir-radit, February 2024.
+              draft-coretta-oiddir-radit,   August 2024.
 
    RADUA      Coretta, J., "The OID Directory: The RA DUA",
-              draft-coretta-oiddir-radua, February 2024.
+              draft-coretta-oiddir-radua,   August 2024.
 
    RASCHEMA   Coretta, J., "The OID Directory: The RA Schema",
-              draft-coretta-oiddir-schema, February 2024.
+              draft-coretta-oiddir-schema,   August 2024.
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate       
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
-   [RFC3671]  Zeilenga, K., "Collective Attributes in the Lightweight   
-              Directory Access Protocol (LDAP)", RFC 3671, December     
+   [RFC3671]  Zeilenga, K., "Collective Attributes in the Lightweight
+              Directory Access Protocol (LDAP)", RFC 3671, December
               2003.
 
    [RFC3672]  Zeilenga, K., "Subentries in the Lightweight Directory
               Access Protocol (LDAP)", RFC 3672, December 2003.
 
    [RFC4511]  J. Sermersheim, Ed. "Lightweight Directory Access Protocol
-              (LDAP): The Protocol", RFC 4511, June 2006.               
+              (LDAP): The Protocol", RFC 4511, June 2006.
 
-   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol      
-              (LDAP): Directory Information Models", RFC 4512, June     
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
               2006.
 
 
-Coretta                Expires August 27, 2024                 [Page 10]
+Coretta               Expires February 23, 2025                [Page 10]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
    [RFC4519]  Sciberras, Ed., A., "Lightweight Directory Access Protocol
-              (LDAP): Schema for User Applications", RFC 4519, June     
+              (LDAP): Schema for User Applications", RFC 4519, June
               2006.
 
    [RFC4370]  Weltman, R., "Lightweight Directory Access Protocol
-              (LDAP): Proxy Authorization Control", RFC 4370, February  
-              2006. 
+              (LDAP): Proxy Authorization Control", RFC 4370, February
+              2006.
 
-   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC    
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", RFC 8174, May 2017.
 
    [X.501]    International Telecommunication Union - Telecommunication
@@ -611,39 +611,39 @@ Coretta                Expires August 27, 2024                 [Page 10]
 
 5.2.  Informative References
 
-   [RFC4510]  Zeilenga, K. "Lightweight Directory Access Protocol       
-              (LDAP): Technical Specification Road Map", RFC 4510, June 
+   [RFC4510]  Zeilenga, K. "Lightweight Directory Access Protocol
+              (LDAP): Technical Specification Road Map", RFC 4510, June
               2006.
 
-   [RFC4524]  Zeilenga, K., "Lightweight Directory Access Protocol      
+   [RFC4524]  Zeilenga, K., "Lightweight Directory Access Protocol
               (LDAP): COSINE LDAP/X.500 Schema", RFC 4524, June 2006.
 
    [X.500]    International Telecommunication Union - Telecommunication
               Standardization Sector, "The Directory: Overview of
               concepts, models and services", ITU-T X.500, October 2019.
 
-   [X.660]    International Telecommunication Union - Telecommunication 
-              Standardization Sector, "General procedures and top arcs  
+   [X.660]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "General procedures and top arcs
               of the international object identifier tree", ITU-T X.660,
-              July 2011.                                                
-                                                                        
-   [X.680]    International Telecommunication Union - Telecommunication 
-              Standardization Sector, "Abstract Syntax Notation One     
-              (ASN.1): Specification of basic notation", ITU-T X.680,   
+              July 2011.
+
+   [X.680]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "Abstract Syntax Notation One
+              (ASN.1): Specification of basic notation", ITU-T X.680,
               July 2002.
 
 
 
 
-Coretta                Expires August 27, 2024                 [Page 11]
+Coretta               Expires February 23, 2025                [Page 11]
 
-Internet-Draft      The OID Directory: RA Server           February 2024
+Internet-Draft      The OID Directory: RA Server             August 2024
 
 
-Author's Address                                                        
-                                                                        
-   Jesse Coretta                                                        
-   California, United States                                            
+Author's Address
+
+   Jesse Coretta
+   California, United States
 
    Email: jesse.coretta@icloud.com
 
@@ -694,4 +694,4 @@ Author's Address
 
 
 
-Coretta                Expires August 27, 2024                 [Page 12]
+Coretta                Expires February 23, 2025               [Page 12]
