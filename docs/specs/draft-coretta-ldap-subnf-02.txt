@@ -1,0 +1,349 @@
+
+
+SUBNF                                                         J. Coretta
+Internet-Draft                                        September 30, 2024
+Intended status: Informational
+Expires: March 29, 2025
+
+
+            The Lightweight Directory Access Protocol (LDAP)
+                          Subentry Name Form
+                    draft-coretta-ldap-subnf-02.txt
+
+Abstract
+
+   This informational Internet-Draft (I-D) clarifies certain aspects of
+   RFC3672, and provides commentary regarding the behavior of DIT
+   structure rules and name forms as they relate to, and interact with,
+   subentries present within various directory implementations.
+
+   This I-D also incorporates the 'subentryNameForm' derived from ITU-T
+   Rec. X.501.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on March 29, 2025.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+Coretta                 Expires March 29, 2025                  [Page 1]
+
+Internet-Draft        The LDAP Subentry Name Form         September 2024
+
+
+Table of Contents
+
+   1. Introduction ....................................................2
+      1.1. Conventions ................................................3
+      1.2. Acronyms Used ..............................................3
+      1.3. About Name Forms and DIT Structure Rules ...................3
+   2. 'subentryNameForm' ..............................................3
+   3. Compliance Considerations .......................................4
+   4. IANA Considerations .............................................5
+   5. Security Considerations .........................................5
+   6. References ......................................................5
+      6.1. Normative References .......................................5
+      6.2. Informational References ...................................6
+   7. Acknowledgements ................................................6
+   Author's Address ...................................................6
+
+1.  Introduction
+
+   Over the years, there have been instances where certain directory 
+   implementations mistakenly apply DIT structure rule governance to
+   [RFC3672] subentries beyond that which is permitted per ITU-T Rec. 
+   [X.501].
+
+   Clause 14.2 of ITU-T Rec. [X.501] states:
+
+      Although subentry and subentryNameForm are specified using the
+      notation of clause 13, subentries are not regulated by DIT
+      structure or DIT content rules.
+
+   Clause 14.2.2 of the same document states:
+
+      No other name form shall be used for subentries.
+
+   However, in implementations which do not recognize or incorporate
+   this standard name form, attempts to create or relocate subentries
+   can fail due to a naming violation (64) wrongly being perceived by
+   the governing structure rule.  This has resulted in individuals
+   making an assumption that manual creation of such subentry-focused
+   name forms is an expected and required procedure.
+
+   Under a strict interpretation of ITU-T Rec. [X.501], such behavior
+   is considered erroneous.  It should not be necessary for individuals
+   to create their own incarnation of the name form cited in Section 2,
+   nor is it appropriate to deviate from the established naming policy
+   for subentries.
+
+   Unfortunately, this issue has prevailed for such a protracted period
+   of time that it has gradually become a routine, but unsanctioned,
+   procedure for those implementations that do not honor this mandate.
+
+   This I-D seeks to mitigate this issue by formally describing the
+   ITU-T Rec. [X.501] 'subentryNameForm' definition, per clause 14.2.2.
+
+Coretta                 Expires March 29, 2025                  [Page 2]
+
+Internet-Draft        The LDAP Subentry Name Form         September 2024
+
+
+   Furthermore, this I-D reiterates that directory systems in which the
+   creation of properly named subentries, as described in Section 2, is
+   prevented by DIT structure rule governance is NOT TO BE REGARDED AS
+   FULLY COMPLIANT in the context of ITU-T Rec. [X.501] clauses 14.2 and
+   14.2.2.
+ 
+   Additionally, this I-D emphasizes that directory systems which allow
+   for the creation of subentry-focused name forms beyond that which is
+   described in Section 2 are also similarly NON-COMPLIANT.
+
+1.1.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
+   and "OPTIONAL" in this document are to be interpreted as described
+   in BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in
+   all capitals, as shown here.
+
+1.2.  Acronyms Used
+
+      ASN.1  Abstract Syntax Notation one
+      DIT    Directory Information Tree
+      LDAP   Lightweight Directory Access Protocol
+      RDN    Relative Distinguished Name
+
+1.3.  About Name Forms and DIT Structure Rules
+
+   Name form definition per clause 13.1.8 of [X.501]:
+
+      A name form specifies a permissible RDN for entries of a
+      particular structural object class.  A name form identifies a
+      named object class and one or more attribute types to be used
+      for naming (i.e., for the RDN).  Name forms are primitive pieces
+      of specification used in the definition of DIT structure rules.
+
+   DIT structure rule definition per clause 13.1.6 of [X.501]:
+
+      DIT structure rule: A rule governing the structure of the DIT by
+      specifying a permitted superior to subordinate entry relationship.
+      A structure rule relates a name form, and therefore a structural
+      object class, to superior structure rules. This permits entries
+      of the structural object class identified by the name form to
+      exist in the DIT as subordinates to entries governed by the
+      indicated superior structure rules.
+
+   See Section 4.1.7.1 of [RFC4512] for descriptions of DIT structure
+   rules.  See Section 4.1.7.2 of [RFC4512] for descriptions of name
+   forms.
+
+2.  'subentryNameForm'
+
+   The 'subentryNameForm' name form definition manifests as follows:
+
+Coretta                 Expires March 29, 2025                  [Page 3]
+
+Internet-Draft        The LDAP Subentry Name Form         September 2024
+
+
+      ( 2.5.15.16
+          NAME 'subentryNameForm'
+          DESC 'X.501, cl. 14.2.2: the Subentry name form'
+          OC subentry
+          MUST cn )
+
+   The name form bears the STRUCTURAL 'subentry' class reference as its
+   OC clause value, meaning that entries residing in the administrative
+   area of the relevant structure rule AND which bear the 'subentry'
+   STRUCTURAL class shall be subject to naming enforcement.
+
+   Furthermore, in observance of this name form, the 'cn' attribute type
+   defined within Section 2.3 of [RFC4519] that is REQUIRED under all
+   circumstances by the 'subentry' class is also REQUIRED for use as the
+   principal RDN type.  No other RDN attribute type will suffice.
+
+   For implementation reference, the ITU-T Rec. [X.501] ASN.1 equivalent
+   to the above definition is as follows:
+
+      subentryNameForm NAME-FORM ::= {
+        NAMES            subentry
+        WITH ATTRIBUTES  {commonName}
+        ID               id-nf-subentryNameForm }
+
+3.  Compliance Considerations
+
+   First and foremost, the solution for this problem is to simply use
+   the above 'subentryNameForm' definition as an integrated component
+   of the directory product in question.  To be clear, this is the ONLY
+   case in which a subentry-focused name form should EVER be integrated
+   in this fashion.
+
+   Unfortunately, the ramifications of this change may be negative if
+   not implemented in a sensible manner.  This section covers various
+   actions that may be taken in that regard.
+
+   Should the issue be FULLY resolved in an abrupt manner, in that the
+   directory service no longer honors the use of any subentry-focused
+   name forms OTHER THAN that described in Section 2, and WITHOUT any
+   notice being given to users, the risk of errors in implementations
+   of the affected product will increase.  As such, this would almost
+   certainly lead to a spike in support calls and trouble tickets for
+   directory product vendors and maintainers.  This is undesirable.
+
+   Conversely, the choice NOT to fix this issue -- while it does have
+   the virtue of being the least disruptive option -- may harm or sully
+   common impressions of the affected product in terms of questionable
+   or incomplete standards compliance.
+
+
+
+
+
+Coretta                 Expires March 29, 2025                  [Page 4]
+
+Internet-Draft        The LDAP Subentry Name Form         September 2024
+
+
+   Therefore, it is the opinion of this author that the BEST solution
+   is to allow this behavior to be OPTIONAL, or user-elected.  In this
+   case, the "option" to control this behavior SHOULD favor the current
+   or "broken" state by default, so as to not introduce any change in
+   behavior until such time that it is deemed appropriate.
+
+   Not only would this method prove to be as non-disruptive as a choice
+   to take NO action, but it would also allow for maintainers to devise
+   the remainder of a mitigation plan in due course, allowing for ample
+   testing, as well as user input on the matter, if deemed appropriate.
+
+   Though NOT RECOMMENDED, this method also has the virtue of being more
+   favorable to users who MAY wish to purposely forego compliance for
+   some reason.
+
+   Beyond the modification of directory service behavior as it relates
+   to the interaction of DIT structure rules and subentries, maintainers
+   SHOULD augment the underlying schema subsystem or parser to ensure
+   that ANY attempt to introduce a subentry-focused name form -- OTHER
+   THAN that defined in Section 2 -- will be ignored. 
+
+   It is also RECOMMENDED that in the event such a name form is added, a
+   warning should be raised to inform administrators of this condition.
+
+4.  IANA Considerations
+
+   There are no requests to IANA in this document at this time.
+
+5.  Security Considerations
+
+   There are no security considerations applicable to this I-D.
+
+6.  References
+
+6.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3672]  Zeilenga, K., "Subentries in the Lightweight Directory
+              Access Protocol (LDAP)", RFC 3672, December 2003.
+
+   [RFC4512]  Zeilenga, K., "Lightweight Directory Access Protocol
+              (LDAP): Directory Information Models", RFC 4512, June
+              2006.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", RFC 8174, May 2017.
+
+   [X.501]    International Telecommunication Union - Telecommunication
+              Standardization Sector, "The Directory: Models", ITU-T
+              X.501, October 2019.
+
+Coretta                 Expires March 29, 2025                  [Page 5]
+
+Internet-Draft        The LDAP Subentry Name Form         September 2024
+
+
+6.2.  Informational References
+
+   [RFC4519]  Sciberras, Ed., A., "Lightweight Directory Access Protocol
+              (LDAP): Schema for User Applications", RFC 4519, June
+              2006.
+
+7.  Acknowledgements
+
+   The author of this I-D would like to extend her deepest appreciation
+   to Steven Legg, co-author of [RFC3672], for his invaluable subject
+   matter expertise on this issue.
+
+Author's Address
+
+   Jesse Coretta
+   California, United States
+
+   Email: jesse.coretta@icloud.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Coretta                 Expires March 29, 2025                  [Page 6]
