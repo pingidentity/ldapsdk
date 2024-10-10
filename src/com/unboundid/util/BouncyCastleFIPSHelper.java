@@ -72,7 +72,7 @@ public final class BouncyCastleFIPSHelper
    * A reference to the Bouncy Castle FIPS provider, if one is available.
    */
   @NotNull private static final AtomicReference<Provider>
-       BOUNCY_CASTLE_FIPS_PROVIDER = new AtomicReference<>();
+       BOUNCY_CASTLE_FIPS_PROVIDER_REF = new AtomicReference<>();
 
 
 
@@ -80,7 +80,7 @@ public final class BouncyCastleFIPSHelper
    * A reference to the Bouncy Castle JSSE provider, if one is available.
    */
   @NotNull private static final AtomicReference<Provider>
-       BOUNCY_CASTLE_JSSE_PROVIDER = new AtomicReference<>();
+       BOUNCY_CASTLE_JSSE_PROVIDER_REF = new AtomicReference<>();
 
 
 
@@ -89,7 +89,7 @@ public final class BouncyCastleFIPSHelper
    * if available.
    */
   @NotNull private static final AtomicReference<Class<?>>
-       BOUNCY_CASTLE_FIPS_PROVIDER_CLASS = new AtomicReference<>();
+       BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_REF = new AtomicReference<>();
 
 
 
@@ -98,7 +98,7 @@ public final class BouncyCastleFIPSHelper
    * if one is available.
    */
   @NotNull private static final AtomicReference<Class<?>>
-       BOUNCY_CASTLE_JSSE_PROVIDER_CLASS = new AtomicReference<>();
+       BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_REF = new AtomicReference<>();
 
 
 
@@ -352,7 +352,7 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
-   * Retrieves a reference to the the Bouncy Castle FIPS provider.
+   * Retrieves a reference to the Bouncy Castle FIPS provider.
    *
    * @return   The Bouncy Castle FIPS provider instance.  It will not be
    *           {@code null}.
@@ -364,15 +364,45 @@ public final class BouncyCastleFIPSHelper
   public static Provider getBouncyCastleFIPSProvider()
          throws NoSuchProviderException
   {
-    final Provider provider = BOUNCY_CASTLE_FIPS_PROVIDER.get();
-    if (provider == null)
+    return getBouncyCastleFIPSProvider(true, null);
+  }
+
+
+
+  /**
+   * Retrieves a reference to the Bouncy Castle FIPS provider.
+   *
+   * @param  allowCachedProvider  Indicates whether it is acceptable to use a
+   *                              cached version of the provider if one is
+   *                              already available.
+   * @param  versionString        A string that indicates which version of the
+   *                              provider should be used.  It may be
+   *                              {@code null} if the default version should be
+   *                              used.
+   *
+   * @return   The Bouncy Castle FIPS provider instance.  It will not be
+   *           {@code null}.
+   *
+   * @throws  NoSuchProviderException  If the Bouncy Castle FIPS provider is
+   *                                   not available in the JVM.
+   */
+  @NotNull()
+  public static Provider getBouncyCastleFIPSProvider(
+              final boolean allowCachedProvider,
+              @Nullable final String versionString)
+         throws NoSuchProviderException
+  {
+    if (allowCachedProvider)
     {
-      return loadBouncyCastleFIPSProvider(false);
+      final Provider cachedProvider = BOUNCY_CASTLE_FIPS_PROVIDER_REF.get();
+      if (cachedProvider != null)
+      {
+        return cachedProvider;
+      }
     }
-    else
-    {
-      return provider;
-    }
+
+    return loadBouncyCastleFIPSProvider(false, versionString,
+         allowCachedProvider);
   }
 
 
@@ -415,7 +445,7 @@ public final class BouncyCastleFIPSHelper
                                     final boolean makeDefault)
           throws NoSuchProviderException
   {
-    return loadBouncyCastleFIPSProvider(makeDefault, null);
+    return loadBouncyCastleFIPSProvider(makeDefault, null, makeDefault);
   }
 
 
@@ -429,6 +459,9 @@ public final class BouncyCastleFIPSHelper
    * @param  versionString  A string that indicates which version of the
    *                        provider should be used.  It may be {@code null} if
    *                        the default version should be used.
+   * @param  cacheProvider  Indicates whether to cache the loaded provider so
+   *                        that it can be more efficiently retrieved if it is
+   *                        needed again.
    *
    * @return  The provider that was loaded.  It will not be {@code null}.
    *
@@ -438,38 +471,28 @@ public final class BouncyCastleFIPSHelper
   @NotNull()
   static synchronized Provider loadBouncyCastleFIPSProvider(
                                     final boolean makeDefault,
-                                    @Nullable final String versionString)
+                                    @Nullable final String versionString,
+                                    final boolean cacheProvider)
           throws NoSuchProviderException
   {
-    final boolean useVersion1;
-    if ((versionString == null) ||
-         versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_1))
-    {
-      useVersion1 = true;
-    }
-    else if (versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_2))
-    {
-      useVersion1 = false;
-    }
-    else
-    {
-      throw new NoSuchProviderException(
-           ERR_BC_FIPS_HELPER_UNSUPPORTED_VERSION.get(versionString,
-                FIPS_PROVIDER_NAME, FIPS_PROVIDER_VERSION_1,
-                FIPS_PROVIDER_VERSION_2));
-    }
+    // Validate and parse the provider version string.
+    final int versionNumber =
+         parseVersionString(FIPS_PROVIDER_NAME, versionString);
 
 
     // If the provider class has already been loaded through some means, then
     // just return it.
     try
     {
-      final Provider existingProvider =
-           Security.getProvider(FIPS_PROVIDER_NAME);
-      if (existingProvider != null)
+      if (cacheProvider)
       {
-        BOUNCY_CASTLE_FIPS_PROVIDER.compareAndSet(null, existingProvider);
-        return existingProvider;
+        final Provider existingProvider =
+             Security.getProvider(FIPS_PROVIDER_NAME);
+        if (existingProvider != null)
+        {
+          BOUNCY_CASTLE_FIPS_PROVIDER_REF.compareAndSet(null, existingProvider);
+          return existingProvider;
+        }
       }
     }
     catch (final Exception e)
@@ -480,14 +503,14 @@ public final class BouncyCastleFIPSHelper
 
     // Load the provider class.  If this fails, then the Bouncy Castle FIPS
     // provider is not in the classpath.
-    Class<?> fipsProviderClass = BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.get();
+    Class<?> fipsProviderClass = BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_REF.get();
     if (fipsProviderClass == null)
     {
       try
       {
         fipsProviderClass =
              Class.forName(BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME);
-        BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.set(fipsProviderClass);
+        BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_REF.set(fipsProviderClass);
       }
       catch (final Exception e)
       {
@@ -510,13 +533,13 @@ public final class BouncyCastleFIPSHelper
             final File bcDir = new File(resourceDir, "bc");
 
             final File fipsDir;
-            if (useVersion1)
+            if (versionNumber == 2)
             {
-              fipsDir = new File(bcDir, "fips");
+              fipsDir = new File(bcDir, "fips2");
             }
             else
             {
-              fipsDir = new File(bcDir, "fips2");
+              fipsDir = new File(bcDir, "fips");
             }
 
             if (fipsDir.exists())
@@ -558,9 +581,14 @@ public final class BouncyCastleFIPSHelper
                    BouncyCastleFIPSHelper.class.getClassLoader());
               fipsProviderClass = classLoader.loadClass(
                    BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_NAME);
-              BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.set(classLoader.loadClass(
-                   BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME));
-              BOUNCY_CASTLE_FIPS_PROVIDER_CLASS.set(fipsProviderClass);
+              final Class<?> jsseProviderClass = classLoader.loadClass(
+                   BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME);
+
+              if (cacheProvider)
+              {
+                BOUNCY_CASTLE_FIPS_PROVIDER_CLASS_REF.set(fipsProviderClass);
+                BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_REF.set(jsseProviderClass);
+              }
               shouldThrow = false;
             }
           }
@@ -598,7 +626,11 @@ public final class BouncyCastleFIPSHelper
         Security.addProvider(provider);
       }
 
-      BOUNCY_CASTLE_FIPS_PROVIDER.set(provider);
+      if (cacheProvider)
+      {
+        BOUNCY_CASTLE_FIPS_PROVIDER_REF.set(provider);
+      }
+
       return provider;
     }
     catch (final Exception e)
@@ -614,7 +646,65 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
-   * Retrieves a reference to the the Bouncy Castle JSSE provider.
+   * Parses the provided version string to determine which version of the
+   * Bouncy Castle FIPS provider has been requested.
+   *
+   * @param  providerName   The name of the associated provider, which should
+   *                        be either "BCFIPS" or "BCJSSE".
+   * @param  versionString  The version string for which to make the
+   *                        determination.  It may be {@code null} if the
+   *                        default version should be used.
+   *
+   * @return  The version of the library that should be used.  At present, it
+   *          will be either {@code 1} or {@code 2}, but additional values may
+   *          be used in future releases.
+   *
+   * @throws  NoSuchProviderException  If the provided version string is not
+   *                                   recognized as an allowed value.
+   */
+  private static int parseVersionString(
+               @NotNull final String providerName,
+               @Nullable final String versionString)
+          throws NoSuchProviderException
+  {
+    if ((versionString == null) ||
+         versionString.equalsIgnoreCase(FIPS_PROVIDER_NAME) ||
+         versionString.equalsIgnoreCase(providerName))
+    {
+      // We should use the default version, which is currently v1.
+      return 1;
+    }
+
+    if (versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_1) ||
+         versionString.equalsIgnoreCase(FIPS_PROVIDER_NAME +
+              FIPS_PROVIDER_VERSION_1) ||
+         versionString.equalsIgnoreCase(providerName + FIPS_PROVIDER_VERSION_1))
+    {
+      // The caller explicitly requested v1.
+      return 1;
+    }
+
+    if (versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_2) ||
+         versionString.equalsIgnoreCase(FIPS_PROVIDER_NAME +
+              FIPS_PROVIDER_VERSION_2) ||
+         versionString.equalsIgnoreCase(providerName + FIPS_PROVIDER_VERSION_2))
+    {
+      // The caller explicitly requested v2.
+      return 2;
+    }
+
+
+    // If we've gotten here, then we don't recognize the version string.
+    throw new NoSuchProviderException(
+         ERR_BC_FIPS_HELPER_UNSUPPORTED_VERSION.get(versionString,
+              providerName, FIPS_PROVIDER_VERSION_1,
+              FIPS_PROVIDER_VERSION_2));
+  }
+
+
+
+  /**
+   * Retrieves a reference to the Bouncy Castle JSSE provider.
    *
    * @return   The Bouncy Castle JSSE provider instance.  It will not be
    *           {@code null}.
@@ -626,15 +716,44 @@ public final class BouncyCastleFIPSHelper
   public static Provider getBouncyCastleJSSEProvider()
          throws NoSuchProviderException
   {
-    final Provider provider = BOUNCY_CASTLE_JSSE_PROVIDER.get();
-    if (provider == null)
+    return getBouncyCastleJSSEProvider(true, null);
+  }
+
+
+
+  /**
+   * Retrieves a reference to the Bouncy Castle JSSE provider.
+   *
+   * @param  allowCachedProvider  Indicates whether it is acceptable to use a
+   *                              cached version of the provider if one is
+   *                              already available.
+   * @param  versionString        A string that indicates which version of the
+   *                              provider should be used.  It may be
+   *                              {@code null} if the default version should be
+   *                              used.
+   * @return   The Bouncy Castle JSSE provider instance.  It will not be
+   *           {@code null}.
+   *
+   * @throws  NoSuchProviderException  If the Bouncy Castle JSSE provider is
+   *                                   not available in the JVM.
+   */
+  @NotNull()
+  public static Provider getBouncyCastleJSSEProvider(
+              final boolean allowCachedProvider,
+              @Nullable final String versionString)
+         throws NoSuchProviderException
+  {
+    if (allowCachedProvider)
     {
-      return loadBouncyCastleJSSEProvider(false);
+      final Provider cachedProvider = BOUNCY_CASTLE_JSSE_PROVIDER_REF.get();
+      if (cachedProvider != null)
+      {
+        return cachedProvider;
+      }
     }
-    else
-    {
-      return provider;
-    }
+
+    return loadBouncyCastleJSSEProvider(false, versionString,
+         allowCachedProvider);
   }
 
 
@@ -659,7 +778,7 @@ public final class BouncyCastleFIPSHelper
                                     final boolean makeSecond)
           throws NoSuchProviderException
   {
-    return loadBouncyCastleJSSEProvider(makeSecond, null);
+    return loadBouncyCastleJSSEProvider(makeSecond, null, makeSecond);
   }
 
 
@@ -677,6 +796,9 @@ public final class BouncyCastleFIPSHelper
    * @param  versionString  A string that indicates which version of the
    *                        provider should be used.  It may be {@code null} if
    *                        the default version should be used.
+   * @param  cacheProvider  Indicates whether to cache the loaded provider so
+   *                        that it can be more efficiently retrieved if it is
+   *                        needed again.
    *
    * @return  The provider that was loaded.  It will not be {@code null}.
    *
@@ -686,34 +808,31 @@ public final class BouncyCastleFIPSHelper
   @NotNull()
   static synchronized Provider loadBouncyCastleJSSEProvider(
                                     final boolean makeSecond,
-                                    @Nullable final String versionString)
+                                    @Nullable final String versionString,
+                                    final boolean cacheProvider)
           throws NoSuchProviderException
   {
-    // At present, we shouldn't need to do anything different when using version
-    // 2 of the JSSE provider than when using version 1, but we will still check
-    // the version string to make sure it's valid, in case something different
-    // is needed in the future.
-    if ((versionString != null) &&
-         (! versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_1)) &&
-         (! versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_2)))
-    {
-      throw new NoSuchProviderException(
-           ERR_BC_FIPS_HELPER_UNSUPPORTED_VERSION.get(versionString,
-                FIPS_PROVIDER_NAME, FIPS_PROVIDER_VERSION_1,
-                FIPS_PROVIDER_VERSION_2));
-    }
+    // Validate and parse the provided version string.  At present, we shouldn't
+    // need to do anything different when using version 2 of the JSSE provider
+    // than when using version 1, but we will still check the version string to
+    // make sure it's valid, in case something different is needed in the
+    // future.
+    parseVersionString(JSSE_PROVIDER_NAME, versionString);
 
 
     // If the provider class has already been loaded through some means, then
     // just return it.
     try
     {
-      final Provider existingProvider =
-           Security.getProvider(JSSE_PROVIDER_NAME);
-      if (existingProvider != null)
+      if (cacheProvider)
       {
-        BOUNCY_CASTLE_JSSE_PROVIDER.compareAndSet(null, existingProvider);
-        return existingProvider;
+        final Provider existingProvider =
+             Security.getProvider(JSSE_PROVIDER_NAME);
+        if (existingProvider != null)
+        {
+          BOUNCY_CASTLE_JSSE_PROVIDER_REF.compareAndSet(null, existingProvider);
+          return existingProvider;
+        }
       }
     }
     catch (final Exception e)
@@ -724,14 +843,17 @@ public final class BouncyCastleFIPSHelper
 
     // Load the provider class.  If this fails, then the Bouncy Castle JSSE
     // provider is not in the classpath.
-    Class<?> jsseProviderClass = BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.get();
+    Class<?> jsseProviderClass = BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_REF.get();
     if (jsseProviderClass == null)
     {
       try
       {
         jsseProviderClass =
              Class.forName(BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_NAME);
-        BOUNCY_CASTLE_JSSE_PROVIDER_CLASS.set(jsseProviderClass);
+        if (cacheProvider)
+        {
+          BOUNCY_CASTLE_JSSE_PROVIDER_CLASS_REF.set(jsseProviderClass);
+        }
       }
       catch (final Exception e)
       {
@@ -761,7 +883,10 @@ public final class BouncyCastleFIPSHelper
         Security.addProvider(provider);
       }
 
-      BOUNCY_CASTLE_JSSE_PROVIDER.set(provider);
+      if (cacheProvider)
+      {
+        BOUNCY_CASTLE_JSSE_PROVIDER_REF.set(provider);
+      }
       return provider;
     }
     catch (final Exception e)

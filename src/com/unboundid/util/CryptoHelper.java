@@ -313,10 +313,10 @@ public final class CryptoHelper
         BouncyCastleFIPSHelper.setPropertiesForPingIdentityServer();
         FIPS_PROVIDER.set(
              BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                  fipsProviderVersionString));
+                  fipsProviderVersionString, true));
         FIPS_JSSE_PROVIDER.set(
              BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-                  fipsProviderVersionString));
+                  fipsProviderVersionString, true));
         FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.set(
              BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM);
         FIPS_DEFAULT_KEY_STORE_TYPE.set(
@@ -551,18 +551,18 @@ public final class CryptoHelper
               BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1))
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
     }
     else if (providerName.equalsIgnoreCase(
          BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
               BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2))
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
     }
     else
     {
