@@ -341,8 +341,8 @@ public final class KeyStoreKeyManagerProperties
 
 
   /**
-   * Indicates whether to allow access to a non-FIPS 140-2-compliant key store
-   * even when operating in FIPS-compliant mode.
+   * Indicates whether to allow access to a non-FIPS-compliant key store even
+   * when operating in FIPS-compliant mode.
    *
    * @return  {@code true} if access to a non-FIPS-compliant key store should be
    *          allowed even when operating in FIPS-compliant mode, or
@@ -356,8 +356,8 @@ public final class KeyStoreKeyManagerProperties
 
 
   /**
-   * Specifies whether to allow access to a non-FIPS 140-2 compliant key store
-   * even when operating in FIPS-compliant mode.
+   * Specifies whether to allow access to a non-FIPS-compliant key store even
+   * when operating in FIPS-compliant mode.
    *
    * @param  allowNonFIPSInFIPSMode  Indicates whether to allow access to a
    *                                 non-FIPS-compliant key store even when

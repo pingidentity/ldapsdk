@@ -220,7 +220,7 @@ public abstract class CommandLineTool
     if (CryptoHelper.usingFIPSMode())
     {
       Debug.debug(Level.INFO, DebugType.OTHER,
-           "Running in FIPS 140-2-compliant mode.");
+           "Running in FIPS-compliant mode.");
     }
 
     if (outStream == null)

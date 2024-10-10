@@ -108,10 +108,10 @@ public final class PKCS11KeyManager
   @Nullable private static final Provider PKCS11_JSSE_PROVIDER;
   static
   {
-    // NOTE:  Even when we're operating in FIPS 140-2-compliant mode, we will
-    // likely want to use the SunJSSE provider in conjunction with PKCS #11
-    // tokens because the Bouncy Castle FIPS-compliant BCJSSE provider does not
-    // work well in conjunction with PKCS #11 tokens.
+    // NOTE:  Even when we're operating in FIPS-compliant mode, we will likely
+    // want to use the SunJSSE provider in conjunction with PKCS #11 tokens
+    // because the Bouncy Castle FIPS-compliant BCJSSE provider does not work
+    // well in conjunction with PKCS #11 tokens.
     final Provider sunJSSEProvider =
          Security.getProvider(SUN_JSSE_PROVIDER_NAME);
     if (sunJSSEProvider != null)

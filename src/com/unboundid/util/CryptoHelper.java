@@ -94,11 +94,11 @@ public final class CryptoHelper
 {
   /**
    * The name of the Java property (com.unboundid.crypto.FIPS_MODE) that will be
-   * used to indicate that the LDAP SDK should operate in FIPS 140-2-compliant
-   * mode.  If this property is defined, then it must have a value of either
-   * "true" or "false".  If the {@link #PROPERTY_FIPS_PROVIDER} property is also
-   * defined, then the specified provider will be used; otherwise, the Bouncy
-   * Castle "BCFIPS" provider will be assumed.
+   * used to indicate that the LDAP SDK should operate in FIPS-compliant mode.
+   * If this property is defined, then it must have a value of either "true" or
+   * "false".  If the {@link #PROPERTY_FIPS_PROVIDER} property is also defined,
+   * then the specified provider will be used; otherwise, the Bouncy Castle
+   * "BCFIPS" provider will be assumed.
    */
   @NotNull public static final String PROPERTY_FIPS_MODE =
        "com.unboundid.crypto.FIPS_MODE";
@@ -108,7 +108,7 @@ public final class CryptoHelper
   /**
    * The name of the Java property (com.unboundid.crypto.FIPS_PROVIDER) that
    * will be used to specify the name of the security provider to use when
-   * operating in FIPS 140-2-compliant mode.  At present, only the Bouncy Castle
+   * operating in FIPS-compliant mode.  At present, only the Bouncy Castle
    * "BCFIPS" provider is supported.
    */
   @NotNull public static final String PROPERTY_FIPS_PROVIDER =
@@ -137,9 +137,9 @@ public final class CryptoHelper
    * The name of the Java property
    * (com.unboundid.crypto.ALLOWED_FIPS_MODE_PROVIDER) whose value may be a
    * comma-delimited list of the fully qualified names of the Java provider
-   * classes that will be allowed when the LDAP SDK is running in FIPS
-   * 140-2-compliant mode.  If defined, these classes will not be removed from
-   * the JVM when pruning non-essential providers (whether via the
+   * classes that will be allowed when the LDAP SDK is running in FIPS-compliant
+   * mode.  If defined, these classes will not be removed from the JVM when
+   * pruning non-essential providers (whether via the
    * {@link #PROPERTY_REMOVE_NON_NECESSARY_PROVIDERS} property or the
    * {@link #removeNonEssentialSecurityProviders()} method), and calls to
    * methods in this class will allow uses of these providers when running in
@@ -152,9 +152,9 @@ public final class CryptoHelper
 
   /**
    * A set containing the fully qualified names of the Java classes for
-   * providers that will be allowed in FIPS 140-2-compliant mode.  By default,
-   * this will include a set of providers from Oracle, OpenJDK-based, and IBM
-   * JVMs.  This default set of providers may be augmented using the
+   * providers that will be allowed in FIPS-compliant mode.  By default, this
+   * will include a set of providers from Oracle, OpenJDK-based, and IBM JVMs.
+   * This default set of providers may be augmented using the
    * {@link #PROPERTY_ALLOWED_FIPS_MODE_PROVIDER} property or the
    * {@link #addAllowedFIPSModeProvider} method.
    */
@@ -164,14 +164,14 @@ public final class CryptoHelper
 
 
   /**
-   * Indicates whether the LDAP SDK should operate in FIPS 140-2-compliant mode.
+   * Indicates whether the LDAP SDK should operate in FIPS-compliant mode.
    */
   @NotNull private static final AtomicBoolean FIPS_MODE;
 
 
 
   /**
-   * A reference to the provider that offers the main FIPS 140-2-compliant
+   * A reference to the provider that offers the main FIPS-compliant
    * functionality, if enabled.
    */
   @NotNull private static final AtomicReference<Provider> FIPS_PROVIDER =
@@ -180,8 +180,8 @@ public final class CryptoHelper
 
 
   /**
-   * A reference to the provider that offers the JSSE provider for FIPS
-   * 140-2-compliant functionality.
+   * A reference to the provider that offers the JSSE provider for
+   * FIPS-compliant functionality.
    */
   @NotNull private static final AtomicReference<Provider>
        FIPS_JSSE_PROVIDER = new AtomicReference<>();
@@ -268,18 +268,39 @@ public final class CryptoHelper
 
     final String fipsModePropertyValue =
          PropertyManager.get(PROPERTY_FIPS_MODE);
-    if (fipsModePropertyValue == null)
+    if ((fipsModePropertyValue == null) ||
+         fipsModePropertyValue.equalsIgnoreCase("false"))
     {
       FIPS_MODE = new AtomicBoolean(false);
     }
     else if (fipsModePropertyValue.equalsIgnoreCase("true"))
     {
+      final String fipsProviderVersionString;
       final String fipsProviderPropertyValue =
            PropertyManager.get(PROPERTY_FIPS_PROVIDER);
-      if ((fipsProviderPropertyValue != null) &&
-           (! fipsProviderPropertyValue.equalsIgnoreCase(
-                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME)))
+      if ((fipsProviderPropertyValue == null) ||
+           fipsProviderPropertyValue.equalsIgnoreCase(
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
       {
+        fipsProviderVersionString = null;
+      }
+      else if (fipsProviderPropertyValue.equalsIgnoreCase(
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+                     BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1))
+      {
+        fipsProviderVersionString =
+             BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1;
+      }
+      else if (fipsProviderPropertyValue.equalsIgnoreCase(
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+                     BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2))
+      {
+        fipsProviderVersionString =
+             BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2;
+      }
+      else
+      {
+        fipsProviderVersionString = null;
         Validator.violation(
              ERR_CRYPTO_HELPER_UNSUPPORTED_FIPS_PROVIDER.get(
                   fipsProviderPropertyValue,
@@ -291,9 +312,11 @@ public final class CryptoHelper
       {
         BouncyCastleFIPSHelper.setPropertiesForPingIdentityServer();
         FIPS_PROVIDER.set(
-             BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true));
+             BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
+                  fipsProviderVersionString));
         FIPS_JSSE_PROVIDER.set(
-             BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true));
+             BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
+                  fipsProviderVersionString));
         FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.set(
              BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM);
         FIPS_DEFAULT_KEY_STORE_TYPE.set(
@@ -333,10 +356,6 @@ public final class CryptoHelper
         FIPS_MODE.set(false);
       }
     }
-    else if (fipsModePropertyValue.equalsIgnoreCase("false"))
-    {
-      FIPS_MODE = new AtomicBoolean(false);
-    }
     else
     {
       FIPS_MODE = new AtomicBoolean(false);
@@ -359,7 +378,7 @@ public final class CryptoHelper
 
   /**
    * The key store type value that should be used for BCFKS (Bouncy Castle
-   * FIPS 140-2-compliant) key stores.
+   * FIPS-compliant) key stores.
    */
   @NotNull public static final String KEY_STORE_TYPE_BCFKS =
        BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE;
@@ -456,11 +475,11 @@ public final class CryptoHelper
 
 
   /**
-   * Indicates whether the LDAP SDK should operate in a strict
-   * FIPS 140-2-compliant mode.
+   * Indicates whether the LDAP SDK should operate in a strict FIPS-compliant
+   * mode.
    *
    * @return  {@code true} if the LDAP SDK should operate in a strict
-   *          FIPS 140-2-compliant mode, or {@code false} if not.
+   *          FIPS-compliant mode, or {@code false} if not.
    */
   public static boolean usingFIPSMode()
   {
@@ -470,12 +489,12 @@ public final class CryptoHelper
 
 
   /**
-   * Specifies whether the LDAP SDK should operate in a strict FIPS
-   * 140-2-compliant mode.  If the LDAP SDK should operate in FIPS mode, then
-   * the Bouncy Castle FIPS provider will be used by default.
+   * Specifies whether the LDAP SDK should operate in a strict FIPS-compliant
+   * mode.  If the LDAP SDK should operate in FIPS mode, then the Bouncy Castle
+   * FIPS provider will be used by default.
    *
    * @param  useFIPSMode  Indicates whether the LDAP SDK should operate in a
-   *                      strict FIPS 140-2-compliant mode.
+   *                      strict FIPS-compliant mode.
    *
    * @throws  NoSuchProviderException  If FIPS mode should be enabled but the
    *                                   Bouncy Castle FIPS libraries are not
@@ -497,13 +516,20 @@ public final class CryptoHelper
 
 
   /**
-   * Specifies that the LDAP SDK should operate in a strict FIPS 140-2-compliant
-   * mode using the specified provider.
+   * Specifies that the LDAP SDK should operate in a strict FIPS-compliant mode
+   * using the specified provider.
    *
    * @param  providerName  The name of the security provider to use to provide
-   *                       the FIPS 140-2-compliant functionality.  At present,
-   *                       only the Bouncy Castle "BCFIPS" provider is
-   *                       supported.
+   *                       the FIPS-compliant functionality.  At present, only
+   *                       the Bouncy Castle "BCFIPS" provider is supported.
+   *                       However, you may optionally append a version string
+   *                       to indicate which version of the provider to use,
+   *                       with a provider name of "BCFIPS1" indicating that
+   *                       version 1.x of the BCFIPS provider (which supports
+   *                       FIPS 140-2 compliance) should be used, and
+   *                       "BCFIPS2" indicates that version 2.x of the BCFIPS
+   *                       provider (which supports FIPS 140-3 compliance)
+   *                       should be used.
    *
    * @throws  NoSuchProviderException  If the specified provider is not
    *                                   supported or available.
@@ -519,6 +545,24 @@ public final class CryptoHelper
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+    }
+    else if (providerName.equalsIgnoreCase(
+         BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+              BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1))
+    {
+      fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
+      jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
+    }
+    else if (providerName.equalsIgnoreCase(
+         BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+              BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2))
+    {
+      fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
+      jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
     }
     else
     {
@@ -549,13 +593,13 @@ public final class CryptoHelper
   /**
    * Retrieves an unmodifiable set containing the fully qualified names of the
    * Java provider classes that will be allowed when the LDAP SDK is operating
-   * in FIPS 140-2-compliant mode.  This also represents the set of providers
+   * in FIPS-compliant mode.  This also represents the set of providers
    * that will be preserved when calling the
    * {@link #removeNonEssentialSecurityProviders()} method.
    *
    * @return  An unmodifiable set containing the fully qualified names of the
    *          Java provider classes that will be allowed when the LDAP SDK is
-   *          operating in FIPS 140-2-compliant mode.
+   *          operating in FIPS-compliant mode.
    */
   @NotNull()
   public static Set<String> getAllowedFIPSModeProviders()
@@ -567,12 +611,11 @@ public final class CryptoHelper
 
   /**
    * Adds the specified class to the set of allowed Java provider classes that
-   * will be allowed when the LDAP SDK is operating in FIPS 140-2-complaint
-   * mode.
+   * will be allowed when the LDAP SDK is operating in FIPS-complaint mode.
    *
    * @param  providerClass  The fully qualified name of a Java class that
    *                        references a provider that will be allowed when the
-   *                        LDAP SDK is operating in FIPS 140-2-compliant mode.
+   *                        LDAP SDK is operating in FIPS-compliant mode.
    */
   public static void addAllowedFIPSModeProvider(
               @NotNull final String providerClass)
@@ -584,7 +627,7 @@ public final class CryptoHelper
 
   /**
    * Attempts to remove any security providers that are not believed to be
-   * needed when operating in FIPS 140-2-compliant mode.  Note that this method
+   * needed when operating in FIPS-compliant mode.  Note that this method
    * assumes the use of an Oracle or OpenJDK-based JVM and may not work as
    * expected in JVMs from other vendors that may have a different set of
    * essential providers.
@@ -605,13 +648,11 @@ public final class CryptoHelper
 
   /**
    * Specifies the default provider that should be used for JSSE operations,
-   * regardless of whether the LDAP SDK is operating in FIPS 140-2-compliant
-   * mode.
+   * regardless of whether the LDAP SDK is operating in FIPS-compliant mode.
    *
    * @param  defaultJSSEProvider  The default provider that should be used for
    *                              JSSE operations, regardless of whether the
-   *                              LDAP SDK is operating in FIPS 140-2-compliant
-   *                              mode.
+   *                              LDAP SDK is operating in FIPS-compliant mode.
    */
   public static void setDefaultJSSEProvider(
               @NotNull final Provider defaultJSSEProvider)

@@ -166,7 +166,7 @@ import static com.unboundid.util.ssl.SSLMessages.*;
  *   <LI>{@link KeyStoreKeyManager} -- Allows the certificate chain and private
  *       key to be obtained from a key store file, which will typically be in
  *       the JKS or PKCS #12 format (or in the Bouncy Castle BCFKS format when
- *       using the LDAP SDK in FIPS 140-2-compliant mode).</LI>
+ *       using the LDAP SDK in FIPS-compliant mode).</LI>
  *   <LI>{@link PEMFileKeyManager} -- Allows the certificate chain and private
  *       key to be obtained from text files that contain the PEM-encoded
  *       representation of X.509 certificates and a PKCS #8 private key.</LI>

@@ -150,7 +150,7 @@ public final class ManageCertificates
 
   /**
    * The name of the keystore type that should be used for the Bouncy Castle
-   * FIPS 140-2-compliant keystore.
+   * FIPS-compliant keystore.
    */
   @NotNull private static final String BCFKS_KEYSTORE_TYPE =
        BouncyCastleFIPSHelper.FIPS_KEY_STORE_TYPE;

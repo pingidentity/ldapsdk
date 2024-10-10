@@ -14,6 +14,14 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added support for using the 2.x version of the Bouncy Castle FIPS-compliant
+                  security provider, which offers support for FIPS 140-3 compliance.  Previously,
+                  the LDAP SDK only supported the 1.x version of the library, which offers FIPS
+                  140-2 compliance.  The necessary jar files must already be in the CLASSPATH.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new PropertyManager class that can be used to retrieve the values of
                   system properties or environment variables, optionally parsing the values as
                   Booleans, numbers, or comma-delimited lists.  Most uses of system properties

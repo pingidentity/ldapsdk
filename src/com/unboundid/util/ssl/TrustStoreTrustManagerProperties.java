@@ -304,8 +304,8 @@ public final class TrustStoreTrustManagerProperties
 
 
   /**
-   * Indicates whether to allow access to a non-FIPS 140-2-compliant trust store
-   * even when operating in FIPS-compliant mode.
+   * Indicates whether to allow access to a non-FIPS-compliant trust store even
+   * when operating in FIPS-compliant mode.
    *
    * @return  {@code true} if access to a non-FIPS-compliant trust store should
    *          be allowed even when operating in FIPS-compliant mode, or
@@ -319,8 +319,8 @@ public final class TrustStoreTrustManagerProperties
 
 
   /**
-   * Specifies whether to allow access to a non-FIPS 140-2 compliant trust store
-   * even when operating in FIPS-compliant mode.
+   * Specifies whether to allow access to a non-FIPS-compliant trust store even
+   * when operating in FIPS-compliant mode.
    *
    * @param  allowNonFIPSInFIPSMode  Indicates whether to allow access to a
    *                                 non-FIPS-compliant trust store even when

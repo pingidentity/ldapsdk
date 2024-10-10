@@ -50,11 +50,11 @@ import static com.unboundid.util.UtilityMessages.*;
 
 
 /**
- * This class provides a helper to ensure that the non-FIPS 140-2-compliant
- * version of the Bouncy Castle cryptographic library may be available to the
- * JVM when running in a Ping Identity Directory Server (or a related server
- * product), even if it's not in the main JVM classpath.  This is primarily
- * intended for internal use within Ping Identity server products.
+ * This class provides a helper to ensure that the non-FIPS-compliant version of
+ * the Bouncy Castle cryptographic library may be available to the JVM when
+ * running in a Ping Identity Directory Server (or a related server product),
+ * even if it's not in the main JVM classpath.  This is primarily intended for
+ * internal use within Ping Identity server products.
  */
 @InternalUseOnly()
 @NotMutable()

@@ -44,6 +44,8 @@ import java.net.URLClassLoader;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,8 +59,10 @@ import static com.unboundid.util.UtilityMessages.*;
 /**
  * This class provides a helper to ensure that the Bouncy Castle FIPS provider
  * is properly loaded into the JVM so that the provider can be used for
- * cryptographic processing.  The appropriate jar file (typically
- * "bc-fips-{version}.jar") must be available in the JVM classpath.
+ * cryptographic processing.  The appropriate jar files (typically at least
+ * "bc-fips-{version}.jar" and "bctls-fips-{version}.jar", as well as
+ * "bcutil-fips-{version}.jar" in 2.x versions) must be available in the JVM
+ * classpath.
  */
 @NotMutable()
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
@@ -122,6 +126,33 @@ public final class BouncyCastleFIPSHelper
    * The name that may be used to reference the Bouncy Castle FIPS provider.
    */
   @NotNull public static final String FIPS_PROVIDER_NAME = "BCFIPS";
+
+
+
+  /**
+   * A string that can be used to represent version 1 of the Bouncy Castle FIPS
+   * provider, which offers support for FIPS 140-2 compliance.
+   */
+  @NotNull public static final String FIPS_PROVIDER_VERSION_1 = "1";
+
+
+
+  /**
+   * A string that can be used to represent version 2 of the Bouncy Castle FIPS
+   * provider, which offers support for FIPS 140-3 compliance.
+   */
+  @NotNull public static final String FIPS_PROVIDER_VERSION_2 = "2";
+
+
+
+  /**
+   * A string that can be used to represent the default version of the
+   * Bouncy Castle FIPS provider.  At present, version 1 is the default,
+   * although it may be the case that version 2 (or a later version) could
+   * become the default in the future.
+   */
+  @NotNull public static final String FIPS_PROVIDER_VERSION_DEFAULT =
+       FIPS_PROVIDER_VERSION_1;
 
 
 
@@ -369,7 +400,7 @@ public final class BouncyCastleFIPSHelper
 
   /**
    * Loads the Bouncy Castle FIPS provider into the JVM, if it has not already
-   * been loaded.
+   * been loaded.  The default version of the provider will be used.
    *
    * @param  makeDefault  Indicates whether to make the Bouncy Castle FIPS
    *                      provider the default provider in the JVM.
@@ -384,6 +415,51 @@ public final class BouncyCastleFIPSHelper
                                     final boolean makeDefault)
           throws NoSuchProviderException
   {
+    return loadBouncyCastleFIPSProvider(makeDefault, null);
+  }
+
+
+
+  /**
+   * Loads the Bouncy Castle FIPS provider into the JVM, if it has not already
+   * been loaded.
+   *
+   * @param  makeDefault    Indicates whether to make the Bouncy Castle FIPS
+   *                        provider the default provider in the JVM.
+   * @param  versionString  A string that indicates which version of the
+   *                        provider should be used.  It may be {@code null} if
+   *                        the default version should be used.
+   *
+   * @return  The provider that was loaded.  It will not be {@code null}.
+   *
+   * @throws  NoSuchProviderException  If the Bouncy Castle FIPS provider is
+   *                                   not available in the JVM.
+   */
+  @NotNull()
+  static synchronized Provider loadBouncyCastleFIPSProvider(
+                                    final boolean makeDefault,
+                                    @Nullable final String versionString)
+          throws NoSuchProviderException
+  {
+    final boolean useVersion1;
+    if ((versionString == null) ||
+         versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_1))
+    {
+      useVersion1 = true;
+    }
+    else if (versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_2))
+    {
+      useVersion1 = false;
+    }
+    else
+    {
+      throw new NoSuchProviderException(
+           ERR_BC_FIPS_HELPER_UNSUPPORTED_VERSION.get(versionString,
+                FIPS_PROVIDER_NAME, FIPS_PROVIDER_VERSION_1,
+                FIPS_PROVIDER_VERSION_2));
+    }
+
+
     // If the provider class has already been loaded through some means, then
     // just return it.
     try
@@ -429,9 +505,20 @@ public final class BouncyCastleFIPSHelper
           {
             File fipsProviderJarFile = null;
             File fipsJSSEProviderJarFile = null;
+            final List<File> additionalFIPSProviderJarFiles = new ArrayList<>();
             final File resourceDir = new File(instanceRoot, "resource");
             final File bcDir = new File(resourceDir, "bc");
-            final File fipsDir = new File(bcDir, "fips");
+
+            final File fipsDir;
+            if (useVersion1)
+            {
+              fipsDir = new File(bcDir, "fips");
+            }
+            else
+            {
+              fipsDir = new File(bcDir, "fips2");
+            }
+
             if (fipsDir.exists())
             {
               for (final File f : fipsDir.listFiles())
@@ -446,17 +533,26 @@ public final class BouncyCastleFIPSHelper
                 {
                   fipsJSSEProviderJarFile = f;
                 }
+                if (name.endsWith(".jar"))
+                {
+                  additionalFIPSProviderJarFiles.add(f);
+                }
               }
             }
 
             if ((fipsProviderJarFile != null) &&
                  (fipsJSSEProviderJarFile != null))
             {
-              final URL[] fileURLs =
+              final List<File> fipsJarFiles = new ArrayList<>();
+              fipsJarFiles.add(fipsProviderJarFile);
+              fipsJarFiles.add(fipsJSSEProviderJarFile);
+              fipsJarFiles.addAll(additionalFIPSProviderJarFiles);
+
+              final URL[] fileURLs = new URL[fipsJarFiles.size()];
+              for (int  i=0; i < fileURLs.length; i++)
               {
-                fipsProviderJarFile.toURI().toURL(),
-                fipsJSSEProviderJarFile.toURI().toURL()
-              };
+                fileURLs[i] = fipsJarFiles.get(i).toURI().toURL();
+              }
 
               final URLClassLoader classLoader = new URLClassLoader(fileURLs,
                    BouncyCastleFIPSHelper.class.getClassLoader());
@@ -545,7 +641,7 @@ public final class BouncyCastleFIPSHelper
 
   /**
    * Loads the Bouncy Castle JSSE provider into the JVM, if it has not already
-   * been loaded.
+   * been loaded.  The default version of the provider will be used.
    *
    * @param  makeSecond  Indicates whether to make the Bouncy Castle JSSE
    *                     provider second in the JVM's search order (presumably
@@ -563,6 +659,51 @@ public final class BouncyCastleFIPSHelper
                                     final boolean makeSecond)
           throws NoSuchProviderException
   {
+    return loadBouncyCastleJSSEProvider(makeSecond, null);
+  }
+
+
+
+  /**
+   * Loads the Bouncy Castle JSSE provider into the JVM, if it has not already
+   * been loaded.
+   *
+   * @param  makeSecond     Indicates whether to make the Bouncy Castle JSSE
+   *                        provider second in the JVM's search order
+   *                        (presumably after the Bouncy Castle FIPS provider as
+   *                        the first provider, in which case the Bouncy Castle
+   *                        FIPS provider must have already been loaded and made
+   *                        first).
+   * @param  versionString  A string that indicates which version of the
+   *                        provider should be used.  It may be {@code null} if
+   *                        the default version should be used.
+   *
+   * @return  The provider that was loaded.  It will not be {@code null}.
+   *
+   * @throws  NoSuchProviderException  If the Bouncy Castle JSSE provider is
+   *                                   not available in the JVM.
+   */
+  @NotNull()
+  static synchronized Provider loadBouncyCastleJSSEProvider(
+                                    final boolean makeSecond,
+                                    @Nullable final String versionString)
+          throws NoSuchProviderException
+  {
+    // At present, we shouldn't need to do anything different when using version
+    // 2 of the JSSE provider than when using version 1, but we will still check
+    // the version string to make sure it's valid, in case something different
+    // is needed in the future.
+    if ((versionString != null) &&
+         (! versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_1)) &&
+         (! versionString.equalsIgnoreCase(FIPS_PROVIDER_VERSION_2)))
+    {
+      throw new NoSuchProviderException(
+           ERR_BC_FIPS_HELPER_UNSUPPORTED_VERSION.get(versionString,
+                FIPS_PROVIDER_NAME, FIPS_PROVIDER_VERSION_1,
+                FIPS_PROVIDER_VERSION_2));
+    }
+
+
     // If the provider class has already been loaded through some means, then
     // just return it.
     try
