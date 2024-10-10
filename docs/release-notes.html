@@ -32,6 +32,13 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Fixed a bug in the SSLUtil.certificateToString method that prevented it from
+                  including notBefore and notAfter timestamp values in the resulting string
+                  representation of the provided certificate.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include the latest revisions of
                   draft-coretta-ldap-subnf-01, draft-coretta-oiddir-radit,
                   draft-coretta-oiddir-radsa, draft-coretta-oiddir-radua,

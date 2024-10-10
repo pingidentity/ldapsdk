@@ -1738,9 +1738,11 @@ public final class SSLUtil
     buffer.append("', serialNumber=");
     buffer.append(certificate.getSerialNumber());
     buffer.append(", notBefore=");
-    StaticUtils.encodeGeneralizedTime(certificate.getNotBefore());
+    buffer.append(
+         StaticUtils.encodeGeneralizedTime(certificate.getNotBefore()));
     buffer.append(", notAfter=");
-    StaticUtils.encodeGeneralizedTime(certificate.getNotAfter());
+    buffer.append(
+         StaticUtils.encodeGeneralizedTime(certificate.getNotAfter()));
     buffer.append(", signatureAlgorithm='");
     buffer.append(certificate.getSigAlgName());
     buffer.append("', signatureBytes='");
