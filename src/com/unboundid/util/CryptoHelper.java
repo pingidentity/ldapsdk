@@ -329,10 +329,10 @@ public final class CryptoHelper
         BouncyCastleFIPSHelper.setPropertiesForPingIdentityServer();
         FIPS_PROVIDER.set(
              BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                  fipsProviderVersionString, true));
+                  fipsProviderVersionString));
         FIPS_JSSE_PROVIDER.set(
              BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-                  fipsProviderVersionString, true));
+                  fipsProviderVersionString));
         FIPS_DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM.set(
              BouncyCastleFIPSHelper.DEFAULT_KEY_MANAGER_FACTORY_ALGORITHM);
         FIPS_DEFAULT_KEY_STORE_TYPE.set(
@@ -587,9 +587,9 @@ public final class CryptoHelper
               BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1))
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
       FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
            BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
     }
@@ -598,9 +598,9 @@ public final class CryptoHelper
               BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2))
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true,
-                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
+                BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
-           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
       FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
            BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
     }
