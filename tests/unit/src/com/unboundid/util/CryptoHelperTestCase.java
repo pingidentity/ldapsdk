@@ -93,6 +93,7 @@ public final class CryptoHelperTestCase
          throws Exception
   {
     assertFalse(CryptoHelper.usingFIPSMode());
+    assertNull(CryptoHelper.getFIPSModeProviderName());
 
     try
     {
@@ -105,10 +106,12 @@ public final class CryptoHelperTestCase
     }
 
     assertFalse(CryptoHelper.usingFIPSMode());
+    assertNull(CryptoHelper.getFIPSModeProviderName());
 
     CryptoHelper.setUseFIPSMode(false);
 
     assertFalse(CryptoHelper.usingFIPSMode());
+    assertNull(CryptoHelper.getFIPSModeProviderName());
 
     assertNotNull(CryptoHelper.getAllowedFIPSModeProviders());
     assertFalse(CryptoHelper.getAllowedFIPSModeProviders().isEmpty());

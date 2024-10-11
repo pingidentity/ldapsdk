@@ -232,6 +232,15 @@ public final class CryptoHelper
   @NotNull private static final AtomicReference<String>
        FIPS_DEFAULT_TRUST_MANAGER_FACTORY_ALGORITHM =
             new AtomicReference<>();
+
+
+
+  /**
+   * A reference to the name of the provider used to provide FIPS compliance,
+   * if applicable.
+   */
+  @NotNull private static final AtomicReference<String> FIPS_PROVIDER_NAME =
+       new AtomicReference<>();
   static
   {
     ALLOWED_FIPS_MODE_PROVIDERS.addAll(StaticUtils.setOf(
@@ -272,6 +281,7 @@ public final class CryptoHelper
          fipsModePropertyValue.equalsIgnoreCase("false"))
     {
       FIPS_MODE = new AtomicBoolean(false);
+      FIPS_PROVIDER_NAME.set(null);
     }
     else if (fipsModePropertyValue.equalsIgnoreCase("true"))
     {
@@ -283,6 +293,7 @@ public final class CryptoHelper
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME))
       {
         fipsProviderVersionString = null;
+        FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME);
       }
       else if (fipsProviderPropertyValue.equalsIgnoreCase(
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
@@ -290,6 +301,8 @@ public final class CryptoHelper
       {
         fipsProviderVersionString =
              BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1;
+        FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+             BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
       }
       else if (fipsProviderPropertyValue.equalsIgnoreCase(
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
@@ -297,10 +310,13 @@ public final class CryptoHelper
       {
         fipsProviderVersionString =
              BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2;
+        FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+             BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
       }
       else
       {
         fipsProviderVersionString = null;
+        FIPS_PROVIDER_NAME.set(null);
         Validator.violation(
              ERR_CRYPTO_HELPER_UNSUPPORTED_FIPS_PROVIDER.get(
                   fipsProviderPropertyValue,
@@ -354,11 +370,13 @@ public final class CryptoHelper
              get(PROPERTY_FIPS_MODE, StaticUtils.getExceptionMessage(e)),
         e);
         FIPS_MODE.set(false);
+        FIPS_PROVIDER_NAME.set(null);
       }
     }
     else
     {
       FIPS_MODE = new AtomicBoolean(false);
+        FIPS_PROVIDER_NAME.set(null);
       Validator.violation(
            ERR_CRYPTO_HELPER_INVALID_FIPS_MODE_PROPERTY_VALUE.get(
                 PROPERTY_FIPS_MODE, fipsModePropertyValue));
@@ -489,6 +507,22 @@ public final class CryptoHelper
 
 
   /**
+   * Retrieves the name of the security provider used to provide FIPS
+   * compliance, if applicable.
+   *
+   * @return  The name of the security provider used to provide FIPS compliance,
+   *          or {@code null} if the LDAP SDK is not operating in FIPS-compliant
+   *          mode.
+   */
+  @Nullable()
+  public static String getFIPSModeProviderName()
+  {
+    return FIPS_PROVIDER_NAME.get();
+  }
+
+
+
+  /**
    * Specifies whether the LDAP SDK should operate in a strict FIPS-compliant
    * mode.  If the LDAP SDK should operate in FIPS mode, then the Bouncy Castle
    * FIPS provider will be used by default.
@@ -510,6 +544,7 @@ public final class CryptoHelper
     else
     {
       FIPS_MODE.set(false);
+      FIPS_PROVIDER_NAME.set(null);
     }
   }
 
@@ -545,6 +580,7 @@ public final class CryptoHelper
     {
       fipsProvider = BouncyCastleFIPSHelper.loadBouncyCastleFIPSProvider(true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true);
+      FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME);
     }
     else if (providerName.equalsIgnoreCase(
          BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
@@ -554,6 +590,8 @@ public final class CryptoHelper
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
            BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1, true);
+      FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_1);
     }
     else if (providerName.equalsIgnoreCase(
          BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
@@ -563,6 +601,8 @@ public final class CryptoHelper
                 BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
       jsseProvider = BouncyCastleFIPSHelper.loadBouncyCastleJSSEProvider(true,
            BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2, true);
+      FIPS_PROVIDER_NAME.set(BouncyCastleFIPSHelper.FIPS_PROVIDER_NAME +
+           BouncyCastleFIPSHelper.FIPS_PROVIDER_VERSION_2);
     }
     else
     {
