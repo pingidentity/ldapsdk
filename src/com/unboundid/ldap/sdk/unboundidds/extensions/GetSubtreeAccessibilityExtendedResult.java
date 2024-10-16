@@ -90,6 +90,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *             read-only-bind-allowed     (1),
  *             read-only-bind-denied      (2),
  *             hidden                     (3),
+ *             to-be-deleted              (4),
  *             ... },
  *        bypassUserDN             [2] LDAPDN OPTIONAL,
  *        effectiveTime            [3] OCTET STRING,

@@ -93,14 +93,25 @@ public enum SubtreeAccessibilityState
 
 
   /**
-   * Indicates that the subtree should be made hidden so that is is not
+   * Indicates that the subtree should be made hidden so that it is not
    * accessible to most clients for any kinds of operations.  The subtree will
    * be available to one specified user (as indicated in the set subtree
    * accessibility request) for add, compare, delete, modify, modify DN, and
    * search operations.  Bind operations will not be allowed for any user in a
    * hidden subtree.
    */
-  HIDDEN(3, "hidden");
+  HIDDEN(3, "hidden"),
+
+
+
+  /**
+   * Indicates that the subtree is intended to be deleted.  It will behave in
+   * the same way as the {@link #HIDDEN} state, with the exception that the
+   * server will not allow any further changes to the subtree accessibility
+   * state.  That accessibility state will persist until the entry at the base
+   * of the subtree has been removed.
+   */
+  TO_BE_DELETED(4, "to-be-deleted");
 
 
 
@@ -165,14 +176,18 @@ public enum SubtreeAccessibilityState
 
 
   /**
-   * Indicates whether this state object represents the HIDDEN state.
+   * Indicates whether this state object represents the HIDDEN state.  For the
+   * purpose of this method, TO_BE_DELETED will also be considered to be HIDDEN,
+   * since the server will treat the two states as equivalent with the exception
+   * that the accessibility state of TO_BE_DELETED subtrees cannot be changed.
    *
-   * @return  {@code true} if this state object represents the HIDDEN state,
-   *          or {@code false} if not.
+   * @return  {@code true} if this state object represents the HIDDEN or
+   *          TO_BE_DELETED state, or {@code false} if not.
    */
   public boolean isHidden()
   {
-    return (this == HIDDEN);
+    return ((this == HIDDEN) ||
+            (this == TO_BE_DELETED));
   }
 
 
@@ -187,6 +202,19 @@ public enum SubtreeAccessibilityState
   {
     return ((this == READ_ONLY_BIND_ALLOWED) ||
             (this == READ_ONLY_BIND_DENIED));
+  }
+
+
+
+  /**
+   * Indicates whether this state object represents one of the read-only states.
+   *
+   * @return  {@code true} if this state object represents one of the read-only
+   *          states, or {@code false} if not.
+   */
+  public boolean isToBeDeleted()
+  {
+    return (this == TO_BE_DELETED);
   }
 
 
@@ -213,6 +241,8 @@ public enum SubtreeAccessibilityState
         return READ_ONLY_BIND_DENIED;
       case 3:
         return HIDDEN;
+      case 4:
+        return TO_BE_DELETED;
       default:
         return null;
     }
@@ -246,6 +276,10 @@ public enum SubtreeAccessibilityState
         return READ_ONLY_BIND_DENIED;
       case "hidden":
         return HIDDEN;
+      case "tobedeleted":
+      case "to-be-deleted":
+      case "to_be_deleted":
+        return TO_BE_DELETED;
       default:
         return null;
     }

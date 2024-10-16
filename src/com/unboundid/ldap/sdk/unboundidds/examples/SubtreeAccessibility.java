@@ -106,14 +106,15 @@ public final class SubtreeAccessibility
             SubtreeAccessibilityState.ACCESSIBLE.getStateName(),
             SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.getStateName(),
             SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.getStateName(),
-            SubtreeAccessibilityState.HIDDEN.getStateName());
+            SubtreeAccessibilityState.HIDDEN.getStateName(),
+            SubtreeAccessibilityState.TO_BE_DELETED.getStateName());
 
 
 
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = 3703682568143472108L;
+private static final long serialVersionUID = 4482916514411902292L;
 
 
 
@@ -430,7 +431,8 @@ public final class SubtreeAccessibility
               SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.getStateName() +
               ", " +
               SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.getStateName() +
-              ", " + SubtreeAccessibilityState.HIDDEN.getStateName() + '.',
+              ", " + SubtreeAccessibilityState.HIDDEN.getStateName() + ", or " +
+              SubtreeAccessibilityState.TO_BE_DELETED.getStateName() + '.',
          ALLOWED_ACCESSIBILITY_STATES);
     parser.addArgument(accessibilityState);
 
@@ -617,6 +619,18 @@ public final class SubtreeAccessibility
       case HIDDEN:
         request = SetSubtreeAccessibilityExtendedRequest.createSetHiddenRequest(
              baseDN.getStringValue(), bypassUserDN.getStringValue());
+        break;
+      case TO_BE_DELETED:
+        if (! bypassUserDN.isPresent())
+        {
+          err("The to-be-deleted accessibility state requires a bypass user " +
+               "to be specified.");
+          return ResultCode.PARAM_ERROR;
+        }
+
+        request = SetSubtreeAccessibilityExtendedRequest.
+             createSetToBeDeletedRequest(baseDN.getStringValue(),
+                  bypassUserDN.getStringValue());
         break;
       default:
         // This should never happen.

@@ -71,7 +71,7 @@ public final class GetSubtreeAccessibilityExtendedResultTestCase
          throws Exception
   {
     final ArrayList<SubtreeAccessibilityRestriction> restrictions =
-         new ArrayList<SubtreeAccessibilityRestriction>(2);
+         new ArrayList<SubtreeAccessibilityRestriction>();
     restrictions.add(new SubtreeAccessibilityRestriction(
          "ou=sub1,dc=example,dc=com",
          SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED,
@@ -79,6 +79,9 @@ public final class GetSubtreeAccessibilityExtendedResultTestCase
     restrictions.add(new SubtreeAccessibilityRestriction(
          "ou=sub2,dc=example,dc=com", SubtreeAccessibilityState.HIDDEN, null,
          new Date()));
+    restrictions.add(new SubtreeAccessibilityRestriction(
+         "ou=sub2,dc=example,dc=com", SubtreeAccessibilityState.TO_BE_DELETED,
+         "uid=bypass,dc=example,dc=com", new Date()));
 
     GetSubtreeAccessibilityExtendedResult r =
          new GetSubtreeAccessibilityExtendedResult(1234, ResultCode.SUCCESS,
@@ -99,7 +102,7 @@ public final class GetSubtreeAccessibilityExtendedResultTestCase
     assertEquals(r.getReferralURLs().length, 0);
 
     assertNotNull(r.getAccessibilityRestrictions());
-    assertEquals(r.getAccessibilityRestrictions().size(), 2);
+    assertEquals(r.getAccessibilityRestrictions().size(), 3);
 
     assertNotNull(r.getExtendedResultName());
 

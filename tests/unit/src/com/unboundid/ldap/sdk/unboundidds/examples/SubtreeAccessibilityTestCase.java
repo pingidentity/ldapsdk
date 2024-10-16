@@ -320,6 +320,23 @@ public final class SubtreeAccessibilityTestCase
       assertTrue(getResult.getAccessibilityRestrictions().isEmpty());
 
 
+      // Verify that the tool will fail when trying to set a to-be-deleted state
+      // without a bypass user DN.
+      args = new String[]
+      {
+        "--hostname", getTestHost(),
+        "--port", String.valueOf(getTestPort()),
+        "--bindDN", getTestBindDN(),
+        "--bindPassword", getTestBindPassword(),
+        "--set",
+        "--baseDN", "ou=subtree3," + getTestBaseDN(),
+        "--state", "to-be-deleted"
+      };
+
+      resultCode = SubtreeAccessibility.main(args, null, null);
+      assertEquals(resultCode, ResultCode.PARAM_ERROR);
+
+
       // Invoke the tool in get mode with the wrong password so it will fail.
       args = new String[]
       {

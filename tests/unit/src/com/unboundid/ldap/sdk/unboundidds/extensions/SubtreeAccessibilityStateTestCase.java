@@ -155,7 +155,7 @@ public final class SubtreeAccessibilityStateTestCase
 
 
   /**
-   * Tests the isAccessible/isHidden/isReadOnly methods.
+   * Tests the isAccessible/isHidden/isReadOnly/toBeDeleted methods.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -166,20 +166,31 @@ public final class SubtreeAccessibilityStateTestCase
     assertTrue(SubtreeAccessibilityState.ACCESSIBLE.isAccessible());
     assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isHidden());
     assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isReadOnly());
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isToBeDeleted());
 
     assertFalse(SubtreeAccessibilityState.HIDDEN.isAccessible());
     assertTrue(SubtreeAccessibilityState.HIDDEN.isHidden());
     assertFalse(SubtreeAccessibilityState.HIDDEN.isReadOnly());
+    assertFalse(SubtreeAccessibilityState.HIDDEN.isToBeDeleted());
 
     assertFalse(
          SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isAccessible());
     assertFalse(SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isHidden());
     assertTrue(SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isReadOnly());
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isToBeDeleted());
 
     assertFalse(
          SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isAccessible());
     assertFalse(SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isHidden());
     assertTrue(SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isReadOnly());
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isToBeDeleted());
+
+    assertFalse(SubtreeAccessibilityState.TO_BE_DELETED.isAccessible());
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isHidden());
+    assertFalse(SubtreeAccessibilityState.TO_BE_DELETED.isReadOnly());
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isToBeDeleted());
   }
 
 

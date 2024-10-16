@@ -99,6 +99,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *             read-only-bind-allowed     (1),
  *             read-only-bind-denied      (2),
  *             hidden                     (3),
+ *             to-be-deleted              (4),
  *             ... },
  *        bypassUserDN                 [0] LDAPDN OPTIONAL,
  *        additionalSubtreeBaseDNs     [1] SEQUENCE OF LDAPDN OPTIONAL,
@@ -136,7 +137,7 @@ public final class SetSubtreeAccessibilityExtendedRequest
   /**
    * The serial version UID for this serializable class.
    */
-  private static final long serialVersionUID = -3003738735546060245L;
+  private static final long serialVersionUID = -6619215987488239440L;
 
 
 
@@ -321,6 +322,14 @@ public final class SetSubtreeAccessibilityExtendedRequest
     {
       throw new LDAPException(ResultCode.DECODING_ERROR,
            ERR_SET_SUBTREE_ACCESSIBILITY_UNEXPECTED_BYPASS_DN.get(
+                accessibilityState.getStateName()));
+    }
+
+    if ((accessibilityState == SubtreeAccessibilityState.TO_BE_DELETED) &&
+         (bypassUserDN == null))
+    {
+      throw new LDAPException(ResultCode.DECODING_ERROR,
+           ERR_SET_SUBTREE_ACCESSIBILITY_MISSING_BYPASS_DN.get(
                 accessibilityState.getStateName()));
     }
   }
@@ -535,6 +544,82 @@ public final class SetSubtreeAccessibilityExtendedRequest
 
     return new SetSubtreeAccessibilityExtendedRequest(subtreeBaseDNs,
          SubtreeAccessibilityState.HIDDEN, bypassUserDN, controls);
+  }
+
+
+
+  /**
+   * Creates a new set subtree accessibility extended request that will place
+   * the specified subtree in a to-be-deleted state.  In this state, the
+   * subtree will exhibit the same characteristics as a hidden subtree, but with
+   * the added restriction that the accessibility state cannot be changed, and
+   * the restriction will only be removed when the base entry of the target
+   * subtree has been deleted.
+   *
+   * @param  subtreeBaseDN  The base DN for the subtree to mark as
+   *                        to-be-deleted.  It must not be {@code null}.
+   * @param  bypassUserDN   The DN of a user that will be allowed to perform
+   *                        write (add, delete, modify, and modify DN)
+   *                        operations in the specified subtree.  It must not be
+   *                        {@code null}.
+   * @param  controls       The set of controls to include in the request.  It
+   *                        may be {@code null} or empty if no controls are
+   *                        needed.
+   *
+   * @return  The set subtree accessibility extended request that was created.
+   */
+  @NotNull()
+  public static SetSubtreeAccessibilityExtendedRequest
+              createSetToBeDeletedRequest(@NotNull final String subtreeBaseDN,
+                                          @NotNull final String bypassUserDN,
+                                          @Nullable final Control... controls)
+  {
+    Validator.ensureNotNull(subtreeBaseDN);
+    Validator.ensureNotNull(bypassUserDN);
+
+    return new SetSubtreeAccessibilityExtendedRequest(
+         Collections.singletonList(subtreeBaseDN),
+         SubtreeAccessibilityState.TO_BE_DELETED, bypassUserDN, controls);
+  }
+
+
+
+  /**
+   * Creates a new set subtree accessibility extended request that will place
+   * the specified subtrees in a to-be-deleted state.  In this state, the
+   * subtrees will exhibit the same characteristics as hidden subtrees, but with
+   * the added restriction that the accessibility state cannot be changed, and
+   * the restriction will only be removed when the base entry of the target
+   * subtree has been deleted.
+   *
+   * @param  subtreeBaseDNs  The base DNs for the subtrees to make hidden.  It
+   *                         must not be {@code null} or empty.  If multiple
+   *                         base DNs are specified, then all must reside below
+   *                         the same backend base DN.
+   * @param  bypassUserDN    The DN of a user that will be allowed to perform
+   *                         write (add, delete, modify, and modify DN)
+   *                         operations in the specified subtrees.  It must not
+   *                         be {@code null}.
+   * @param  controls        The set of controls to include in the request.  It
+   *                         may be {@code null} or empty if no controls are
+   *                         needed.
+   *
+   * @return  The set subtree accessibility extended request that was created.
+   */
+  @NotNull()
+  public static SetSubtreeAccessibilityExtendedRequest
+              createSetToBeDeletedRequest(
+                   @NotNull final Collection<String> subtreeBaseDNs,
+                   @NotNull final String bypassUserDN,
+                   @Nullable final Control... controls)
+  {
+    Validator.ensureNotNull(subtreeBaseDNs);
+    Validator.ensureFalse(subtreeBaseDNs.isEmpty());
+
+    Validator.ensureNotNull(bypassUserDN);
+
+    return new SetSubtreeAccessibilityExtendedRequest(subtreeBaseDNs,
+         SubtreeAccessibilityState.TO_BE_DELETED, bypassUserDN, controls);
   }
 
 

@@ -466,6 +466,108 @@ public final class SetSubtreeAccessibilityExtendedRequestTestCase
 
 
   /**
+   * Tests the behavior of the request intended to make a single subtree
+   * to-be-deleted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToBeDeletedRequestSingleSubtree()
+         throws Exception
+  {
+    SetSubtreeAccessibilityExtendedRequest r =
+         SetSubtreeAccessibilityExtendedRequest.createSetToBeDeletedRequest(
+              "ou=subtree,dc=example,dc=com", "uid=bypass,dc=example,dc=com");
+
+    r = new SetSubtreeAccessibilityExtendedRequest(r);
+    assertNotNull(r);
+
+    r = r.duplicate();
+    assertNotNull(r);
+
+    assertNotNull(r.getSubtreeBaseDN());
+    assertEquals(new DN(r.getSubtreeBaseDN()),
+         new DN("ou=subtree,dc=example,dc=com"));
+
+    assertNotNull(r.getSubtreeBaseDNs());
+    assertEquals(r.getSubtreeBaseDNs().size(), 1);
+
+    assertNotNull(r.getAccessibilityState());
+    assertEquals(r.getAccessibilityState(),
+         SubtreeAccessibilityState.TO_BE_DELETED);
+
+    assertNotNull(r.getBypassUserDN());
+    assertEquals(new DN(r.getBypassUserDN()),
+         new DN("uid=bypass,dc=example,dc=com"));
+
+    assertNotNull(r.getOID());
+    assertEquals(r.getOID(), "1.3.6.1.4.1.30221.2.6.19");
+
+    assertNotNull(r.getValue());
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 0);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior of the request intended to make multiple subtrees
+   * to-be-deleted.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testToBeDeletedRequestMultipleSubtrees()
+         throws Exception
+  {
+    SetSubtreeAccessibilityExtendedRequest r =
+         SetSubtreeAccessibilityExtendedRequest.createSetToBeDeletedRequest(
+              Arrays.asList("ou=subtree1,dc=example,dc=com",
+                   "ou=subtree2,dc=example,dc=com"),
+              "uid=bypass,dc=example,dc=com");
+
+    r = new SetSubtreeAccessibilityExtendedRequest(r);
+    assertNotNull(r);
+
+    r = r.duplicate();
+    assertNotNull(r);
+
+    assertNotNull(r.getSubtreeBaseDN());
+    assertEquals(new DN(r.getSubtreeBaseDN()),
+         new DN("ou=subtree1,dc=example,dc=com"));
+
+    assertNotNull(r.getSubtreeBaseDNs());
+    assertEquals(r.getSubtreeBaseDNs().size(), 2);
+
+    assertNotNull(r.getAccessibilityState());
+    assertEquals(r.getAccessibilityState(),
+         SubtreeAccessibilityState.TO_BE_DELETED);
+
+    assertNotNull(r.getBypassUserDN());
+    assertEquals(new DN(r.getBypassUserDN()),
+         new DN("uid=bypass,dc=example,dc=com"));
+
+    assertNotNull(r.getOID());
+    assertEquals(r.getOID(), "1.3.6.1.4.1.30221.2.6.19");
+
+    assertNotNull(r.getValue());
+
+    assertNotNull(r.getControls());
+    assertEquals(r.getControls().length, 0);
+
+    assertNotNull(r.getExtendedRequestName());
+
+    assertNotNull(r.toString());
+  }
+
+
+
+  /**
    * Tests the behavior when trying to decode a generic extended request when it
    * does not have a value.
    *
