@@ -220,6 +220,56 @@ public enum SubtreeAccessibilityState
 
 
   /**
+   * Indicates whether this subtree accessibility state is considered more
+   * restrictive than the provided state.  States will be considered in the
+   * following descending order of restrictiveness:
+   * <OL>
+   *   <LI>{@code TO_BE_DELETED}</LI>
+   *   <LI>{@code HIDDEN}</LI>
+   *   <LI>{@code READ_ONLY_BIND_DENIED}</LI>
+   *   <LI>{@code READ_ONLY_BIND_ALLOWED}</LI>
+   *   <LI>{@code ACCESSIBLE}</LI>
+   * </OL>
+   *
+   * @param  state  The accessibility state to compare against this one.  It
+   *                must not be {@code null}.
+   *
+   * @return  {@code true} if this state is more restrictive than the provided
+   *          state, or {@code false} if this state is the same as or less
+   *          restrictive than the provided state.
+   */
+  public boolean isMoreRestrictiveThan(
+              @NotNull final SubtreeAccessibilityState state)
+  {
+    switch (this)
+    {
+      case TO_BE_DELETED:
+        return (state != SubtreeAccessibilityState.TO_BE_DELETED);
+
+      case HIDDEN:
+        return ((state != SubtreeAccessibilityState.TO_BE_DELETED) &&
+             (state != SubtreeAccessibilityState.HIDDEN));
+
+      case READ_ONLY_BIND_DENIED:
+        return ((state != SubtreeAccessibilityState.TO_BE_DELETED) &&
+             (state != SubtreeAccessibilityState.HIDDEN) &&
+             (state != SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+
+      case READ_ONLY_BIND_ALLOWED:
+        return ((state != SubtreeAccessibilityState.TO_BE_DELETED) &&
+             (state != SubtreeAccessibilityState.HIDDEN) &&
+             (state != SubtreeAccessibilityState.READ_ONLY_BIND_DENIED) &&
+             (state != SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+
+      case ACCESSIBLE:
+      default:
+        return false;
+    }
+  }
+
+
+
+  /**
    * Retrieves the subtree accessibility state with the specified integer value.
    *
    * @param  intValue  The integer value for the state to retrieve.

@@ -196,6 +196,83 @@ public final class SubtreeAccessibilityStateTestCase
 
 
   /**
+   * Tests the behavior of the {@code isMoreRestrictiveThan} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testIsMoreRestrictiveThan()
+         throws Exception
+  {
+    assertFalse(SubtreeAccessibilityState.TO_BE_DELETED.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.TO_BE_DELETED));
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.HIDDEN));
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+    assertTrue(SubtreeAccessibilityState.TO_BE_DELETED.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.ACCESSIBLE));
+
+    assertFalse(SubtreeAccessibilityState.HIDDEN.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.TO_BE_DELETED));
+    assertFalse(SubtreeAccessibilityState.HIDDEN.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.HIDDEN));
+    assertTrue(SubtreeAccessibilityState.HIDDEN.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+    assertTrue(SubtreeAccessibilityState.HIDDEN.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+    assertTrue(SubtreeAccessibilityState.HIDDEN.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.ACCESSIBLE));
+
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.TO_BE_DELETED));
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.HIDDEN));
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+    assertTrue(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+    assertTrue(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.ACCESSIBLE));
+
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.TO_BE_DELETED));
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.HIDDEN));
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+    assertFalse(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+    assertTrue(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED.isMoreRestrictiveThan(
+              SubtreeAccessibilityState.ACCESSIBLE));
+
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.TO_BE_DELETED));
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.HIDDEN));
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_DENIED));
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.READ_ONLY_BIND_ALLOWED));
+    assertFalse(SubtreeAccessibilityState.ACCESSIBLE.isMoreRestrictiveThan(
+         SubtreeAccessibilityState.ACCESSIBLE));
+  }
+
+
+
+  /**
    * Tests the {@code forName} method with automated tests based on the actual
    * name of the enum values.
    *
