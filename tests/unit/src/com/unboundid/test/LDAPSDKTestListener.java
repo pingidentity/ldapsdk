@@ -173,14 +173,17 @@ public class LDAPSDKTestListener
     printRightAligned(numFailed, 11);
     logWithoutNewline("  ");
 
-    final int dotPos = lastClass.lastIndexOf('.');
-    if (dotPos > 0)
+    if (lastClass != null)
     {
-      log(lastClass.substring(dotPos+1));
-    }
-    else
-    {
-      log(lastClass);
+      final int dotPos = lastClass.lastIndexOf('.');
+      if (dotPos > 0)
+      {
+        log(lastClass.substring(dotPos+1));
+      }
+      else
+      {
+        log(lastClass);
+      }
     }
 
     log();

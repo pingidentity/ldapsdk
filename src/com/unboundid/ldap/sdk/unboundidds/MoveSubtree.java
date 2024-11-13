@@ -536,7 +536,7 @@ public final class MoveSubtree
 
         final MoveSubtreeResult result = moveSubtreeWithRestrictedAccessibility(
            this, sourceConnection, targetConnection, dn, sizeLimit.getValue(),
-             operationPurpose, suppressReferentialIntegrityUpdates,
+             false, operationPurpose, suppressReferentialIntegrityUpdates,
              (verbose.isPresent() ? this : null));
         if (result.getResultCode() == ResultCode.SUCCESS)
         {
@@ -1549,8 +1549,85 @@ processingBlock:
               @Nullable final MoveSubtreeListener listener)
   {
     return moveSubtreeWithRestrictedAccessibility(null, sourceConnection,
-         targetConnection, baseDN, sizeLimit, opPurposeControl, suppressRefInt,
-         listener);
+         targetConnection, baseDN, sizeLimit, false, opPurposeControl,
+         suppressRefInt, listener);
+  }
+
+
+
+  /**
+   * Moves a subtree of entries using a process in which access to the subtree
+   * will be restricted while the move is in progress.  While entries are being
+   * read from the source server and added to the target server, the subtree
+   * will be read-only in the source server and hidden in the target server.
+   * While entries are being removed from the source server, the subtree will be
+   * marked as either hidden or to-be-deleted in the source server while fully
+   * accessible in the target.  After all entries have been removed from the
+   * source server, the accessibility restriction will be removed from that
+   * server as well.
+   * <BR><BR>
+   * The logic used to accomplish this is as follows:
+   * <OL>
+   *   <LI>Make the subtree hidden in the target server.</LI>
+   *   <LI>Make the subtree read-only in the source server.</LI>
+   *   <LI>Perform a search in the source server to retrieve all entries in the
+   *       specified subtree.  The search request will have a subtree scope with
+   *       a filter of "(objectClass=*)", will include the specified size limit,
+   *       will request all user and operational attributes, and will include
+   *       the following request controls:  ManageDsaIT, LDAP subentries,
+   *       return conflict entries, soft-deleted entry access, real attributes
+   *       only, and operation purpose.</LI>
+   *  <LI>For each entry returned by the search, add that entry to the target
+   *      server.  This method assumes that the source server will return
+   *      results in a manner that guarantees that no child entry is returned
+   *      before its parent.  Each add request will include the following
+   *      controls:  ignore NO-USER-MODIFICATION, and operation purpose.</LI>
+   *  <LI>Make the subtree read-only in the target server.</LI>
+   *  <LI>Make the subtree hidden or to-be-deleted in the source server.</LI>
+   *  <LI>Make the subtree accessible in the target server.</LI>
+   *  <LI>Delete each entry from the source server, with all subordinate entries
+   *      before their parents.  Each delete request will include the following
+   *      controls:  ManageDsaIT, and operation purpose.</LI>
+   *  <LI>Make the subtree accessible in the source server.</LI>
+   * </OL>
+   * Conditions which could result in an incomplete move include:
+   * <UL>
+   *   <LI>A failure is encountered while altering the accessibility of the
+   *       subtree in either the source or target server.</LI>
+   *   <LI>A failure is encountered while attempting to process an add in the
+   *       target server and a subsequent failure is encountered when attempting
+   *       to delete previously-added entries.</LI>
+   *   <LI>A failure is encountered while attempting to delete one or more
+   *       entries from the source server.</LI>
+   * </UL>
+   *
+   * @param  sourceConnection  A connection established to the source server.
+   *                           It should be authenticated as a user with
+   *                           permission to perform all of the operations
+   *                           against the source server as referenced above.
+   * @param  targetConnection  A connection established to the target server.
+   *                           It should be authenticated as a user with
+   *                           permission to perform all of the operations
+   *                           against the target server as referenced above.
+   * @param  properties        A set of properties that indicate how the move
+   *                           shoudl be performed.
+   *
+   * @return  An object with information about the result of the attempted
+   *          subtree move.
+   */
+  @NotNull()
+  public static MoveSubtreeResult moveSubtreeWithRestrictedAccessibility(
+              @NotNull final LDAPConnection sourceConnection,
+              @NotNull final LDAPConnection targetConnection,
+              @NotNull final MoveSubtreeProperties properties)
+  {
+    return moveSubtreeWithRestrictedAccessibility(null, sourceConnection,
+         targetConnection, properties.getBaseDN().toString(),
+         properties.getMaximumAllowedSubtreeSize(),
+         properties.useToBeDeletedAccessibilityState(),
+         properties.getOperationPurposeRequestControl(),
+         properties.suppressReferentialIntegrityUpdates(),
+         properties.getMoveSubtreeListener());
   }
 
 
@@ -1561,31 +1638,39 @@ processingBlock:
    * information in that tool so that it can be referenced by a shutdown hook
    * in the event that processing is interrupted.
    *
-   * @param  tool              A reference to a tool instance to be updated with
-   *                           state information.
-   * @param  sourceConnection  A connection established to the source server.
-   *                           It should be authenticated as a user with
-   *                           permission to perform all of the operations
-   *                           against the source server as referenced above.
-   * @param  targetConnection  A connection established to the target server.
-   *                           It should be authenticated as a user with
-   *                           permission to perform all of the operations
-   *                           against the target server as referenced above.
-   * @param  baseDN            The base DN for the subtree to move.
-   * @param  sizeLimit         The maximum number of entries to be moved.  It
-   *                           may be less than or equal to zero to indicate
-   *                           that no client-side limit should be enforced
-   *                           (although the server may still enforce its own
-   *                           limit).
-   * @param  opPurposeControl  An optional operation purpose request control
-   *                           that may be included in all requests sent to the
-   *                           source and target servers.
-   * @param  suppressRefInt    Indicates whether to include a request control
-   *                           causing referential integrity updates to be
-   *                           suppressed on the source server.
-   * @param  listener          An optional listener that may be invoked during
-   *                           the course of moving entries from the source
-   *                           server to the target server.
+   * @param  tool                 A reference to a tool instance to be updated
+   *                              with state information.
+   * @param  sourceConnection     A connection established to the source server.
+   *                              It should be authenticated as a user with
+   *                              permission to perform all of the operations
+   *                              against the source server as referenced above.
+   * @param  targetConnection     A connection established to the target server.
+   *                              It should be authenticated as a user with
+   *                              permission to perform all of the operations
+   *                              against the target server as referenced above.
+   * @param  baseDN               The base DN for the subtree to move.
+   * @param  sizeLimit            The maximum number of entries to be moved.  It
+   *                              may be less than or equal to zero to indicate
+   *                              that no client-side limit should be enforced
+   *                              (although the server may still enforce its own
+   *                              limit).
+   * @param  useToBeDeletedState  Indicates whether to use the "to be deleted"
+   *                              accessibility state for the source subtree
+   *                              once all entries have been copied to the
+   *                              destination server and the source subtree is
+   *                              about to be deleted.  The "to be deleted"
+   *                              state may be more efficient in some cases, but
+   *                              some Directory Server versions may not support
+   *                              it.
+   * @param  opPurposeControl     An optional operation purpose request control
+   *                              that may be included in all requests sent to
+   *                              the source and target servers.
+   * @param  suppressRefInt       Indicates whether to include a request control
+   *                              causing referential integrity updates to be
+   *                              suppressed on the source server.
+   * @param  listener             An optional listener that may be invoked
+   *                              during the course of moving entries from the
+   *                              source server to the target server.
    *
    * @return  An object with information about the result of the attempted
    *          subtree move.
@@ -1596,6 +1681,7 @@ processingBlock:
                @NotNull final LDAPConnection sourceConnection,
                @NotNull final LDAPConnection targetConnection,
                @NotNull final String baseDN, final int sizeLimit,
+               final boolean useToBeDeletedState,
                @Nullable final OperationPurposeRequestControl opPurposeControl,
                final boolean suppressRefInt,
                @Nullable final MoveSubtreeListener listener)
@@ -1823,19 +1909,35 @@ processingBlock:
       }
 
 
-      // Make the subtree hidden on the source server.
+      // Make the subtree either hidden or to-be-deleted on the source server.
       try
       {
-        setAccessibility(sourceConnection, true, baseDN,
-             SubtreeAccessibilityState.HIDDEN, sourceUserDN,
-             opPurposeControl);
-        currentSourceState = SubtreeAccessibilityState.HIDDEN;
-        setInterruptMessage(tool,
-             WARN_MOVE_SUBTREE_INTERRUPT_MSG_SOURCE_HIDDEN.get(baseDN,
-                  sourceConnection.getConnectedAddress(),
-                  sourceConnection.getConnectedPort(),
-                  targetConnection.getConnectedAddress(),
-                  targetConnection.getConnectedPort()));
+        if (useToBeDeletedState)
+        {
+          setAccessibility(sourceConnection, true, baseDN,
+               SubtreeAccessibilityState.TO_BE_DELETED, sourceUserDN,
+               opPurposeControl);
+          currentSourceState = SubtreeAccessibilityState.HIDDEN;
+          setInterruptMessage(tool,
+               WARN_MOVE_SUBTREE_INTERRUPT_MSG_SOURCE_TO_BE_DELETED.get(baseDN,
+                    sourceConnection.getConnectedAddress(),
+                    sourceConnection.getConnectedPort(),
+                    targetConnection.getConnectedAddress(),
+                    targetConnection.getConnectedPort()));
+        }
+        else
+        {
+          setAccessibility(sourceConnection, true, baseDN,
+               SubtreeAccessibilityState.HIDDEN, sourceUserDN,
+               opPurposeControl);
+          currentSourceState = SubtreeAccessibilityState.HIDDEN;
+          setInterruptMessage(tool,
+               WARN_MOVE_SUBTREE_INTERRUPT_MSG_SOURCE_HIDDEN.get(baseDN,
+                    sourceConnection.getConnectedAddress(),
+                    sourceConnection.getConnectedPort(),
+                    targetConnection.getConnectedAddress(),
+                    targetConnection.getConnectedPort()));
+        }
       }
       catch (final LDAPException le)
       {
@@ -1885,12 +1987,18 @@ processingBlock:
       }
 
 
-      // Make the subtree accessible on the source server.
+      // If the source subtree is hidden, then make it accessible.  This isn't
+      // needed if it's in a to-be-deleted state because that state should have
+      // automatically been cleared upon deleting the base entry.
       try
       {
-        setAccessibility(sourceConnection, true, baseDN,
-             SubtreeAccessibilityState.ACCESSIBLE, sourceUserDN,
-             opPurposeControl);
+        if (! useToBeDeletedState)
+        {
+          setAccessibility(sourceConnection, true, baseDN,
+               SubtreeAccessibilityState.ACCESSIBLE, sourceUserDN,
+               opPurposeControl);
+        }
+
         currentSourceState = SubtreeAccessibilityState.ACCESSIBLE;
         setInterruptMessage(tool, null);
       }
@@ -1906,7 +2014,7 @@ processingBlock:
 
     // If the source server was left in a state other than accessible, then
     // see if we can safely change it back.  If it's left in any state other
-    // then accessible, then generate an admin action message.
+    // than accessible, then generate an admin action message.
     if (currentSourceState != SubtreeAccessibilityState.ACCESSIBLE)
     {
       if (! sourceServerAltered)
@@ -1935,7 +2043,7 @@ processingBlock:
 
     // If the target server was left in a state other than accessible, then
     // see if we can safely change it back.  If it's left in any state other
-    // then accessible, then generate an admin action message.
+    // than accessible, then generate an admin action message.
     if (currentTargetState != SubtreeAccessibilityState.ACCESSIBLE)
     {
       if (! targetServerAltered)
@@ -2440,6 +2548,10 @@ processingBlock:
       case HIDDEN:
         request = SetSubtreeAccessibilityExtendedRequest.
              createSetHiddenRequest(baseDN, bypassDN, controls);
+        break;
+      case TO_BE_DELETED:
+        request = SetSubtreeAccessibilityExtendedRequest.
+             createSetToBeDeletedRequest(baseDN, bypassDN, controls);
         break;
       default:
         throw new LDAPException(ResultCode.PARAM_ERROR,
