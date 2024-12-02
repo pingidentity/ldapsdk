@@ -4,13 +4,13 @@
 
 Network Working Group                                   A. Melnikov, Ed.
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                            4 March 2024
-Expires: 5 September 2024
+Intended status: Standards Track                         2 December 2024
+Expires: 5 June 2025
 
 
     SCRAM-SHA3-512 and SCRAM-SHA3-512-PLUS Simple Authentication and
                     Security Layer (SASL) Mechanisms
-                    draft-melnikov-scram-sha3-512-04
+                    draft-melnikov-scram-sha3-512-05
 
 Abstract
 
@@ -32,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 September 2024.
+   This Internet-Draft will expire on 5 June 2025.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Melnikov                Expires 5 September 2024                [Page 1]
+Melnikov                   Expires 5 June 2025                  [Page 1]
 
-Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS   December 2024
 
 
 Table of Contents
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Melnikov                Expires 5 September 2024                [Page 2]
+Melnikov                   Expires 5 June 2025                  [Page 2]
 
-Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS   December 2024
 
 
 4.  Security Considerations
@@ -165,9 +165,9 @@ Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
 
 
 
-Melnikov                Expires 5 September 2024                [Page 3]
+Melnikov                   Expires 5 June 2025                  [Page 3]
 
-Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS   December 2024
 
 
       Minimum iteration-count:  10000
@@ -221,9 +221,9 @@ Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
 
 
 
-Melnikov                Expires 5 September 2024                [Page 4]
+Melnikov                   Expires 5 June 2025                  [Page 4]
 
-Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS   December 2024
 
 
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
@@ -277,9 +277,9 @@ Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
 
 
 
-Melnikov                Expires 5 September 2024                [Page 5]
+Melnikov                   Expires 5 June 2025                  [Page 5]
 
-Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS      March 2024
+Internet-Draft   SASL SCRAM-SHA3-512/SCRAM-SHA3-512-PLUS   December 2024
 
 
    [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
@@ -333,4 +333,4 @@ Author's Address
 
 
 
-Melnikov                Expires 5 September 2024                [Page 6]
+Melnikov                   Expires 5 June 2025                  [Page 6]

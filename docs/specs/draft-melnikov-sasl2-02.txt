@@ -5,16 +5,16 @@
 Network Working Group                                        D. Cridland
 Internet-Draft                                                          
 Intended status: Standards Track                              T. Molitor
-Expires: 11 September 2023                                              
+Expires: 5 June 2025                                                    
                                                                  M. Wild
                                                                         
                                                              A. Melnikov
                                                                Isode Ltd
-                                                           10 March 2023
+                                                         2 December 2024
 
 
        Extensible Simple Authentication and Security Layer (SASL)
-                        draft-melnikov-sasl2-00
+                        draft-melnikov-sasl2-02
 
 Abstract
 
@@ -49,18 +49,18 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 September 2023.
+   This Internet-Draft will expire on 5 June 2025.
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 1]
+Cridland, et al.           Expires 5 June 2025                  [Page 1]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -81,8 +81,8 @@ Table of Contents
    5.  Extra Protocol Requirements . . . . . . . . . . . . . . . . .   7
    6.  Extra Mechanism Requirements  . . . . . . . . . . . . . . . .   8
    7.  Example of a Protocol fulfilling extra requirements . . . . .   8
-   8.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   8.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   9
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
    11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
    12. References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 2]
+Cridland, et al.           Expires 5 June 2025                  [Page 2]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
    SASL is conceptually a framework that provides an abstraction layer
@@ -165,16 +165,16 @@ Internet-Draft                Extended SASL                   March 2023
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 3]
+Cridland, et al.           Expires 5 June 2025                  [Page 3]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
    *  Shared key derivation after successful authentication.
 
-   Extensions to SASL documented herein are primarily some
-   clarifications to allow extensibility, and additional results beyond
-   total success or abject failure.
+   Extensions to SASL documented herein are primarily to allow for
+   better capability discovery, and additional results beyond total
+   success or abject failure.
 
 2.  Conventions Used in This Document
 
@@ -221,9 +221,9 @@ Internet-Draft                Extended SASL                   March 2023
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 4]
+Cridland, et al.           Expires 5 June 2025                  [Page 4]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
    A client MAY choose any one of the offered tasks; if multiple are
@@ -277,9 +277,9 @@ Internet-Draft                Extended SASL                   March 2023
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 5]
+Cridland, et al.           Expires 5 June 2025                  [Page 5]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
 Example 2. Fictional TOTP task
@@ -333,9 +333,9 @@ Example 2. Fictional TOTP task
 
 
 
-Cridland, et al.        Expires 11 September 2023               [Page 6]
+Cridland, et al.           Expires 5 June 2025                  [Page 6]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
    Example 3. Channel Binding Type advertisement in XMPP (XEP-0440).
@@ -368,7 +368,10 @@ Internet-Draft                Extended SASL                   March 2023
       9) Facility to advertise the list of Channel Bindings that the
       server supports.  See Section 4.
 
-      10) Detail any task negotiation facility that the protocol
+      10) Facility to issue reuthentication tokens for SASL mechanisms
+      that support them.
+
+      11) Detail any task negotiation facility that the protocol
       provides.  [[Alexey: does this need to be done before
       authentication starts, or is it sufficient to discover these at
       the end of SASL mechanism exchange, when specific extra tasks are
@@ -381,17 +384,14 @@ Internet-Draft                Extended SASL                   March 2023
       any authentication), as well as provided at the end of a SASL
       authentication exchange.
 
-      11) Definition of the messages necessary for executing tasks,
+      12) Definition of the messages necessary for executing tasks,
       including the following:
 
 
 
-
-
-
-Cridland, et al.        Expires 11 September 2023               [Page 7]
+Cridland, et al.           Expires 5 June 2025                  [Page 7]
 
-Internet-Draft                Extended SASL                   March 2023
+Internet-Draft                Extended SASL                December 2024
 
 
       a.  A message to initiate execution of a task (see Section 3).
@@ -427,12 +427,27 @@ Internet-Draft                Extended SASL                   March 2023
 
 
       6) Optional facility for SASL mechanism shared key derivation
-      after a successful authentication.  .
+      after a successful authentication.
+
+      7) Optional facility for SASL mechanism to generate
+      reauthentication token after a successful authentication.
 
 7.  Example of a Protocol fulfilling extra requirements
 
    [[Ideally need 2 protocols.  For example XMPP and IMAP.  IMAP can
    have a new command for tasks.]]
+
+
+
+
+
+
+
+
+
+Cridland, et al.           Expires 5 June 2025                  [Page 8]
+
+Internet-Draft                Extended SASL                December 2024
 
 
 8.  Open Issues
@@ -441,14 +456,6 @@ Internet-Draft                Extended SASL                   March 2023
 9.  Security Considerations
 
    TBD
-
-
-
-
-Cridland, et al.        Expires 11 September 2023               [Page 8]
-
-Internet-Draft                Extended SASL                   March 2023
-
 
 10.  IANA Considerations
 
@@ -488,6 +495,17 @@ Notes (optional):
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+
+
+
+
+
+
+Cridland, et al.           Expires 5 June 2025                  [Page 9]
+
+Internet-Draft                Extended SASL                December 2024
+
+
    [RFC4422]  Melnikov, A., Ed. and K. Zeilenga, Ed., "Simple
               Authentication and Security Layer (SASL)", RFC 4422,
               DOI 10.17487/RFC4422, June 2006,
@@ -496,15 +514,6 @@ Notes (optional):
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
               <https://www.rfc-editor.org/info/rfc4949>.
-
-
-
-
-
-Cridland, et al.        Expires 11 September 2023               [Page 9]
-
-Internet-Draft                Extended SASL                   March 2023
-
 
    [RFC5056]  Williams, N., "On the Use of Channel Bindings to Secure
               Channels", RFC 5056, DOI 10.17487/RFC5056, November 2007,
@@ -548,13 +557,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-Cridland, et al.        Expires 11 September 2023              [Page 10]
+Cridland, et al.           Expires 5 June 2025                 [Page 10]
