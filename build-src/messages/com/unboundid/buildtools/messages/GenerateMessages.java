@@ -1,9 +1,9 @@
 /*
- * Copyright 2008-2024 Ping Identity Corporation
+ * Copyright 2008-2025 Ping Identity Corporation
  * All Rights Reserved.
  */
 /*
- * Copyright 2008-2024 Ping Identity Corporation
+ * Copyright 2008-2025 Ping Identity Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 /*
- * Copyright (C) 2008-2024 Ping Identity Corporation
+ * Copyright (C) 2008-2025 Ping Identity Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPLv2 only)
@@ -216,7 +216,7 @@ public class GenerateMessages
         w(" * All Rights Reserved.");
         w(" */");
         w("/*");
-        w(" * Copyright 2020-2024 Ping Identity Corporation");
+        w(" * Copyright 2020-2025 Ping Identity Corporation");
         w(" *");
         w(" * Licensed under the Apache License, Version 2.0 (the " +
              "\"License\");");
