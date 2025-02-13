@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -2992,5 +2993,112 @@ public final class X509CertificateTestCase
 
     assertEquals(testLogHandler.getMessageCount(), 0,
          testLogHandler.getMessagesString());
+  }
+
+
+
+  /**
+   * Tests to ensure that UTC time values, which use a two-digit year, are
+   * properly interpreted so that the year is always between 1950 and 2049.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testDecodeUTCTime()
+         throws Exception
+  {
+    final String earliestTimesetampWithoutYear = "0101000000Z";
+    final String latestTimestampWithoutYear = "1231235959Z";
+    final String middleTimestampWithoutYear = "0615123456Z";
+
+    for (int partialYear=0; partialYear <= 99; partialYear++)
+    {
+      String yearStr = String.valueOf(partialYear);
+      if (yearStr.length() == 1)
+      {
+        yearStr = "0" + yearStr;
+      }
+
+
+      String earliestUTCTimeInYearString =
+           yearStr + earliestTimesetampWithoutYear;
+      final ASN1UTCTime earliestUTCTimeInYear =
+           new ASN1UTCTime(earliestUTCTimeInYearString);
+      if (partialYear >= 50)
+      {
+        assertYearEquals(earliestUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(earliestUTCTimeInYear),
+             1900 + partialYear);
+      }
+      else
+      {
+        assertYearEquals(earliestUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(earliestUTCTimeInYear),
+             2000 + partialYear);
+      }
+
+
+      String latestUTCTimeInYearString =
+           yearStr + latestTimestampWithoutYear;
+      final ASN1UTCTime latestUTCTimeInYear =
+           new ASN1UTCTime(latestUTCTimeInYearString);
+      if (partialYear >= 50)
+      {
+        assertYearEquals(latestUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(latestUTCTimeInYear),
+             1900 + partialYear);
+      }
+      else
+      {
+        assertYearEquals(latestUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(latestUTCTimeInYear),
+             2000 + partialYear);
+      }
+
+
+      String middleUTCTimeInYearString =
+           yearStr + middleTimestampWithoutYear;
+      final ASN1UTCTime middleUTCTimeInYear =
+           new ASN1UTCTime(middleUTCTimeInYearString);
+      if (partialYear >= 50)
+      {
+        assertYearEquals(middleUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(middleUTCTimeInYear),
+             1900 + partialYear);
+      }
+      else
+      {
+        assertYearEquals(middleUTCTimeInYearString,
+             X509Certificate.decodeUTCTime(middleUTCTimeInYear),
+             2000 + partialYear);
+      }
+    }
+  }
+
+
+
+  /**
+   * Ensures that the specified timestamp includes the given year.
+   *
+   * @param  timestampString  The string representation of the complete
+   *                          timestamp.
+   * @param  timestamp        The numeric timestamp to examine, represented as
+   *                          the number of milliseconds since the beginning of
+   *                          the epoch.
+   * @param  year             The expected year for the timestamp.
+   *
+   * @throws  Exception  If an unexpected problemo occurs.
+   */
+  private static void assertYearEquals(final String timestampString,
+                                       final long timestamp, final int year)
+          throws Exception
+  {
+    final GregorianCalendar c =
+         new GregorianCalendar(StaticUtils.getUTCTimeZone());
+    c.setTimeInMillis(timestamp);
+
+    assertEquals(c.get(GregorianCalendar.YEAR), year,
+         "Timestamp '" + timestampString + "' wasn't interpreted with the " +
+              "expected year of " + year + "; got " + c.toString());
   }
 }

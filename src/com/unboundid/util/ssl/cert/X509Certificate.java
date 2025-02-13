@@ -891,24 +891,47 @@ public final class X509Certificate
    * @throws  ASN1Exception  If the provided element cannot be decoded as a UTC
    *                         time element.
    */
-  private static long decodeUTCTime(@NotNull final ASN1Element element)
-          throws ASN1Exception
+  static long decodeUTCTime(@NotNull final ASN1Element element)
+         throws ASN1Exception
   {
-    final long timeValue = ASN1UTCTime.decodeAsUTCTime(element).getTime();
+    // Unfortunately, UTC time values only include a 2-digit year, and there's
+    // no official way of identifying the century to which a given UTC time year
+    // belongs.  The LDAP SDK's handling of UTC time values uses a more
+    // future-proof sliding window approach, whereas the X.509 specification
+    // states that timestamp values should be interpreted as within the years
+    // 1950 through 2049.
+    //
+    // To ensure that we handle years correctly within this constraint, we will
+    // extract the first two digits from the string representation of the UTC
+    // time timestamp and convert it to an appropriate four-year timestamp based
+    // on the first (tens) digit.
+    final ASN1UTCTime utcTimeElement = ASN1UTCTime.decodeAsUTCTime(element);
+    final String lastTwoDigitsOfYear =
+         utcTimeElement.getStringRepresentation().substring(0, 2);
+
+    final String fullYearStr;
+    switch (lastTwoDigitsOfYear.charAt(0))
+    {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+        fullYearStr = "20" + lastTwoDigitsOfYear;
+        break;
+      default:
+        fullYearStr = "19" + lastTwoDigitsOfYear;
+        break;
+    }
+
+
+    // Use a Calendar to force the timestamp to be between 1950 and 2049.
+    final long timeValue = utcTimeElement.getTime();
 
     final GregorianCalendar calendar = new GregorianCalendar();
+    calendar.setTimeZone(StaticUtils.getUTCTimeZone());
     calendar.setTimeInMillis(timeValue);
-
-    final int year = calendar.get(Calendar.YEAR);
-    if (year < 1949)
-    {
-      calendar.set(Calendar.YEAR, (year + 100));
-    }
-    else if (year > 2050)
-    {
-      calendar.set(Calendar.YEAR, (year - 100));
-    }
-
+    calendar.set(Calendar.YEAR, Integer.parseInt(fullYearStr));
     return calendar.getTimeInMillis();
   }
 

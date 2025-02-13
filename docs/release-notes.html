@@ -6,6 +6,31 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 7.0.3</h3>
+
+              <p>
+                The following changes were made between the 7.0.2 and 7.0.3 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Fixed an issue in which the LDAP SDK did not properly handle certificates with a
+                  notBefore or notAfter timestamp that fell in the year 2049 if that timestamp was
+                  encoded with the antiquated UTCTime syntax, which only uses two digits to express
+                  the year.  The X.509 specification indicates that UTCTimestamp values with years
+                  of "00" through "49" should be interpreted as the years 2000 through 2049, and
+                  that UTCTime years of "50" through "99" should be interpreted as the years 1950
+                  through 1999, but the LDAP SDK incorrectly treated a year of "49" as 1949 instead
+                  of 2049.  All other year values were properly handled in accordance with the
+                  X.509 specification.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 7.0.2</h3>
 
               <p>

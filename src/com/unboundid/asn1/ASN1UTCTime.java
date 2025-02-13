@@ -41,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
@@ -294,7 +293,7 @@ public final class ASN1UTCTime
 
     final SimpleDateFormat newFormatter
          = new SimpleDateFormat("yyMMddHHmmss'Z'");
-    newFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+    newFormatter.setTimeZone(StaticUtils.getUTCTimeZone());
     newFormatter.setLenient(false);
     DATE_FORMATTERS.set(newFormatter);
     return newFormatter;
