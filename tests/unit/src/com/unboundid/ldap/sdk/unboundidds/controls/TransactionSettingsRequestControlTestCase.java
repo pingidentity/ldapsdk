@@ -33,7 +33,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.unboundid.ldap.sdk.unboundidds.controls;
+  package com.unboundid.ldap.sdk.unboundidds.controls;
 
 
 
@@ -94,6 +94,8 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNull(c.getMaxTxnLockTimeoutMillis());
 
+    assertNull(c.getScopedLockDetails());
+
     assertFalse(c.returnResponseControl());
 
     assertNotNull(c.getControlName());
@@ -149,6 +151,137 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNotNull(c.getMaxTxnLockTimeoutMillis());
     assertEquals(c.getMaxTxnLockTimeoutMillis().longValue(), 910L);
+
+    assertNull(c.getScopedLockDetails());
+
+    assertTrue(c.returnResponseControl());
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior with a control that does not specify any values for the
+   * optional parameters.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNoParametersViaProperties()
+         throws Exception
+  {
+    final TransactionSettingsReqeustControlProperties properties =
+         new TransactionSettingsReqeustControlProperties();
+
+    TransactionSettingsRequestControl c =
+         new TransactionSettingsRequestControl(false, properties);
+
+    c = new TransactionSettingsRequestControl(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.38");
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertNull(c.getTransactionName());
+
+    assertNull(c.getCommitDurability());
+
+    assertNull(c.getBackendLockBehavior());
+
+    assertNull(c.getBackendLockTimeoutMillis());
+
+    assertNull(c.getRetryAttempts());
+
+    assertNull(c.getMinTxnLockTimeoutMillis());
+
+    assertNull(c.getMaxTxnLockTimeoutMillis());
+
+    assertNull(c.getScopedLockDetails());
+
+    assertFalse(c.returnResponseControl());
+
+    assertNotNull(c.getControlName());
+
+    assertNotNull(c.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior with a control that is created with properties that
+   * contain values for all properties.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testAllParametersViaProperties()
+         throws Exception
+  {
+    final TransactionSettingsReqeustControlProperties properties =
+         new TransactionSettingsReqeustControlProperties();
+    properties.setTransactionName("This is the name");
+    properties.setCommitDurability(
+         TransactionSettingsCommitDurability.FULLY_SYNCHRONOUS);
+    properties.setBackendLockBehavior(
+         TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
+    properties.setBackendLockTimeoutMillis(123L);
+    properties.setRetryAttempts(45);
+    properties.setMinTxnLockTimeoutMillis(678L);
+    properties.setMaxTxnLockTimeoutMillis(910L);
+    properties.setScopedLockDetails(new TransactionSettingsScopedLockDetails(
+         "scope-name",
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES,
+         234L));
+    properties.setReturnResponseControl(true);
+
+    TransactionSettingsRequestControl c =
+         new TransactionSettingsRequestControl(false, properties);
+
+    c = new TransactionSettingsRequestControl(c);
+
+    assertNotNull(c.getOID());
+    assertEquals(c.getOID(), "1.3.6.1.4.1.30221.2.5.38");
+
+    assertFalse(c.isCritical());
+
+    assertNotNull(c.getValue());
+
+    assertNotNull(c.getTransactionName());
+    assertEquals(c.getTransactionName(), "This is the name");
+
+    assertNotNull(c.getCommitDurability());
+    assertEquals(c.getCommitDurability(),
+         TransactionSettingsCommitDurability.FULLY_SYNCHRONOUS);
+
+    assertNotNull(c.getBackendLockBehavior());
+    assertEquals(c.getBackendLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
+
+    assertNotNull(c.getBackendLockTimeoutMillis());
+    assertEquals(c.getBackendLockTimeoutMillis().longValue(), 123L);
+
+    assertNotNull(c.getRetryAttempts());
+    assertEquals(c.getRetryAttempts().intValue(), 45);
+
+    assertNotNull(c.getMinTxnLockTimeoutMillis());
+    assertEquals(c.getMinTxnLockTimeoutMillis().longValue(), 678L);
+
+    assertNotNull(c.getMaxTxnLockTimeoutMillis());
+    assertEquals(c.getMaxTxnLockTimeoutMillis().longValue(), 910L);
+
+    assertNotNull(c.getScopedLockDetails());
+    assertEquals(c.getScopedLockDetails().getScopeIdentifier(),
+         "scope-name");
+    assertEquals(c.getScopedLockDetails().getLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
+    assertEquals(c.getScopedLockDetails().getLockTimeoutMillis().longValue(),
+         234L);
 
     assertTrue(c.returnResponseControl());
 

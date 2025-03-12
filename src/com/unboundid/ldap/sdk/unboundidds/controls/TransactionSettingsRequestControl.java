@@ -88,23 +88,32 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *   TransactionSettingsRequestValue ::= SEQUENCE {
  *        transactionName              [0] OCTET STRING OPTIONAL,
  *        commitDurability             [1] ENUMERATED {
- *             nonSynchronous           (0),
- *             partiallySynchronous     (1),
- *             fullySynchronous         (2),
+ *             nonSynchronous                   (0),
+ *             partiallySynchronous             (1),
+ *             fullySynchronous                 (2),
  *             ... } OPTIONAL,
  *        backendLockBehavior          [2] ENUMERATED {
- *             doNotAcquire                    (0),
- *             acquireAfterRetries             (1),
- *             acquireBeforeRetries            (2),
- *             acquireBeforeInitialAttempt     (3),
+ *             doNotAcquire                     (0),
+ *             acquireAfterRetries              (1),
+ *             acquireBeforeRetries             (2),
+ *             acquireBeforeInitialAttempt      (3),
  *             ... } OPTIONAL,
  *        backendLockTimeoutMillis     [3] INTEGER OPTIONAL,
  *        retryAttempts                [4] INTEGER OPTIONAL,
  *        txnLockTimeout               [5] SEQUENCE {
- *             minTimeoutMillis     INTEGER,
- *             maxTimeoutMillis     INTEGER,
+ *             minTimeoutMillis                 INTEGER,
+ *             maxTimeoutMillis                 INTEGER,
  *             ... } OPTIONAL,
  *        returnResponseControl        [6] BOOLEAN DEFAULT FALSE,
+ *        scopedLockDetails            [7] SEQUENCE {
+ *             scopeIdentifier                  OCTET STRING,
+ *             lockBehavior                     ENUMERATED {
+ *                  acquireAfterRetries              (1),
+ *                  acquireBeforeRetries             (2),
+ *                  acquireBeforeInitialAttempt      (3),
+ *                  ... },
+ *             lockTimeoutMillis                [8] INTEGER OPTIONAL,
+ *             ... } OPTIONAL,
  *        ... }
  * </PRE>
  */
@@ -179,6 +188,15 @@ public final class TransactionSettingsRequestControl
 
 
   /**
+   * The BER type for the value sequence element that encapsulates information
+   * about the potential need to acquire a scoped lock during operation
+   * processing.
+   */
+  static final byte TYPE_SCOPED_LOCK_DETAILS = (byte) 0xA7;
+
+
+
+  /**
    * The serial version UID for this serializable class.
    */
   private static final long serialVersionUID = -4749344077745581287L;
@@ -203,12 +221,16 @@ public final class TransactionSettingsRequestControl
   // The requested transaction name.
   @Nullable private final String transactionName;
 
-  // The requested commit durability setting.
+  // The behavior to use with regard to requesting the exclusive backend lock.
   @Nullable private final TransactionSettingsBackendLockBehavior
        backendLockBehavior;
 
   // The requested commit durability setting.
   @Nullable private final TransactionSettingsCommitDurability commitDurability;
+
+  // Details about scoped lock usage.
+  @Nullable private final TransactionSettingsScopedLockDetails
+       scopedLockDetails;
 
 
 
@@ -373,16 +395,53 @@ public final class TransactionSettingsRequestControl
     super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
          encodeValue(transactionName, commitDurability, backendLockBehavior,
               backendLockTimeoutMillis, retryAttempts, minTxnLockTimeoutMillis,
-              maxTxnLockTimeoutMillis, returnResponseControl));
+              maxTxnLockTimeoutMillis, null, returnResponseControl));
 
-    this.transactionName          = transactionName;
-    this.commitDurability         = commitDurability;
-    this.backendLockBehavior      = backendLockBehavior;
+    this.transactionName = transactionName;
+    this.commitDurability = commitDurability;
+    this.backendLockBehavior = backendLockBehavior;
     this.backendLockTimeoutMillis = backendLockTimeoutMillis;
-    this.minTxnLockTimeoutMillis  = minTxnLockTimeoutMillis;
-    this.maxTxnLockTimeoutMillis  = maxTxnLockTimeoutMillis;
-    this.retryAttempts            = retryAttempts;
-    this.returnResponseControl    = returnResponseControl;
+    this.minTxnLockTimeoutMillis = minTxnLockTimeoutMillis;
+    this.maxTxnLockTimeoutMillis = maxTxnLockTimeoutMillis;
+    this.retryAttempts = retryAttempts;
+    this.returnResponseControl = returnResponseControl;
+
+    scopedLockDetails = null;
+  }
+
+
+
+  /**
+   * Creates a new transaction settings request control with the provided
+   * information.
+   *
+   * @param  isCritical  Indicates whether the control should be considered
+   *                     critical.
+   * @param  properties  The properties to use for the request control.
+   */
+  public TransactionSettingsRequestControl(final boolean isCritical,
+       @NotNull final TransactionSettingsReqeustControlProperties properties)
+  {
+    super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
+         encodeValue(properties.getTransactionName(),
+              properties.getCommitDurability(),
+              properties.getBackendLockBehavior(),
+              properties.getBackendLockTimeoutMillis(),
+              properties.getRetryAttempts(),
+              properties.getMinTxnLockTimeoutMillis(),
+              properties.getMaxTxnLockTimeoutMillis(),
+              properties.getScopedLockDetails(),
+              properties.getReturnResponseControl()));
+
+    transactionName = properties.getTransactionName();
+    commitDurability = properties.getCommitDurability();
+    backendLockBehavior = properties.getBackendLockBehavior();
+    backendLockTimeoutMillis = properties.getBackendLockTimeoutMillis();
+    minTxnLockTimeoutMillis = properties.getMinTxnLockTimeoutMillis();
+    maxTxnLockTimeoutMillis = properties.getMaxTxnLockTimeoutMillis();
+    retryAttempts = properties.getRetryAttempts();
+    scopedLockDetails = properties.getScopedLockDetails();
+    returnResponseControl = properties.getReturnResponseControl();
   }
 
 
@@ -412,14 +471,15 @@ public final class TransactionSettingsRequestControl
 
     try
     {
-      boolean                                responseControl   = false;
-      Integer                                numRetries        = null;
-      Long                                   backendTimeout    = null;
-      Long                                   maxTxnLockTimeout = null;
-      Long                                   minTxnLockTimeout = null;
-      String                                 txnName           = null;
-      TransactionSettingsCommitDurability    durability        = null;
-      TransactionSettingsBackendLockBehavior lockBehavior      = null;
+      boolean responseControl = false;
+      Integer numRetries = null;
+      Long backendTimeout = null;
+      Long maxTxnLockTimeout = null;
+      Long minTxnLockTimeout = null;
+      String txnName = null;
+      TransactionSettingsBackendLockBehavior lockBehavior = null;
+      TransactionSettingsCommitDurability durability = null;
+      TransactionSettingsScopedLockDetails scopeDetails = null;
 
       for (final ASN1Element e :
            ASN1Sequence.decodeAsSequence(value.getValue()).elements())
@@ -493,6 +553,10 @@ public final class TransactionSettingsRequestControl
             }
             break;
 
+          case TYPE_SCOPED_LOCK_DETAILS:
+            scopeDetails = TransactionSettingsScopedLockDetails.decode(e);
+            break;
+
           case TYPE_RETURN_RESPONSE_CONTROL:
             responseControl = ASN1Boolean.decodeAsBoolean(e).booleanValue();
             break;
@@ -511,6 +575,7 @@ public final class TransactionSettingsRequestControl
       minTxnLockTimeoutMillis  = minTxnLockTimeout;
       maxTxnLockTimeoutMillis  = maxTxnLockTimeout;
       retryAttempts            = numRetries;
+      scopedLockDetails         = scopeDetails;
       returnResponseControl    = responseControl;
     }
     catch (final LDAPException le)
@@ -590,6 +655,11 @@ public final class TransactionSettingsRequestControl
    *                                   timeout.  If this is {@code null}, then
    *                                   the server will determine the database
    *                                   lock timeout settings to use.
+   * @param  scopedLockDetails         Details about the conditions under which
+   *                                   the server should attempt to acquire a
+   *                                   scoped lock.  It may be {@code null} if
+   *                                   no attempt should be made to acquire a
+   *                                   scoped lock.
    * @param  returnResponseControl     Indicates whether to return a response
    *                                   control with transaction-related
    *                                   information collected over the course of
@@ -607,9 +677,10 @@ public final class TransactionSettingsRequestControl
        @Nullable final Integer retryAttempts,
        @Nullable final Long minTxnLockTimeoutMillis,
        @Nullable final Long maxTxnLockTimeoutMillis,
+       @Nullable final TransactionSettingsScopedLockDetails scopedLockDetails,
        final boolean returnResponseControl)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<>(7);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(8);
 
     if (transactionName != null)
     {
@@ -672,6 +743,16 @@ public final class TransactionSettingsRequestControl
     if (returnResponseControl)
     {
       elements.add(new ASN1Boolean(TYPE_RETURN_RESPONSE_CONTROL, true));
+    }
+
+    if (scopedLockDetails != null)
+    {
+      final ASN1Element scopedLockDetailsElement =
+           scopedLockDetails.encode();
+      if (scopedLockDetailsElement != null)
+      {
+        elements.add(scopedLockDetailsElement);
+      }
     }
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
@@ -799,6 +880,22 @@ public final class TransactionSettingsRequestControl
 
 
   /**
+   * Retrieves details about the conditions under which the server should
+   * attempt to acquire a scoped lock.
+   *
+   * @return  Details about the conditions under which the server should attempt
+   *          to acquire a scoped lock, or {@code null} if no attempt should be
+   *          made to acquire a scoped lock.
+   */
+  @Nullable()
+  public TransactionSettingsScopedLockDetails getScopedLockDetails()
+  {
+    return scopedLockDetails;
+  }
+
+
+
+  /**
    * Indicates whether to return a response control with transaction-related
    * information collected over the course of processing the associated
    * operation.
@@ -877,6 +974,12 @@ public final class TransactionSettingsRequestControl
     {
       buffer.append(", maxTxnLockTimeoutMillis=");
       buffer.append(maxTxnLockTimeoutMillis);
+    }
+
+    if (scopedLockDetails != null)
+    {
+      buffer.append(", scopedLockDetails=");
+      scopedLockDetails.toString(buffer);
     }
 
     buffer.append(", returnResponseControl=");
