@@ -466,6 +466,20 @@ public final class DumpDNs
     {
       final ExtendedResult streamValuesResult =
            conn.processExtendedOperation(streamValuesRequest);
+
+      final ResultCode resultCode = streamValuesResult.getResultCode();
+      if (resultCode != ResultCode.SUCCESS)
+      {
+        err("Processing failed with result code ", resultCode);
+      }
+
+      final String diagnosticMessage =
+           streamValuesResult.getDiagnosticMessage();
+      if ((diagnosticMessage != null) && (! diagnosticMessage.isEmpty()))
+      {
+        err(diagnosticMessage);
+      }
+
       err("Processing completed.  ", dnsWritten.get(), " DNs written.");
       return streamValuesResult.getResultCode();
     }
