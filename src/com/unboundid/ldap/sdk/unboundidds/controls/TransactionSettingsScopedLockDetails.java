@@ -43,7 +43,6 @@ import java.util.List;
 
 import com.unboundid.asn1.ASN1Element;
 import com.unboundid.asn1.ASN1Enumerated;
-import com.unboundid.asn1.ASN1Long;
 import com.unboundid.asn1.ASN1OctetString;
 import com.unboundid.asn1.ASN1Sequence;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -82,10 +81,16 @@ public final class TransactionSettingsScopedLockDetails
        implements Serializable
 {
   /**
-   * The BER type for the element used to indicate the timeout to use when
-   * tryign to encode the scoped lock.
+   * The BER type for the element used to contain the scope identifier.
    */
-  private static final byte TYPE_SCOPED_LOCK_TIMEOUT_MILLIS = (byte) 0x88;
+  private static final byte TYPE_SCOPE_IDENTIFIER = (byte) 0x89;
+
+
+
+  /**
+   * The BER type for the element used to contain the scoped lock behavior.
+   */
+  private static final byte TYPE_LOCK_BEHAVIOR = (byte) 0x8A;
 
 
 
@@ -95,10 +100,6 @@ public final class TransactionSettingsScopedLockDetails
   private static final long serialVersionUID = -1374000956873071172L;
 
 
-
-  // The maximum length of time, in milliseconds, that the server should wait
-  // while attempting to acquire the lock.
-  @Nullable private final Long lockTimeoutMillis;
 
   // A string that identifies which scoped lock to acquire.
   @NotNull private final String scopeIdentifier;
@@ -111,26 +112,19 @@ public final class TransactionSettingsScopedLockDetails
   /**
    * Creates a new scoped lock details object with the provided information.
    *
-   * @param  scopeIdentifier    A string that identifies which scoped lock to
-   *                            acquire.  It must not be {@code null}.
-   * @param  lockBehavior       The behavior that indicates when the server
-   *                            should attempt to acquire the scoped lock.  It
-   *                            must not be {@code null}, and should not be
-   *                            {@code DO_NOT_ACQUIRE}.
-   * @param  lockTimeoutMillis  The maximum length of time, in milliseconds,
-   *                            that the server should wait while attempting to
-   *                            acquire the lock.  This may be {@code null} if
-   *                            the server should automatically determine the
-   *                            timeout to use.
+   * @param  scopeIdentifier  A string that identifies which scoped lock to
+   *                          acquire.  It must not be {@code null}.
+   * @param  lockBehavior     The behavior that indicates when the server
+   *                          should attempt to acquire the scoped lock.  It
+   *                          must not be {@code null}, and should not be
+   *                          {@code DO_NOT_ACQUIRE}.
    */
   public TransactionSettingsScopedLockDetails(
        @NotNull final String scopeIdentifier,
-       @NotNull final TransactionSettingsBackendLockBehavior lockBehavior,
-       @Nullable final Long lockTimeoutMillis)
+       @NotNull final TransactionSettingsBackendLockBehavior lockBehavior)
   {
     this.scopeIdentifier = scopeIdentifier;
     this.lockBehavior = lockBehavior;
-    this.lockTimeoutMillis = lockTimeoutMillis;
   }
 
 
@@ -162,23 +156,6 @@ public final class TransactionSettingsScopedLockDetails
 
 
   /**
-   * Retrieves the maximum length of time, in milliseconds, that the server
-   * should wait while attempting to acquire the scoped lock.
-   *
-   * @return  The maximum length of time, in milliseconds, that the server
-   *          should wait while attempting to acquire the scoped lock, or
-   *          {@code null} if the server should automatically determine the
-   *          timeout to use.
-   */
-  @Nullable()
-  public Long getLockTimeoutMillis()
-  {
-    return lockTimeoutMillis;
-  }
-
-
-
-  /**
    * Encodes the scoped lock details into an ASN.1 element for inclusion in a
    * transaction settings request control.
    *
@@ -194,19 +171,13 @@ public final class TransactionSettingsScopedLockDetails
       return null;
     }
 
-    final List<ASN1Element> elements = new ArrayList<>(3);
-    elements.add(new ASN1OctetString(scopeIdentifier));
-    elements.add(new ASN1Enumerated(lockBehavior.intValue()));
-
-    if (lockTimeoutMillis != null)
-    {
-      elements.add(new ASN1Long(TYPE_SCOPED_LOCK_TIMEOUT_MILLIS,
-           lockTimeoutMillis));
-    }
+    final List<ASN1Element> elements = new ArrayList<>(2);
+    elements.add(new ASN1OctetString(TYPE_SCOPE_IDENTIFIER, scopeIdentifier));
+    elements.add(new ASN1Enumerated(TYPE_LOCK_BEHAVIOR,
+         lockBehavior.intValue()));
 
     return new ASN1Sequence(
-         TransactionSettingsRequestControl.TYPE_SCOPED_LOCK_DETAILS,
-         elements);
+         TransactionSettingsRequestControl.TYPE_SCOPED_LOCK_DETAILS, elements);
   }
 
 
@@ -246,19 +217,8 @@ public final class TransactionSettingsScopedLockDetails
       final TransactionSettingsBackendLockBehavior lockBehavior =
            TransactionSettingsBackendLockBehavior.valueOf(lockBehaviorIntValue);
 
-      Long lockTimeoutMillis = null;
-      for (int i=2; i < elements.length; i++)
-      {
-        switch (elements[i].getType())
-        {
-          case TYPE_SCOPED_LOCK_TIMEOUT_MILLIS:
-            lockTimeoutMillis = elements[i].decodeAsLong().longValue();
-            break;
-        }
-      }
-
       return new TransactionSettingsScopedLockDetails(scopeIdentifier,
-           lockBehavior, lockTimeoutMillis);
+           lockBehavior);
     }
     catch (final Exception e)
     {
@@ -301,13 +261,6 @@ public final class TransactionSettingsScopedLockDetails
     buffer.append(scopeIdentifier);
     buffer.append("', lockBehavior='");
     buffer.append(lockBehavior.name());
-
-    if (lockTimeoutMillis != null)
-    {
-      buffer.append(", lockTimeoutMillis=");
-      buffer.append(lockTimeoutMillis);
-    }
-
     buffer.append("')");
   }
 }

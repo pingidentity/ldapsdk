@@ -105,14 +105,20 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *             maxTimeoutMillis                 INTEGER,
  *             ... } OPTIONAL,
  *        returnResponseControl        [6] BOOLEAN DEFAULT FALSE,
- *        scopedLockDetails            [7] SEQUENCE {
- *             scopeIdentifier                  OCTET STRING,
- *             lockBehavior                     ENUMERATED {
- *                  acquireAfterRetries              (1),
- *                  acquireBeforeRetries             (2),
- *                  acquireBeforeInitialAttempt      (3),
+ *        singleWriterLockBehavior     [7] ENUMERATED {
+ *             doNotAcquire                     (0),
+ *             acquireAfterRetries              (1),
+ *             acquireBeforeRetries             (2),
+ *             acquireBeforeInitialAttempt      (3),
+ *             ... } OPTIONAL,
+ *        scopedLockDetails            [8] SEQUENCE {
+ *             scopeIdentifier                  [9] OCTET STRING,
+ *             lockBehavior                     [10] ENUMERATED {
+ *                  doNotAcquire                          (0),
+ *                  acquireAfterRetries                   (1),
+ *                  acquireBeforeRetries                  (2),
+ *                  acquireBeforeInitialAttempt           (3),
  *                  ... },
- *             lockTimeoutMillis                [8] INTEGER OPTIONAL,
  *             ... } OPTIONAL,
  *        ... }
  * </PRE>
@@ -148,9 +154,9 @@ public final class TransactionSettingsRequestControl
 
   /**
    * The BER type for the value sequence element that specifies the behavior
-   * to use with regard to acquiring the exclusive backend lock.
+   * to use with regard to acquiring the backend exclusive lock.
    */
-  private static final byte TYPE_BACKEND_LOCK_BEHAVIOR = (byte) 0x82;
+  private static final byte TYPE_BACKEND_EXCLUSIVE_LOCK_BEHAVIOR = (byte) 0x82;
 
 
 
@@ -188,11 +194,19 @@ public final class TransactionSettingsRequestControl
 
 
   /**
+   * The BER type for the value sequence element that specifies the behavior
+   * to use with regard to acquiring the backend single-writer lock.
+   */
+  private static final byte TYPE_SINGLE_WRITER_LOCK_BEHAVIOR = (byte) 0x87;
+
+
+
+  /**
    * The BER type for the value sequence element that encapsulates information
    * about the potential need to acquire a scoped lock during operation
    * processing.
    */
-  static final byte TYPE_SCOPED_LOCK_DETAILS = (byte) 0xA7;
+  static final byte TYPE_SCOPED_LOCK_DETAILS = (byte) 0xA8;
 
 
 
@@ -221,9 +235,14 @@ public final class TransactionSettingsRequestControl
   // The requested transaction name.
   @Nullable private final String transactionName;
 
-  // The behavior to use with regard to requesting the exclusive backend lock.
+  // The behavior to use with regard to requesting the backend exclusive lock.
   @Nullable private final TransactionSettingsBackendLockBehavior
-       backendLockBehavior;
+       backendExclusiveLockBehavior;
+
+  // The behavior to use with regard to requesting the single-writer backend
+  // lock.
+  @Nullable private final TransactionSettingsBackendLockBehavior
+       singleWriterLockBehavior;
 
   // The requested commit durability setting.
   @Nullable private final TransactionSettingsCommitDurability commitDurability;
@@ -394,18 +413,20 @@ public final class TransactionSettingsRequestControl
   {
     super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
          encodeValue(transactionName, commitDurability, backendLockBehavior,
-              backendLockTimeoutMillis, retryAttempts, minTxnLockTimeoutMillis,
-              maxTxnLockTimeoutMillis, null, returnResponseControl));
+              null, null, backendLockTimeoutMillis, retryAttempts,
+              minTxnLockTimeoutMillis, maxTxnLockTimeoutMillis,
+              returnResponseControl));
 
     this.transactionName = transactionName;
     this.commitDurability = commitDurability;
-    this.backendLockBehavior = backendLockBehavior;
+    this.backendExclusiveLockBehavior = backendLockBehavior;
     this.backendLockTimeoutMillis = backendLockTimeoutMillis;
     this.minTxnLockTimeoutMillis = minTxnLockTimeoutMillis;
     this.maxTxnLockTimeoutMillis = maxTxnLockTimeoutMillis;
     this.retryAttempts = retryAttempts;
     this.returnResponseControl = returnResponseControl;
 
+    singleWriterLockBehavior = null;
     scopedLockDetails = null;
   }
 
@@ -425,22 +446,24 @@ public final class TransactionSettingsRequestControl
     super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
          encodeValue(properties.getTransactionName(),
               properties.getCommitDurability(),
-              properties.getBackendLockBehavior(),
+              properties.getBackendExclusiveLockBehavior(),
+              properties.getSingleWriterLockBehavior(),
+              properties.getScopedLockDetails(),
               properties.getBackendLockTimeoutMillis(),
               properties.getRetryAttempts(),
               properties.getMinTxnLockTimeoutMillis(),
               properties.getMaxTxnLockTimeoutMillis(),
-              properties.getScopedLockDetails(),
               properties.getReturnResponseControl()));
 
     transactionName = properties.getTransactionName();
     commitDurability = properties.getCommitDurability();
-    backendLockBehavior = properties.getBackendLockBehavior();
+    backendExclusiveLockBehavior = properties.getBackendExclusiveLockBehavior();
+    singleWriterLockBehavior = properties.getSingleWriterLockBehavior();
+    scopedLockDetails = properties.getScopedLockDetails();
     backendLockTimeoutMillis = properties.getBackendLockTimeoutMillis();
     minTxnLockTimeoutMillis = properties.getMinTxnLockTimeoutMillis();
     maxTxnLockTimeoutMillis = properties.getMaxTxnLockTimeoutMillis();
     retryAttempts = properties.getRetryAttempts();
-    scopedLockDetails = properties.getScopedLockDetails();
     returnResponseControl = properties.getReturnResponseControl();
   }
 
@@ -477,7 +500,8 @@ public final class TransactionSettingsRequestControl
       Long maxTxnLockTimeout = null;
       Long minTxnLockTimeout = null;
       String txnName = null;
-      TransactionSettingsBackendLockBehavior lockBehavior = null;
+      TransactionSettingsBackendLockBehavior exclusiveLockBehavior = null;
+      TransactionSettingsBackendLockBehavior swLockBehavior = null;
       TransactionSettingsCommitDurability durability = null;
       TransactionSettingsScopedLockDetails scopeDetails = null;
 
@@ -501,13 +525,14 @@ public final class TransactionSettingsRequestControl
             }
             break;
 
-          case TYPE_BACKEND_LOCK_BEHAVIOR:
-            lockBehavior = TransactionSettingsBackendLockBehavior.valueOf(
-                 ASN1Enumerated.decodeAsEnumerated(e).intValue());
-            if (lockBehavior == null)
+          case TYPE_BACKEND_EXCLUSIVE_LOCK_BEHAVIOR:
+            exclusiveLockBehavior =
+                 TransactionSettingsBackendLockBehavior.valueOf(
+                      ASN1Enumerated.decodeAsEnumerated(e).intValue());
+            if (exclusiveLockBehavior == null)
             {
               throw new LDAPException(ResultCode.DECODING_ERROR,
-                   ERR_TXN_SETTINGS_REQUEST_UNKNOWN_LOCK_BEHAVIOR.get(
+                   ERR_TXN_SETTINGS_REQUEST_UNKNOWN_EXCLUSIVE_LOCK_BEHAVIOR.get(
                         ASN1Enumerated.decodeAsEnumerated(e).intValue()));
             }
             break;
@@ -553,6 +578,18 @@ public final class TransactionSettingsRequestControl
             }
             break;
 
+          case TYPE_SINGLE_WRITER_LOCK_BEHAVIOR:
+            swLockBehavior =
+                 TransactionSettingsBackendLockBehavior.valueOf(
+                      ASN1Enumerated.decodeAsEnumerated(e).intValue());
+            if (swLockBehavior == null)
+            {
+              throw new LDAPException(ResultCode.DECODING_ERROR,
+                   ERR_TXN_SETTINGS_REQUEST_UNKNOWN_SW_LOCK_BEHAVIOR.get(
+                        ASN1Enumerated.decodeAsEnumerated(e).intValue()));
+            }
+            break;
+
           case TYPE_SCOPED_LOCK_DETAILS:
             scopeDetails = TransactionSettingsScopedLockDetails.decode(e);
             break;
@@ -568,15 +605,16 @@ public final class TransactionSettingsRequestControl
         }
       }
 
-      transactionName          = txnName;
-      commitDurability         = durability;
-      backendLockBehavior      = lockBehavior;
+      transactionName = txnName;
+      commitDurability = durability;
+      backendExclusiveLockBehavior = exclusiveLockBehavior;
+      singleWriterLockBehavior = swLockBehavior;
+      scopedLockDetails = scopeDetails;
       backendLockTimeoutMillis = backendTimeout;
-      minTxnLockTimeoutMillis  = minTxnLockTimeout;
-      maxTxnLockTimeoutMillis  = maxTxnLockTimeout;
-      retryAttempts            = numRetries;
-      scopedLockDetails         = scopeDetails;
-      returnResponseControl    = responseControl;
+      minTxnLockTimeoutMillis = minTxnLockTimeout;
+      maxTxnLockTimeoutMillis = maxTxnLockTimeout;
+      retryAttempts = numRetries;
+      returnResponseControl = responseControl;
     }
     catch (final LDAPException le)
     {
@@ -615,7 +653,19 @@ public final class TransactionSettingsRequestControl
    *                                   regard to acquiring an exclusive lock for
    *                                   processing in the target backend.  It may
    *                                   be {@code null} if the server-default
-   *                                   backend lock behavior should be used.
+   *                                   backend exclusive lock behavior should be
+   *                                   used.
+   * @param  singleWriterLockBehavior  The behavior that should be used with
+   *                                   regard to acquiring a single-writer lock
+   *                                   for processing in the target backend.  It
+   *                                   may be {@code null} if the server-default
+   *                                   single-writer lock behavior should be
+   *                                   used.
+   * @param  scopedLockDetails         Details about the conditions under which
+   *                                   the server should attempt to acquire a
+   *                                   scoped lock.  It may be {@code null} if
+   *                                   no attempt should be made to acquire a
+   *                                   scoped lock.
    * @param  backendLockTimeoutMillis  The maximum length of time in
    *                                   milliseconds to spend attempting to
    *                                   acquire an exclusive backend lock if it
@@ -655,11 +705,6 @@ public final class TransactionSettingsRequestControl
    *                                   timeout.  If this is {@code null}, then
    *                                   the server will determine the database
    *                                   lock timeout settings to use.
-   * @param  scopedLockDetails         Details about the conditions under which
-   *                                   the server should attempt to acquire a
-   *                                   scoped lock.  It may be {@code null} if
-   *                                   no attempt should be made to acquire a
-   *                                   scoped lock.
    * @param  returnResponseControl     Indicates whether to return a response
    *                                   control with transaction-related
    *                                   information collected over the course of
@@ -673,11 +718,13 @@ public final class TransactionSettingsRequestControl
        @Nullable final TransactionSettingsCommitDurability commitDurability,
        @Nullable final TransactionSettingsBackendLockBehavior
             backendLockBehavior,
+       @Nullable final TransactionSettingsBackendLockBehavior
+            singleWriterLockBehavior,
+       @Nullable final TransactionSettingsScopedLockDetails scopedLockDetails,
        @Nullable final Long backendLockTimeoutMillis,
        @Nullable final Integer retryAttempts,
        @Nullable final Long minTxnLockTimeoutMillis,
        @Nullable final Long maxTxnLockTimeoutMillis,
-       @Nullable final TransactionSettingsScopedLockDetails scopedLockDetails,
        final boolean returnResponseControl)
   {
     final ArrayList<ASN1Element> elements = new ArrayList<>(8);
@@ -695,7 +742,7 @@ public final class TransactionSettingsRequestControl
 
     if (backendLockBehavior != null)
     {
-      elements.add(new ASN1Enumerated(TYPE_BACKEND_LOCK_BEHAVIOR,
+      elements.add(new ASN1Enumerated(TYPE_BACKEND_EXCLUSIVE_LOCK_BEHAVIOR,
            backendLockBehavior.intValue()));
     }
 
@@ -745,6 +792,12 @@ public final class TransactionSettingsRequestControl
       elements.add(new ASN1Boolean(TYPE_RETURN_RESPONSE_CONTROL, true));
     }
 
+    if (singleWriterLockBehavior != null)
+    {
+      elements.add(new ASN1Enumerated(TYPE_SINGLE_WRITER_LOCK_BEHAVIOR,
+           singleWriterLockBehavior.intValue()));
+    }
+
     if (scopedLockDetails != null)
     {
       final ASN1Element scopedLockDetailsElement =
@@ -791,17 +844,51 @@ public final class TransactionSettingsRequestControl
 
 
   /**
-   * Retrieves the backend lock behavior that should be used for the associated
-   * transaction, if specified.
+   * Retrieves the backend exclusive lock behavior that should be used for the
+   * associated transaction, if specified.
    *
-   * @return  The backend lock behavior that should be used for the associated
-   *          transaction, or {@code null} if none has been specified and the
-   *          server should determine the backend lock behavior.
+   * @return  The backend exclusive lock behavior that should be used for the
+   *          associated transaction, or {@code null} if none has been specified
+   *          and the server should determine the backend exclusive lock
+   *          behavior.
    */
   @Nullable()
   public TransactionSettingsBackendLockBehavior getBackendLockBehavior()
   {
-    return backendLockBehavior;
+    return backendExclusiveLockBehavior;
+  }
+
+
+
+  /**
+   * Retrieves the single-wwriter lock behavior that should be used for the
+   * associated transaction, if specified.
+   *
+   * @return  The single-writer lock behavior that should be used for the
+   *          associated transaction, or {@code null} if none has been specified
+   *          and the server should determine the backend exclusive lock
+   *          behavior.
+   */
+  @Nullable()
+  public TransactionSettingsBackendLockBehavior getSingleWriterLockBehavior()
+  {
+    return singleWriterLockBehavior;
+  }
+
+
+
+  /**
+   * Retrieves details about the conditions under which the server should
+   * attempt to acquire a scoped lock.
+   *
+   * @return  Details about the conditions under which the server should attempt
+   *          to acquire a scoped lock, or {@code null} if no attempt should be
+   *          made to acquire a scoped lock.
+   */
+  @Nullable()
+  public TransactionSettingsScopedLockDetails getScopedLockDetails()
+  {
+    return scopedLockDetails;
   }
 
 
@@ -880,22 +967,6 @@ public final class TransactionSettingsRequestControl
 
 
   /**
-   * Retrieves details about the conditions under which the server should
-   * attempt to acquire a scoped lock.
-   *
-   * @return  Details about the conditions under which the server should attempt
-   *          to acquire a scoped lock, or {@code null} if no attempt should be
-   *          made to acquire a scoped lock.
-   */
-  @Nullable()
-  public TransactionSettingsScopedLockDetails getScopedLockDetails()
-  {
-    return scopedLockDetails;
-  }
-
-
-
-  /**
    * Indicates whether to return a response control with transaction-related
    * information collected over the course of processing the associated
    * operation.
@@ -945,11 +1016,24 @@ public final class TransactionSettingsRequestControl
       buffer.append('\'');
     }
 
-    if (backendLockBehavior != null)
+    if (backendExclusiveLockBehavior != null)
     {
-      buffer.append(", backendLockBehavior='");
-      buffer.append(backendLockBehavior.name());
+      buffer.append(", backendExclusiveLockBehavior='");
+      buffer.append(backendExclusiveLockBehavior.name());
       buffer.append('\'');
+    }
+
+    if (singleWriterLockBehavior != null)
+    {
+      buffer.append(", singleWriterLockBehavior='");
+      buffer.append(singleWriterLockBehavior.name());
+      buffer.append('\'');
+    }
+
+    if (scopedLockDetails != null)
+    {
+      buffer.append(", scopedLockDetails=");
+      scopedLockDetails.toString(buffer);
     }
 
     if (backendLockTimeoutMillis != null)
@@ -974,12 +1058,6 @@ public final class TransactionSettingsRequestControl
     {
       buffer.append(", maxTxnLockTimeoutMillis=");
       buffer.append(maxTxnLockTimeoutMillis);
-    }
-
-    if (scopedLockDetails != null)
-    {
-      buffer.append(", scopedLockDetails=");
-      scopedLockDetails.toString(buffer);
     }
 
     buffer.append(", returnResponseControl=");

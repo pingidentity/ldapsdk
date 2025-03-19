@@ -28,9 +28,16 @@ ${TARGET="offline"}                <br>
 
                 <li>
                   Updated client-side support for the Ping Identity-proprietary transaction
-                  settings request control to add the ability to indicate that the server may
-                  attempt to acquire a scoped lock that may only be used for specific operations
-                  that have the potential to conflict with each other.
+                  settings request control to add the ability to request that the server acquire a
+                  scoped lock under certain conditions.  Scoped locks may be useful when it is
+                  possible to identify operations that are more likely than others to result in
+                  lock conflicts (for example, in a multi-tenant deployment, operations targeting
+                  entries in the same tenant are probably more likely to conflict than operations
+                  targeting entries in different tenants), to limit the potential performance
+                  impact in the event of a conflict.  We also added the ability to override the
+                  conditions under which the server may attempt to acquire a single-writer lock
+                  within the associated backend, which could previously only be controlled through
+                  the server configuration.
                   <br><br>
                 </li>
 

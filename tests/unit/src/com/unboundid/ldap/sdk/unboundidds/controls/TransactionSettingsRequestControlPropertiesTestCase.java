@@ -66,7 +66,11 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
 
     assertNull(properties.getCommitDurability());
 
-    assertNull(properties.getBackendLockBehavior());
+    assertNull(properties.getBackendExclusiveLockBehavior());
+
+    assertNull(properties.getSingleWriterLockBehavior());
+
+    assertNull(properties.getScopedLockDetails());
 
     assertNull(properties.getBackendLockTimeoutMillis());
 
@@ -75,8 +79,6 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
     assertNull(properties.getMinTxnLockTimeoutMillis());
 
     assertNull(properties.getMaxTxnLockTimeoutMillis());
-
-    assertNull(properties.getScopedLockDetails());
 
     assertFalse(properties.getReturnResponseControl());
 
@@ -100,16 +102,18 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
     properties.setTransactionName("the-transaction-name");
     properties.setCommitDurability(
          TransactionSettingsCommitDurability.PARTIALLY_SYNCHRONOUS);
-    properties.setBackendLockBehavior(
+    properties.setBackendExclusiveLockBehavior(
          TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
+    properties.setSingleWriterLockBehavior(
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
+    properties.setScopedLockDetails(new TransactionSettingsScopedLockDetails(
+         "the-scope-id",
+         TransactionSettingsBackendLockBehavior.
+              ACQUIRE_BEFORE_INITIAL_ATTEMPT));
     properties.setBackendLockTimeoutMillis(12345L);
     properties.setRetryAttempts(67);
     properties.setMinTxnLockTimeoutMillis(2345L);
     properties.setMaxTxnLockTimeoutMillis(6789L);
-    properties.setScopedLockDetails(new TransactionSettingsScopedLockDetails(
-         "the-scope-id",
-         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES,
-         3456L));
     properties.setReturnResponseControl(true);
 
 
@@ -120,9 +124,19 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
     assertEquals(properties.getCommitDurability(),
          TransactionSettingsCommitDurability.PARTIALLY_SYNCHRONOUS);
 
-    assertNotNull(properties.getBackendLockBehavior());
-    assertEquals(properties.getBackendLockBehavior(),
+    assertNotNull(properties.getBackendExclusiveLockBehavior());
+    assertEquals(properties.getBackendExclusiveLockBehavior(),
          TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
+
+    assertNotNull(properties.getSingleWriterLockBehavior());
+    assertEquals(properties.getSingleWriterLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
+
+    assertNotNull(properties.getScopedLockDetails());
+    assertEquals(properties.getScopedLockDetails().getScopeIdentifier(),
+         "the-scope-id");
+    assertEquals(properties.getScopedLockDetails().getLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_INITIAL_ATTEMPT);
 
     assertNotNull(properties.getBackendLockTimeoutMillis());
     assertEquals(properties.getBackendLockTimeoutMillis().longValue(), 12345L);
@@ -135,15 +149,6 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
 
     assertNotNull(properties.getMaxTxnLockTimeoutMillis());
     assertEquals(properties.getMaxTxnLockTimeoutMillis().longValue(), 6789L);
-
-    assertNotNull(properties.getScopedLockDetails());
-    assertEquals(properties.getScopedLockDetails().getScopeIdentifier(),
-         "the-scope-id");
-    assertEquals(properties.getScopedLockDetails().getLockBehavior(),
-         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
-    assertEquals(
-         properties.getScopedLockDetails().getLockTimeoutMillis().longValue(),
-         3456L);
 
     assertTrue(properties.getReturnResponseControl());
 

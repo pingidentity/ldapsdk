@@ -92,7 +92,13 @@ public final class TransactionSettingsReqeustControlProperties
   @Nullable private String transactionName;
 
   // The behavior to use with regard to requesting the exclusive backend lock.
-  @Nullable private TransactionSettingsBackendLockBehavior backendLockBehavior;
+  @Nullable private TransactionSettingsBackendLockBehavior
+       backendExclusiveLockBehavior;
+
+  // The behavior to use with regard to requesting the single-writer backend
+  // lock.
+  @Nullable private TransactionSettingsBackendLockBehavior
+       singleWriterLockBehavior;
 
   // The requested commit durability setting.
   @Nullable private TransactionSettingsCommitDurability commitDurability;
@@ -113,7 +119,8 @@ public final class TransactionSettingsReqeustControlProperties
     maxTxnLockTimeoutMillis = null;
     minTxnLockTimeoutMillis = null;
     transactionName = null;
-    backendLockBehavior = null;
+    backendExclusiveLockBehavior = null;
+    singleWriterLockBehavior = null;
     commitDurability = null;
     scopedLockDetails = null;
   }
@@ -183,42 +190,116 @@ public final class TransactionSettingsReqeustControlProperties
 
 
   /**
-   * Retrieves the backend lock behavior that should be used for the associated
-   * transaction, if specified.
+   * Retrieves the backend exclusive lock behavior that should be used for the
+   * associated transaction, if specified.
    *
-   * @return  The backend lock behavior that should be used for the associated
-   *          transaction, or {@code null} if none has been specified and the
-   *          server should determine the backend lock behavior.
+   * @return  The backend exclusive lock behavior that should be used for the
+   *          associated transaction, or {@code null} if none has been specified
+   *          and the server should determine the backend exclusive lock
+   *          behavior.
    */
   @Nullable()
-  public TransactionSettingsBackendLockBehavior getBackendLockBehavior()
+  public TransactionSettingsBackendLockBehavior
+              getBackendExclusiveLockBehavior()
   {
-    return backendLockBehavior;
+    return backendExclusiveLockBehavior;
   }
 
 
 
   /**
-   * Specifies the backend lock behavior that should be used for the associated
-   * transaction.
+   * Specifies the backend exclusive lock behavior that should be used for the
+   * associated transaction.
    *
-   * @param  backendLockBehavior  The backend lock behavior that should be used
-   *                              for the associated transaction.  It may be
-   *                              {@code null} if the server should determine
-   *                              the backend lock behavior.
+   * @param  backendExclusiveLockBehavior  The backend exclusive lock behavior
+   *                                       that should be used for the
+   *                                       associated transaction.  It may be
+   *                                       {@code null} if the server should
+   *                                       determine the backend exclusive
+   *                                       lock behavior.
    */
-  public void setBackendLockBehavior(
+  public void setBackendExclusiveLockBehavior(
        @Nullable final TransactionSettingsBackendLockBehavior
-            backendLockBehavior)
+            backendExclusiveLockBehavior)
   {
-    this.backendLockBehavior = backendLockBehavior;
+    this.backendExclusiveLockBehavior = backendExclusiveLockBehavior;
   }
 
 
 
   /**
-   * Retrieves the backend lock timeout (in milliseconds) that should be used
-   * for the associated transaction, if specified.
+   * Retrieves the single-writer lock behavior that should be used for the
+   * associated transaction, if specified.
+   *
+   * @return  The single-writer lock behavior that should be used for the
+   *          associated transaction, or {@code null} if none has been specified
+   *          and the server should determine the backend exclusive lock
+   *          behavior.
+   */
+  @Nullable()
+  public TransactionSettingsBackendLockBehavior getSingleWriterLockBehavior()
+  {
+    return singleWriterLockBehavior;
+  }
+
+
+
+  /**
+   * Specifies the single-writer lock behavior that should be used for the
+   * associated transaction.
+   *
+   * @param  singleWriterLockBehavior  The single-writer lock behavior that
+   *                                   should be used for the associated
+   *                                   transaction.  It may be {@code null} if
+   *                                   the server should determine the
+   *                                   single-writer lock behavior.
+   */
+  public void setSingleWriterLockBehavior(
+       @Nullable final TransactionSettingsBackendLockBehavior
+            singleWriterLockBehavior)
+  {
+    this.singleWriterLockBehavior = singleWriterLockBehavior;
+  }
+
+
+
+  /**
+   * Retrieves details about the conditions under which to attempt to acquire a
+   * scoped lock, if any.
+   *
+   * @return  Details about the conditions under which to attempt to acquire a
+   *          scoped lock, or {@code null} if no attempt should be made to
+   *          acquire a scoped lock.
+   */
+  @Nullable()
+  public TransactionSettingsScopedLockDetails getScopedLockDetails()
+  {
+    return scopedLockDetails;
+  }
+
+
+
+  /**
+   * Specifies details about the conditions under which to attempt to acquire a
+   * scoped lock.
+   *
+   * @param  scopedLockDetails  Details about the conditions under which to
+   *                            attempt to acquire a scoped lock.  It may be
+   *                            {@code null} if no attempt should be made to
+   *                            acquire a scoped lock.
+   */
+  public void setScopedLockDetails(
+       @Nullable final TransactionSettingsScopedLockDetails scopedLockDetails)
+  {
+    this.scopedLockDetails = scopedLockDetails;
+  }
+
+
+
+  /**
+   * Retrieves the maximum length of time (in milliseconds) that the server
+   * may block while attempting to acquire the backend exclusive, single-writer,
+   * or scoped lock, if applicable.
    *
    * @return  The backend lock timeout (in milliseconds) that should be used for
    *          the associated transaction, or {@code null} if none has been
@@ -234,14 +315,17 @@ public final class TransactionSettingsReqeustControlProperties
 
 
   /**
-   * Specifies the backend lock timeout (in milliseconds) that should be used
-   * for the associated transaction.
+   * Specifies the maximum length of time (in milliseconds) that the server
+   * may block while attempting to acquire the backend exclusive, single-writer,
+   * or scoped lock.
    *
-   * @param  backendLockTimeoutMillis  The backend lock timeout (in
-   *                                   milliseconds) that should be used for
-   *                                   the associated transaction.  It may be
-   *                                   {@code null} if the server should
-   *                                   determine the backend lock timeout.
+   * @param  backendLockTimeoutMillis  The maximum length of time (in
+   *                                   milliseconds) that the server may block
+   *                                   while attempting to acquire the backend
+   *                                   exclusive, single-writer, or scoped lock.
+   *                                   It may be {@code null} if the server
+   *                                   should automatically determine the
+   *                                   backend lock timeout.
    */
   public void setBackendLockTimeoutMillis(
        @Nullable final Long backendLockTimeoutMillis)
@@ -363,39 +447,6 @@ public final class TransactionSettingsReqeustControlProperties
 
 
   /**
-   * Retrieves details about the conditions under which to attempt to acquire a
-   * scoped lock, if any.
-   *
-   * @return  Details about the conditions under which to attempt to acquire a
-   *          scoped lock, or {@code null} if no attempt should be made to
-   *          acquire a scoped lock.
-   */
-  @Nullable()
-  public TransactionSettingsScopedLockDetails getScopedLockDetails()
-  {
-    return scopedLockDetails;
-  }
-
-
-
-  /**
-   * Specifies details about the conditions under which to attempt to acquire a
-   * scoped lock.
-   *
-   * @param  scopedLockDetails  Details about the conditions under which to
-   *                            attempt to acquire a scoped lock.  It may be
-   *                            {@code null} if no attempt should be made to
-   *                            acquire a scoped lock.
-   */
-  public void setScopedLockDetails(
-       @Nullable final TransactionSettingsScopedLockDetails scopedLockDetails)
-  {
-    this.scopedLockDetails = scopedLockDetails;
-  }
-
-
-
-  /**
    * Indicates whether to return a response control with transaction-related
    * information collected over the course of processing the associated
    * operation.
@@ -478,16 +529,43 @@ public final class TransactionSettingsReqeustControlProperties
     }
 
 
-    if (backendLockBehavior != null)
+    if (backendExclusiveLockBehavior != null)
     {
       if (appended)
       {
         buffer.append(", ");
       }
 
-      buffer.append("backendLockBehavior='");
-      buffer.append(backendLockBehavior.name());
+      buffer.append("backendExclusiveLockBehavior='");
+      buffer.append(backendExclusiveLockBehavior.name());
       buffer.append('\'');
+      appended = true;
+    }
+
+
+    if (singleWriterLockBehavior != null)
+    {
+      if (appended)
+      {
+        buffer.append(", ");
+      }
+
+      buffer.append("singleWriterLockBehavior='");
+      buffer.append(singleWriterLockBehavior.name());
+      buffer.append('\'');
+      appended = true;
+    }
+
+
+    if (scopedLockDetails != null)
+    {
+      if (appended)
+      {
+        buffer.append(", ");
+      }
+
+      buffer.append("scopedLockDetails=");
+      scopedLockDetails.toString(buffer);
       appended = true;
     }
 
@@ -543,18 +621,6 @@ public final class TransactionSettingsReqeustControlProperties
       appended = true;
     }
 
-
-    if (scopedLockDetails != null)
-    {
-      if (appended)
-      {
-        buffer.append(", ");
-      }
-
-      buffer.append("scopedLockDetails=");
-      scopedLockDetails.toString(buffer);
-      appended = true;
-    }
 
     if (appended)
     {

@@ -86,6 +86,10 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNull(c.getBackendLockBehavior());
 
+    assertNull(c.getSingleWriterLockBehavior());
+
+    assertNull(c.getScopedLockDetails());
+
     assertNull(c.getBackendLockTimeoutMillis());
 
     assertNull(c.getRetryAttempts());
@@ -93,8 +97,6 @@ public final class TransactionSettingsRequestControlTestCase
     assertNull(c.getMinTxnLockTimeoutMillis());
 
     assertNull(c.getMaxTxnLockTimeoutMillis());
-
-    assertNull(c.getScopedLockDetails());
 
     assertFalse(c.returnResponseControl());
 
@@ -140,6 +142,10 @@ public final class TransactionSettingsRequestControlTestCase
     assertEquals(c.getBackendLockBehavior(),
          TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
 
+    assertNull(c.getSingleWriterLockBehavior());
+
+    assertNull(c.getScopedLockDetails());
+
     assertNotNull(c.getBackendLockTimeoutMillis());
     assertEquals(c.getBackendLockTimeoutMillis().longValue(), 123L);
 
@@ -151,8 +157,6 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNotNull(c.getMaxTxnLockTimeoutMillis());
     assertEquals(c.getMaxTxnLockTimeoutMillis().longValue(), 910L);
-
-    assertNull(c.getScopedLockDetails());
 
     assertTrue(c.returnResponseControl());
 
@@ -194,6 +198,10 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNull(c.getBackendLockBehavior());
 
+    assertNull(c.getSingleWriterLockBehavior());
+
+    assertNull(c.getScopedLockDetails());
+
     assertNull(c.getBackendLockTimeoutMillis());
 
     assertNull(c.getRetryAttempts());
@@ -201,8 +209,6 @@ public final class TransactionSettingsRequestControlTestCase
     assertNull(c.getMinTxnLockTimeoutMillis());
 
     assertNull(c.getMaxTxnLockTimeoutMillis());
-
-    assertNull(c.getScopedLockDetails());
 
     assertFalse(c.returnResponseControl());
 
@@ -228,16 +234,18 @@ public final class TransactionSettingsRequestControlTestCase
     properties.setTransactionName("This is the name");
     properties.setCommitDurability(
          TransactionSettingsCommitDurability.FULLY_SYNCHRONOUS);
-    properties.setBackendLockBehavior(
+    properties.setBackendExclusiveLockBehavior(
          TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
+    properties.setSingleWriterLockBehavior(
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
+    properties.setScopedLockDetails(new TransactionSettingsScopedLockDetails(
+         "scope-name",
+         TransactionSettingsBackendLockBehavior.
+              ACQUIRE_BEFORE_INITIAL_ATTEMPT));
     properties.setBackendLockTimeoutMillis(123L);
     properties.setRetryAttempts(45);
     properties.setMinTxnLockTimeoutMillis(678L);
     properties.setMaxTxnLockTimeoutMillis(910L);
-    properties.setScopedLockDetails(new TransactionSettingsScopedLockDetails(
-         "scope-name",
-         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES,
-         234L));
     properties.setReturnResponseControl(true);
 
     TransactionSettingsRequestControl c =
@@ -263,6 +271,16 @@ public final class TransactionSettingsRequestControlTestCase
     assertEquals(c.getBackendLockBehavior(),
          TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
 
+    assertNotNull(c.getSingleWriterLockBehavior());
+    assertEquals(c.getSingleWriterLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
+
+    assertNotNull(c.getScopedLockDetails());
+    assertEquals(c.getScopedLockDetails().getScopeIdentifier(),
+         "scope-name");
+    assertEquals(c.getScopedLockDetails().getLockBehavior(),
+         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_INITIAL_ATTEMPT);
+
     assertNotNull(c.getBackendLockTimeoutMillis());
     assertEquals(c.getBackendLockTimeoutMillis().longValue(), 123L);
 
@@ -274,14 +292,6 @@ public final class TransactionSettingsRequestControlTestCase
 
     assertNotNull(c.getMaxTxnLockTimeoutMillis());
     assertEquals(c.getMaxTxnLockTimeoutMillis().longValue(), 910L);
-
-    assertNotNull(c.getScopedLockDetails());
-    assertEquals(c.getScopedLockDetails().getScopeIdentifier(),
-         "scope-name");
-    assertEquals(c.getScopedLockDetails().getLockBehavior(),
-         TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
-    assertEquals(c.getScopedLockDetails().getLockTimeoutMillis().longValue(),
-         234L);
 
     assertTrue(c.returnResponseControl());
 
@@ -459,7 +469,7 @@ public final class TransactionSettingsRequestControlTestCase
 
   /**
    * Tests the behavior when trying to decode a control whose value sequence has
-   * a backend lock behavior with an invalid value.
+   * a backend exclusive lock behavior with an invalid value.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -471,6 +481,24 @@ public final class TransactionSettingsRequestControlTestCase
          new Control("1.3.6.1.4.1.30221.2.5.38", false,
               new ASN1OctetString(new ASN1Sequence(
                    new ASN1Enumerated((byte) 0x82, 5678)).encode())));
+  }
+
+
+
+  /**
+   * Tests the behavior when trying to decode a control whose value sequence has
+   * a single-writer lock behavior with an invalid value.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test(expectedExceptions = { LDAPException.class })
+  public void testDecodeValueSequenceInvalidSingleWriterLockBehavior()
+         throws Exception
+  {
+    new TransactionSettingsRequestControl(
+         new Control("1.3.6.1.4.1.30221.2.5.38", false,
+              new ASN1OctetString(new ASN1Sequence(
+                   new ASN1Enumerated((byte) 0x87, 5678)).encode())));
   }
 
 

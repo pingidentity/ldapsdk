@@ -61,14 +61,13 @@ public final class TransactionSettingsScopedLockDetailsTestCase
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test()
-  public void testWithLockTimeout()
+  public void testDetails()
          throws Exception
   {
     final String scopeID = UUID.randomUUID().toString();
     TransactionSettingsScopedLockDetails details =
          new TransactionSettingsScopedLockDetails(scopeID,
-              TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES,
-              12345L);
+              TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
 
     details = TransactionSettingsScopedLockDetails.decode(details.encode());
 
@@ -81,42 +80,6 @@ public final class TransactionSettingsScopedLockDetailsTestCase
     assertEquals(details.getLockBehavior(),
          TransactionSettingsBackendLockBehavior.ACQUIRE_BEFORE_RETRIES);
 
-    assertNotNull(details.getLockTimeoutMillis());
-    assertEquals(details.getLockTimeoutMillis().longValue(), 12345L);
-
-    assertNotNull(details.toString());
-  }
-
-
-
-  /**
-   * Tests the behavior for settings that does not include a lock timeout.
-   *
-   * @throws  Exception  If an unexpected problem occurs.
-   */
-  @Test()
-  public void testWithoutLockTimeout()
-         throws Exception
-  {
-    final String scopeID = UUID.randomUUID().toString();
-    TransactionSettingsScopedLockDetails details =
-         new TransactionSettingsScopedLockDetails(scopeID,
-              TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES,
-              null);
-
-    details = TransactionSettingsScopedLockDetails.decode(details.encode());
-
-    assertNotNull(details);
-
-    assertNotNull(details.getScopeIdentifier());
-    assertEquals(details.getScopeIdentifier(), scopeID);
-
-    assertNotNull(details.getLockBehavior());
-    assertEquals(details.getLockBehavior(),
-         TransactionSettingsBackendLockBehavior.ACQUIRE_AFTER_RETRIES);
-
-    assertNull(details.getLockTimeoutMillis());
-
     assertNotNull(details.toString());
   }
 
@@ -124,7 +87,7 @@ public final class TransactionSettingsScopedLockDetailsTestCase
 
   /**
    * Tests the behavior for settings that indicate that the server should not
-   * actually attempt to acqurie the lock.
+   * actually attempt to acquire the lock.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
@@ -135,8 +98,7 @@ public final class TransactionSettingsScopedLockDetailsTestCase
     final String scopeID = UUID.randomUUID().toString();
     TransactionSettingsScopedLockDetails details =
          new TransactionSettingsScopedLockDetails(scopeID,
-              TransactionSettingsBackendLockBehavior.DO_NOT_ACQUIRE,
-              null);
+              TransactionSettingsBackendLockBehavior.DO_NOT_ACQUIRE);
 
     assertNotNull(details.getScopeIdentifier());
     assertEquals(details.getScopeIdentifier(), scopeID);
@@ -144,8 +106,6 @@ public final class TransactionSettingsScopedLockDetailsTestCase
     assertNotNull(details.getLockBehavior());
     assertEquals(details.getLockBehavior(),
          TransactionSettingsBackendLockBehavior.DO_NOT_ACQUIRE);
-
-    assertNull(details.getLockTimeoutMillis());
 
     assertNull(details.encode());
 
