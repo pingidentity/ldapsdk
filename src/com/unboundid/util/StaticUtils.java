@@ -66,6 +66,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -718,27 +719,12 @@ public final class StaticUtils
   @NotNull()
   public static byte[] getBytes(@Nullable final String s)
   {
-    final int length;
-    if ((s == null) || ((length = s.length()) == 0))
+    if ((s == null) || s.isEmpty())
     {
       return NO_BYTES;
     }
 
-    final byte[] b = new byte[length];
-    for (int i=0; i < length; i++)
-    {
-      final char c = s.charAt(i);
-      if (c <= 0x7F)
-      {
-        b[i] = (byte) (c & 0x7F);
-      }
-      else
-      {
-        return s.getBytes(StandardCharsets.UTF_8);
-      }
-    }
-
-    return b;
+    return s.getBytes(StandardCharsets.UTF_8);
   }
 
 
@@ -1506,100 +1492,7 @@ public final class StaticUtils
       return null;
     }
 
-    final int length = s.length();
-    final char[] charArray = s.toCharArray();
-    for (int i=0; i < length; i++)
-    {
-      switch (charArray[i])
-      {
-        case 'A':
-          charArray[i] = 'a';
-          break;
-        case 'B':
-          charArray[i] = 'b';
-          break;
-        case 'C':
-          charArray[i] = 'c';
-          break;
-        case 'D':
-          charArray[i] = 'd';
-          break;
-        case 'E':
-          charArray[i] = 'e';
-          break;
-        case 'F':
-          charArray[i] = 'f';
-          break;
-        case 'G':
-          charArray[i] = 'g';
-          break;
-        case 'H':
-          charArray[i] = 'h';
-          break;
-        case 'I':
-          charArray[i] = 'i';
-          break;
-        case 'J':
-          charArray[i] = 'j';
-          break;
-        case 'K':
-          charArray[i] = 'k';
-          break;
-        case 'L':
-          charArray[i] = 'l';
-          break;
-        case 'M':
-          charArray[i] = 'm';
-          break;
-        case 'N':
-          charArray[i] = 'n';
-          break;
-        case 'O':
-          charArray[i] = 'o';
-          break;
-        case 'P':
-          charArray[i] = 'p';
-          break;
-        case 'Q':
-          charArray[i] = 'q';
-          break;
-        case 'R':
-          charArray[i] = 'r';
-          break;
-        case 'S':
-          charArray[i] = 's';
-          break;
-        case 'T':
-          charArray[i] = 't';
-          break;
-        case 'U':
-          charArray[i] = 'u';
-          break;
-        case 'V':
-          charArray[i] = 'v';
-          break;
-        case 'W':
-          charArray[i] = 'w';
-          break;
-        case 'X':
-          charArray[i] = 'x';
-          break;
-        case 'Y':
-          charArray[i] = 'y';
-          break;
-        case 'Z':
-          charArray[i] = 'z';
-          break;
-        default:
-          if (charArray[i] > 0x7F)
-          {
-            return s.toLowerCase();
-          }
-          break;
-      }
-    }
-
-    return new String(charArray);
+    return s.toLowerCase(Locale.ROOT);
   }
 
 
@@ -1620,100 +1513,7 @@ public final class StaticUtils
       return null;
     }
 
-    final int length = s.length();
-    final char[] charArray = s.toCharArray();
-    for (int i=0; i < length; i++)
-    {
-      switch (charArray[i])
-      {
-        case 'a':
-          charArray[i] = 'A';
-          break;
-        case 'b':
-          charArray[i] = 'B';
-          break;
-        case 'c':
-          charArray[i] = 'C';
-          break;
-        case 'd':
-          charArray[i] = 'D';
-          break;
-        case 'e':
-          charArray[i] = 'E';
-          break;
-        case 'f':
-          charArray[i] = 'F';
-          break;
-        case 'g':
-          charArray[i] = 'G';
-          break;
-        case 'h':
-          charArray[i] = 'H';
-          break;
-        case 'i':
-          charArray[i] = 'I';
-          break;
-        case 'j':
-          charArray[i] = 'J';
-          break;
-        case 'k':
-          charArray[i] = 'K';
-          break;
-        case 'l':
-          charArray[i] = 'L';
-          break;
-        case 'm':
-          charArray[i] = 'M';
-          break;
-        case 'n':
-          charArray[i] = 'N';
-          break;
-        case 'o':
-          charArray[i] = 'O';
-          break;
-        case 'p':
-          charArray[i] = 'P';
-          break;
-        case 'q':
-          charArray[i] = 'Q';
-          break;
-        case 'r':
-          charArray[i] = 'R';
-          break;
-        case 's':
-          charArray[i] = 'S';
-          break;
-        case 't':
-          charArray[i] = 'T';
-          break;
-        case 'u':
-          charArray[i] = 'U';
-          break;
-        case 'v':
-          charArray[i] = 'V';
-          break;
-        case 'w':
-          charArray[i] = 'W';
-          break;
-        case 'x':
-          charArray[i] = 'X';
-          break;
-        case 'y':
-          charArray[i] = 'Y';
-          break;
-        case 'z':
-          charArray[i] = 'Z';
-          break;
-        default:
-          if (charArray[i] > 0x7F)
-          {
-            return s.toUpperCase();
-          }
-          break;
-      }
-    }
-
-    return new String(charArray);
+    return s.toUpperCase(Locale.ROOT);
   }
 
 

@@ -47,6 +47,19 @@ ${TARGET="offline"}                <br>
                   Directory Server instance).
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the StaticUtils toLowerCase, toUpperCase, and getBytes methods to make
+                  their implementations simpler and more efficient.  These methods were originally
+                  implemented in a way that made them faster than the corresponding methods in the
+                  Java String class, especially for the common case in which the strings contained
+                  only ASCII characters.  However, in modern Java versions (Java 9 and later),
+                  strings are backed by byte arrays rather than character arrays, and it is now
+                  just as fast or faster to use the String methods.  As such, the LDAP SDK
+                  implementations of these methods are now primarily wrappers around the
+                  corresponding Java methods, but with special handling for null values.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
