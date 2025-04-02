@@ -73,6 +73,10 @@ public final class TransactionSettingsReqeustControlProperties
 
 
 
+  // Indicates whether the settings in this control should be considered when
+  // the operation is replicated to other servers in the topology.
+  private boolean replicateControl;
+
   // Indicates whether to return a response control.
   private boolean returnResponseControl;
 
@@ -113,6 +117,7 @@ public final class TransactionSettingsReqeustControlProperties
    */
   public TransactionSettingsReqeustControlProperties()
   {
+    replicateControl = false;
     returnResponseControl = false;
     retryAttempts = null;
     backendLockTimeoutMillis = null;
@@ -447,6 +452,35 @@ public final class TransactionSettingsReqeustControlProperties
 
 
   /**
+   * Indicates whether the settings in this control should be considered when
+   * the operation is replicated to other servers in the topology.
+   *
+   * @return  {@code true} if the control settings should be replicated, or
+   *          {@code false} if not.
+   */
+  public boolean replicateControl()
+  {
+    return replicateControl;
+  }
+
+
+
+  /**
+   * Specifies whether the settings in this control should be considered when
+   * the operation is replicated to other servers in the topology.
+   *
+   * @param  replicateControl  Indicates whether the settings in this control
+   *                           should be considered when the operation is
+   *                           replicated to other servers in the topology.
+   */
+  public void setReplicateControl(final boolean replicateControl)
+  {
+    this.replicateControl = replicateControl;
+  }
+
+
+
+  /**
    * Indicates whether to return a response control with transaction-related
    * information collected over the course of processing the associated
    * operation.
@@ -627,7 +661,9 @@ public final class TransactionSettingsReqeustControlProperties
       buffer.append(", ");
     }
 
-    buffer.append("returnResponseControl=");
+    buffer.append("replicateControl=");
+    buffer.append(replicateControl);
+    buffer.append(", returnResponseControl=");
     buffer.append(returnResponseControl);
     buffer.append(')');
   }

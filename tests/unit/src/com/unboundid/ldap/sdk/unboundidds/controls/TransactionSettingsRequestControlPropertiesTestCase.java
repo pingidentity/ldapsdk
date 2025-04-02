@@ -80,6 +80,8 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
 
     assertNull(properties.getMaxTxnLockTimeoutMillis());
 
+    assertFalse(properties.replicateControl());
+
     assertFalse(properties.getReturnResponseControl());
 
     assertNotNull(properties.toString());
@@ -114,6 +116,7 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
     properties.setRetryAttempts(67);
     properties.setMinTxnLockTimeoutMillis(2345L);
     properties.setMaxTxnLockTimeoutMillis(6789L);
+    properties.setReplicateControl(true);
     properties.setReturnResponseControl(true);
 
 
@@ -149,6 +152,8 @@ public final class TransactionSettingsRequestControlPropertiesTestCase
 
     assertNotNull(properties.getMaxTxnLockTimeoutMillis());
     assertEquals(properties.getMaxTxnLockTimeoutMillis().longValue(), 6789L);
+
+    assertTrue(properties.replicateControl());
 
     assertTrue(properties.getReturnResponseControl());
 

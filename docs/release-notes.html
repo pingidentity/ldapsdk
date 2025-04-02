@@ -37,7 +37,9 @@ ${TARGET="offline"}                <br>
                   impact in the event of a conflict.  We also added the ability to override the
                   conditions under which the server may attempt to acquire a single-writer lock
                   within the associated backend, which could previously only be controlled through
-                  the server configuration.
+                  the server configuration, and to indicate whether the control should be taken
+                  into consideration when the operation is replicated to other servers in the
+                  topology.
                   <br><br>
                 </li>
 

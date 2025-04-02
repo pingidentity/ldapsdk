@@ -120,6 +120,7 @@ import static com.unboundid.ldap.sdk.unboundidds.controls.ControlMessages.*;
  *                  acquireBeforeInitialAttempt           (3),
  *                  ... },
  *             ... } OPTIONAL,
+ *        returnResponseControl        [11] BOOLEAN DEFAULT FALSE,
  *        ... }
  * </PRE>
  */
@@ -185,6 +186,15 @@ public final class TransactionSettingsRequestControl
 
 
   /**
+   * The BER type for the value sequence element that indicates whether the
+   * contents of the control should be considered when the operation is
+   * replciated to other servers in the topology.
+   */
+  private static final byte TYPE_REPLICATE_CONTROL = (byte) 0x8B;
+
+
+
+  /**
    * The BER type for the value sequence element that indicates whether to
    * return a response control with transaction-related information about the
    * processing of the associated operation.
@@ -216,6 +226,10 @@ public final class TransactionSettingsRequestControl
   private static final long serialVersionUID = -4749344077745581287L;
 
 
+
+  // Indicates whether the settings in this control should be considered when
+  // the operation is replicated to other servers in the topology.
+  private final boolean replicateControl;
 
   // Indicates whether to return a response control.
   private final boolean returnResponseControl;
@@ -414,7 +428,7 @@ public final class TransactionSettingsRequestControl
     super(TRANSACTION_SETTINGS_REQUEST_OID, isCritical,
          encodeValue(transactionName, commitDurability, backendLockBehavior,
               null, null, backendLockTimeoutMillis, retryAttempts,
-              minTxnLockTimeoutMillis, maxTxnLockTimeoutMillis,
+              minTxnLockTimeoutMillis, maxTxnLockTimeoutMillis, false,
               returnResponseControl));
 
     this.transactionName = transactionName;
@@ -428,6 +442,7 @@ public final class TransactionSettingsRequestControl
 
     singleWriterLockBehavior = null;
     scopedLockDetails = null;
+    replicateControl = false;
   }
 
 
@@ -453,6 +468,7 @@ public final class TransactionSettingsRequestControl
               properties.getRetryAttempts(),
               properties.getMinTxnLockTimeoutMillis(),
               properties.getMaxTxnLockTimeoutMillis(),
+              properties.replicateControl(),
               properties.getReturnResponseControl()));
 
     transactionName = properties.getTransactionName();
@@ -464,6 +480,7 @@ public final class TransactionSettingsRequestControl
     minTxnLockTimeoutMillis = properties.getMinTxnLockTimeoutMillis();
     maxTxnLockTimeoutMillis = properties.getMaxTxnLockTimeoutMillis();
     retryAttempts = properties.getRetryAttempts();
+    replicateControl = properties.replicateControl();
     returnResponseControl = properties.getReturnResponseControl();
   }
 
@@ -494,6 +511,7 @@ public final class TransactionSettingsRequestControl
 
     try
     {
+      boolean replicate = false;
       boolean responseControl = false;
       Integer numRetries = null;
       Long backendTimeout = null;
@@ -594,6 +612,10 @@ public final class TransactionSettingsRequestControl
             scopeDetails = TransactionSettingsScopedLockDetails.decode(e);
             break;
 
+          case TYPE_REPLICATE_CONTROL:
+            replicate = ASN1Boolean.decodeAsBoolean(e).booleanValue();
+            break;
+
           case TYPE_RETURN_RESPONSE_CONTROL:
             responseControl = ASN1Boolean.decodeAsBoolean(e).booleanValue();
             break;
@@ -614,6 +636,7 @@ public final class TransactionSettingsRequestControl
       minTxnLockTimeoutMillis = minTxnLockTimeout;
       maxTxnLockTimeoutMillis = maxTxnLockTimeout;
       retryAttempts = numRetries;
+      replicateControl = replicate;
       returnResponseControl = responseControl;
     }
     catch (final LDAPException le)
@@ -705,6 +728,10 @@ public final class TransactionSettingsRequestControl
    *                                   timeout.  If this is {@code null}, then
    *                                   the server will determine the database
    *                                   lock timeout settings to use.
+   * @param  replicateControl          Indicates whether the settings in this
+   *                                   control should be considered when the
+   *                                   operation is replicated to other servers
+   *                                   in the topology.
    * @param  returnResponseControl     Indicates whether to return a response
    *                                   control with transaction-related
    *                                   information collected over the course of
@@ -725,9 +752,10 @@ public final class TransactionSettingsRequestControl
        @Nullable final Integer retryAttempts,
        @Nullable final Long minTxnLockTimeoutMillis,
        @Nullable final Long maxTxnLockTimeoutMillis,
+       final boolean replicateControl,
        final boolean returnResponseControl)
   {
-    final ArrayList<ASN1Element> elements = new ArrayList<>(8);
+    final ArrayList<ASN1Element> elements = new ArrayList<>(10);
 
     if (transactionName != null)
     {
@@ -806,6 +834,11 @@ public final class TransactionSettingsRequestControl
       {
         elements.add(scopedLockDetailsElement);
       }
+    }
+
+    if (replicateControl)
+    {
+      elements.add(new ASN1Boolean(TYPE_REPLICATE_CONTROL, true));
     }
 
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
@@ -967,6 +1000,20 @@ public final class TransactionSettingsRequestControl
 
 
   /**
+   * Indicates whether the settings in this control should be considered when
+   * the operation is replicated to other servers in the topology.
+   *
+   * @return  {@code true} if the control settings should be replicated, or
+   *          {@code false} if not.
+   */
+  public boolean replicateControl()
+  {
+    return replicateControl;
+  }
+
+
+
+  /**
    * Indicates whether to return a response control with transaction-related
    * information collected over the course of processing the associated
    * operation.
@@ -1059,6 +1106,9 @@ public final class TransactionSettingsRequestControl
       buffer.append(", maxTxnLockTimeoutMillis=");
       buffer.append(maxTxnLockTimeoutMillis);
     }
+
+    buffer.append(", replicateControl=");
+    buffer.append(replicateControl);
 
     buffer.append(", returnResponseControl=");
     buffer.append(returnResponseControl);
