@@ -812,6 +812,55 @@ public final class LDIFModify
    * {@inheritDoc}
    */
   @Override()
+  public void doExtendedArgumentValidation()
+         throws ArgumentException
+  {
+    // Make sure that the source LDIF, changesLDIF, and targetLDIF files are
+    // all different.
+    final File sourceLDIFFile = sourceLDIF.getValue();
+    final File changesLDIFFile = changesLDIF.getValue();
+    final File targetLDIFFile = targetLDIF.getValue();
+
+    if (sourceLDIFFile != null)
+    {
+      if (sourceLDIFFile.equals(changesLDIFFile))
+      {
+        throw new ArgumentException(
+             ERR_LDIFMODIFY_ARGS_CANNOT_REFER_TO_SAME_FILE.get(
+                  sourceLDIF.getIdentifierString(),
+                  changesLDIF.getIdentifierString()));
+
+      }
+
+      if (sourceLDIFFile.equals(targetLDIFFile))
+      {
+        throw new ArgumentException(
+             ERR_LDIFMODIFY_ARGS_CANNOT_REFER_TO_SAME_FILE.get(
+                  sourceLDIF.getIdentifierString(),
+                  targetLDIF.getIdentifierString()));
+
+      }
+    }
+
+    if (changesLDIFFile != null)
+    {
+      if (changesLDIFFile.equals(targetLDIFFile))
+      {
+        throw new ArgumentException(
+             ERR_LDIFMODIFY_ARGS_CANNOT_REFER_TO_SAME_FILE.get(
+                  changesLDIF.getIdentifierString(),
+                  targetLDIF.getIdentifierString()));
+
+      }
+    }
+  }
+
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override()
   @NotNull()
   public ResultCode doToolProcessing()
   {

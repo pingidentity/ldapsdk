@@ -3658,6 +3658,58 @@ public final class LDIFModifyTestCase
 
 
   /**
+   * Tests the behavior for the case in which the user provided the same values
+   * for multiple of the sourceLDIF, changesLDIF, and targetLDIF arguments.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testConflictingFileArguments()
+         throws Exception
+  {
+    final File sourceLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: domain",
+         "dc: example",
+         "description: foo");
+
+    final File changesLDIF = createTempFile(
+         "dn: dc=example,dc=com",
+         "changetype: modify",
+         "replace: description",
+         "description: bar");
+
+    final File targetLDIF = createTempFile();
+
+    final OutputStream outputStream = null;
+    final OutputStream errorStream = null;
+
+    assertEquals(
+         LDIFModify.main(outputStream, errorStream,
+              "--sourceLDIF", sourceLDIF.getAbsolutePath(),
+              "--changesLDIF", sourceLDIF.getAbsolutePath(),
+              "--targetLDIF", targetLDIF.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDIFModify.main(outputStream, errorStream,
+              "--sourceLDIF", sourceLDIF.getAbsolutePath(),
+              "--changesLDIF", changesLDIF.getAbsolutePath(),
+              "--targetLDIF", sourceLDIF.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+
+    assertEquals(
+         LDIFModify.main(outputStream, errorStream,
+              "--sourceLDIF", sourceLDIF.getAbsolutePath(),
+              "--changesLDIF", changesLDIF.getAbsolutePath(),
+              "--targetLDIF", changesLDIF.getAbsolutePath()),
+         ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
    * Invokes the {@code ldifmodify} tool and ensures that it completes with the
    * expected result code.
    *

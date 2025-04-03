@@ -44,9 +44,16 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
-                  Improved error reporting in the dump-dns tool (which can be used to obtain a list
+                  Updated the ldifmodify tool to report an error if any of the sourceLDIF,
+                  changesLDIF, or targetLDIF arguments referred to the same file.  They must all
+                  refer to different files.
+                  <br><br>
+                </li>
+
+                <li>
+                  Improved error reporting in the dump-dns tool, which can be used to obtain a list
                   of the DNs of the entries beneath a specified base DN in a Ping Identity
-                  Directory Server instance).
+                  Directory Server instance.
                   <br><br>
                 </li>
 
