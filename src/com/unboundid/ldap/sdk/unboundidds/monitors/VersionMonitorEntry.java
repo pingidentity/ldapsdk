@@ -132,6 +132,34 @@ public final class VersionMonitorEntry
 
 
   /**
+   * The name of the attribute used to indicate whether the server is operating
+   * in FIPS-compliant mode (regardless of whether it's using FIPS 140-2 or
+   * FIPS 140-3).
+   */
+  @NotNull private static final String ATTR_FIPS_COMPLIANT_MODE =
+       "fips-compliant-mode";
+
+
+
+  /**
+   * The name of the attribute used to indicate whether the server is operating
+   * in FIPS 140-2-compliant mode.
+   */
+  @NotNull private static final String ATTR_FIPS_140_2_COMPLIANT_MODE =
+       "fips-140-2-compliant-mode";
+
+
+
+  /**
+   * The name of the attribute used to indicate whether the server is operating
+   * in FIPS 140-3-compliant mode.
+   */
+  @NotNull private static final String ATTR_FIPS_140_3_COMPLIANT_MODE =
+       "fips-140-3-compliant-mode";
+
+
+
+  /**
    * The name of the attribute used to provide the list of bugfix IDs.
    */
   @NotNull private static final String ATTR_FIX_IDS = "fixIDs";
@@ -270,6 +298,15 @@ public final class VersionMonitorEntry
 
 
 
+  // Indicates whether the server is running in FIPS-compliant mode.
+  @Nullable private final Boolean fipsCompliantMode;
+
+  // Indicates whether the server is running in FIPS 1402-2-compliant mode.
+  @Nullable private final Boolean fips1402CompliantMode;
+
+  // Indicates whether the server is running in FIPS 1402-3-compliant mode.
+  @Nullable private final Boolean fips1403CompliantMode;
+
   // The server build number.
   @Nullable private final Long buildNumber;
 
@@ -346,27 +383,30 @@ public final class VersionMonitorEntry
   {
     super(entry);
 
-    buildNumber         = getLong(ATTR_BUILD_NUMBER);
-    majorVersion        = getLong(ATTR_MAJOR_VERSION);
-    minorVersion        = getLong(ATTR_MINOR_VERSION);
-    pointVersion        = getLong(ATTR_POINT_VERSION);
-    revisionNumber      = getLong(ATTR_REVISION_NUMBER);
-    buildID             = getString(ATTR_BUILD_ID);
-    compactVersion      = getString(ATTR_COMPACT_VERSION);
-    fixIDs              = getString(ATTR_FIX_IDS);
-    groovyVersion       = getString(ATTR_GROOVY_VERSION);
-    fullVersion         = getString(ATTR_FULL_VERSION);
-    jeVersion           = getString(ATTR_JE_VERSION);
-    jzlibVersion        = getString(ATTR_JZLIB_VERSION);
-    ldapSDKVersion      = getString(ATTR_LDAP_SDK_VERSION);
-    productName         = getString(ATTR_PRODUCT_NAME);
-    revisionID          = getString(ATTR_REVISION_ID);
-    serverSDKVersion    = getString(ATTR_SERVER_SDK_VERSION);
-    shortName           = getString(ATTR_SHORT_NAME);
-    snmp4jVersion       = getString(ATTR_SNMP4J_VERSION);
-    snmp4jAgentVersion  = getString(ATTR_SNMP4J_AGENT_VERSION);
+    fipsCompliantMode = getBoolean(ATTR_FIPS_COMPLIANT_MODE);
+    fips1402CompliantMode = getBoolean(ATTR_FIPS_140_2_COMPLIANT_MODE);
+    fips1403CompliantMode = getBoolean(ATTR_FIPS_140_3_COMPLIANT_MODE);
+    buildNumber = getLong(ATTR_BUILD_NUMBER);
+    majorVersion = getLong(ATTR_MAJOR_VERSION);
+    minorVersion = getLong(ATTR_MINOR_VERSION);
+    pointVersion = getLong(ATTR_POINT_VERSION);
+    revisionNumber = getLong(ATTR_REVISION_NUMBER);
+    buildID = getString(ATTR_BUILD_ID);
+    compactVersion = getString(ATTR_COMPACT_VERSION);
+    fixIDs = getString(ATTR_FIX_IDS);
+    groovyVersion = getString(ATTR_GROOVY_VERSION);
+    fullVersion = getString(ATTR_FULL_VERSION);
+    jeVersion = getString(ATTR_JE_VERSION);
+    jzlibVersion = getString(ATTR_JZLIB_VERSION);
+    ldapSDKVersion = getString(ATTR_LDAP_SDK_VERSION);
+    productName = getString(ATTR_PRODUCT_NAME);
+    revisionID = getString(ATTR_REVISION_ID);
+    serverSDKVersion = getString(ATTR_SERVER_SDK_VERSION);
+    shortName = getString(ATTR_SHORT_NAME);
+    snmp4jVersion = getString(ATTR_SNMP4J_VERSION);
+    snmp4jAgentVersion = getString(ATTR_SNMP4J_AGENT_VERSION);
     snmp4jAgentXVersion = getString(ATTR_SNMP4J_AGENTX_VERSION);
-    versionQualifier    = getString(ATTR_VERSION_QUALIFIER);
+    versionQualifier = getString(ATTR_VERSION_QUALIFIER);
   }
 
 
@@ -410,6 +450,54 @@ public final class VersionMonitorEntry
   public String getCompactVersion()
   {
     return compactVersion;
+  }
+
+
+
+  /**
+   * Indicates whether the server is running in FIPS-compliant mode.
+   *
+   * @return  {@code Boolean.TRUE} if the server is running in FIPS 140-2 or
+   *          FIPS 140-3-compliant mode, {@code Boolean.FALSE} if the server is
+   *          not running in FIPS-compliant mode, or {@code null} if it was not
+   *          included in the monitor entry.
+   */
+  @Nullable()
+  public Boolean getFIPSCompliantMode()
+  {
+    return fipsCompliantMode;
+  }
+
+
+
+  /**
+   * Indicates whether the server is running in FIPS 140-2-compliant mode.
+   *
+   * @return  {@code Boolean.TRUE} if the server is running in FIPS
+   *          140-2-compliant mode, {@code Boolean.FALSE} if the server is not
+   *          running in FIPS 140-2-compliant mode, or {@code null} if it was
+   *          not included in the monitor entry.
+   */
+  @Nullable()
+  public Boolean getFIPS1402CompliantMode()
+  {
+    return fips1402CompliantMode;
+  }
+
+
+
+  /**
+   * Indicates whether the server is running in FIPS 140-3-compliant mode.
+   *
+   * @return  {@code Boolean.TRUE} if the server is running in FIPS
+   *          140-3-compliant mode, {@code Boolean.FALSE} if the server is not
+   *          running in FIPS 140-3-compliant mode, or {@code null} if it was
+   *          not included in the monitor entry.
+   */
+  @Nullable()
+  public Boolean getFIPS1403CompliantMode()
+  {
+    return fips1403CompliantMode;
   }
 
 
@@ -817,6 +905,33 @@ public final class VersionMonitorEntry
            INFO_VERSION_DISPNAME_REVISION_ID.get(),
            INFO_VERSION_DESC_REVISION_ID.get(),
            revisionID);
+    }
+
+    if (fipsCompliantMode != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_FIPS_COMPLIANT_MODE,
+           INFO_VERSION_DISPNAME_FIPS_COMPLIANT_MODE.get(),
+           INFO_VERSION_DESC_FIPS_COMPLIANT_MODE.get(),
+           fipsCompliantMode);
+    }
+
+    if (fips1402CompliantMode != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_FIPS_140_2_COMPLIANT_MODE,
+           INFO_VERSION_DISPNAME_FIPS_140_2_COMPLIANT_MODE.get(),
+           INFO_VERSION_DESC_FIPS_140_2_COMPLIANT_MODE.get(),
+           fips1402CompliantMode);
+    }
+
+    if (fips1403CompliantMode != null)
+    {
+      addMonitorAttribute(attrs,
+           ATTR_FIPS_140_3_COMPLIANT_MODE,
+           INFO_VERSION_DISPNAME_FIPS_140_3_COMPLIANT_MODE.get(),
+           INFO_VERSION_DESC_FIPS_140_3_COMPLIANT_MODE.get(),
+           fips1403CompliantMode);
     }
 
     if (fixIDs != null)

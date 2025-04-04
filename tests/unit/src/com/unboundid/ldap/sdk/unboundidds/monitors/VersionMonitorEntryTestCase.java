@@ -73,6 +73,9 @@ public class VersionMonitorEntryTestCase
          "buildID: 20080101010101Z",
          "buildNumber: 1",
          "compactVersion: UnboundID-DS-1.2-beta1-build1",
+         "fips-compliant-mode: true",
+         "fips-140-2-compliant-mode: true",
+         "fips-140-3-compliant-mode: false",
          "fixIDs: 1234,5678",
          "fullVersion: UnboundID Directory Server 1.2-beta1-build1",
          "majorVersion: 1",
@@ -108,6 +111,15 @@ public class VersionMonitorEntryTestCase
 
     assertNotNull(me.getCompactVersion());
     assertEquals(me.getCompactVersion(), "UnboundID-DS-1.2-beta1-build1");
+
+    assertNotNull(me.getFIPSCompliantMode());
+    assertEquals(me.getFIPSCompliantMode(), Boolean.TRUE);
+
+    assertNotNull(me.getFIPS1402CompliantMode());
+    assertEquals(me.getFIPS1402CompliantMode(), Boolean.TRUE);
+
+    assertNotNull(me.getFIPS1403CompliantMode());
+    assertEquals(me.getFIPS1403CompliantMode(), Boolean.FALSE);
 
     assertNotNull(me.getFixIDs());
     assertEquals(me.getFixIDs(), "1234,5678");
@@ -191,6 +203,18 @@ public class VersionMonitorEntryTestCase
     assertNotNull(attrs.get("compactversion"));
     assertEquals(attrs.get("compactversion").getStringValue(),
                  "UnboundID-DS-1.2-beta1-build1");
+
+    assertNotNull(attrs.get("fips-compliant-mode"));
+    assertEquals(attrs.get("fips-compliant-mode").getBooleanValue(),
+                 Boolean.TRUE);
+
+    assertNotNull(attrs.get("fips-140-2-compliant-mode"));
+    assertEquals(attrs.get("fips-140-2-compliant-mode").getBooleanValue(),
+                 Boolean.TRUE);
+
+    assertNotNull(attrs.get("fips-140-3-compliant-mode"));
+    assertEquals(attrs.get("fips-140-3-compliant-mode").getBooleanValue(),
+                 Boolean.FALSE);
 
     assertNotNull(attrs.get("fixids"));
     assertEquals(attrs.get("fixids").getStringValue(),
@@ -295,6 +319,12 @@ public class VersionMonitorEntryTestCase
     assertNull(me.getBuildNumber());
 
     assertNull(me.getCompactVersion());
+
+    assertNull(me.getFIPSCompliantMode());
+
+    assertNull(me.getFIPS1402CompliantMode());
+
+    assertNull(me.getFIPS1403CompliantMode());
 
     assertNull(me.getFixIDs());
 
