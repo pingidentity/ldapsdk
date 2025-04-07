@@ -1,0 +1,1456 @@
+
+
+
+
+Internet Engineering Task Force                        C. E. Codère, Ed.
+Internet-Draft                                            Optima SC Inc.
+Intended status: Informational                           4 February 2025
+Expires: 8 August 2025
+
+
+   Lightweight Directory Access Protocol (LDAP): Additional Syntaxes
+                       draft-codere-ldapsyntax-01
+
+Abstract
+
+   This document registers additional syntax definitions for use in
+   Lightweight Directory Access Protocol (LDAP) directory and Directoy
+   services series X.500.  This includes widely used datatypes and
+   syntaxes.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 8 August 2025.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
+
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 1]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Conventions . . . . . . . . . . . . . . . . . . . . . . .   3
+   2.  Syntaxes  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+     2.1.  ASN.1 Syntax Definitions  . . . . . . . . . . . . . . . .   4
+       2.1.1.  Date  . . . . . . . . . . . . . . . . . . . . . . . .   4
+       2.1.2.  Date-Time . . . . . . . . . . . . . . . . . . . . . .   4
+       2.1.3.  Duration  . . . . . . . . . . . . . . . . . . . . . .   5
+       2.1.4.  Real  . . . . . . . . . . . . . . . . . . . . . . . .   5
+       2.1.5.  Time Of Day . . . . . . . . . . . . . . . . . . . . .   6
+       2.1.6.  Visible String  . . . . . . . . . . . . . . . . . . .   6
+     2.2.  Constrained ASN.1 Syntax Definitions  . . . . . . . . . .   7
+       2.2.1.  Short String  . . . . . . . . . . . . . . . . . . . .   7
+       2.2.2.  Long String . . . . . . . . . . . . . . . . . . . . .   7
+       2.2.3.  Text  . . . . . . . . . . . . . . . . . . . . . . . .   8
+       2.2.4.  Float32 . . . . . . . . . . . . . . . . . . . . . . .   8
+       2.2.5.  Float64 . . . . . . . . . . . . . . . . . . . . . . .   9
+       2.2.6.  UInt8 . . . . . . . . . . . . . . . . . . . . . . . .   9
+       2.2.7.  UInt16  . . . . . . . . . . . . . . . . . . . . . . .  10
+       2.2.8.  UInt32  . . . . . . . . . . . . . . . . . . . . . . .  10
+       2.2.9.  UInt64  . . . . . . . . . . . . . . . . . . . . . . .  10
+       2.2.10. Int8  . . . . . . . . . . . . . . . . . . . . . . . .  11
+       2.2.11. Int16 . . . . . . . . . . . . . . . . . . . . . . . .  11
+       2.2.12. Int32 . . . . . . . . . . . . . . . . . . . . . . . .  12
+       2.2.13. Int64 . . . . . . . . . . . . . . . . . . . . . . . .  12
+       2.2.14. Percentage  . . . . . . . . . . . . . . . . . . . . .  12
+     2.3.  Other Syntax Definitions  . . . . . . . . . . . . . . . .  13
+       2.3.1.  DCMIType  . . . . . . . . . . . . . . . . . . . . . .  13
+       2.3.2.  Language  . . . . . . . . . . . . . . . . . . . . . .  13
+       2.3.3.  Media type  . . . . . . . . . . . . . . . . . . . . .  14
+       2.3.4.  OpenDate  . . . . . . . . . . . . . . . . . . . . . .  14
+       2.3.5.  URI . . . . . . . . . . . . . . . . . . . . . . . . .  15
+   3.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  16
+     3.1.  Date Syntax Registration  . . . . . . . . . . . . . . . .  16
+     3.2.  Date-Time Syntax Registration . . . . . . . . . . . . . .  16
+     3.3.  DCMIType Syntax Registration  . . . . . . . . . . . . . .  16
+     3.4.  DCMIType Syntax Registration  . . . . . . . . . . . . . .  17
+     3.5.  Duration Syntax Registration  . . . . . . . . . . . . . .  17
+     3.6.  Float32 Syntax Registration . . . . . . . . . . . . . . .  17
+     3.7.  Float64 Syntax Registration . . . . . . . . . . . . . . .  18
+     3.8.  Int8 Syntax Registration  . . . . . . . . . . . . . . . .  18
+     3.9.  Int16 Syntax Registration . . . . . . . . . . . . . . . .  18
+     3.10. Int32 Syntax Registration . . . . . . . . . . . . . . . .  19
+     3.11. Int64 Syntax Registration . . . . . . . . . . . . . . . .  19
+     3.12. Language Syntax Registration  . . . . . . . . . . . . . .  19
+     3.13. Short String Syntax Registration  . . . . . . . . . . . .  20
+     3.14. Long String Syntax Registration . . . . . . . . . . . . .  20
+
+
+
+Codère                    Expires 8 August 2025                 [Page 2]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+     3.15. Media Type Syntax Registration  . . . . . . . . . . . . .  20
+     3.16. OpenDate Syntax Registration  . . . . . . . . . . . . . .  21
+     3.17. Percentage Syntax Registration  . . . . . . . . . . . . .  21
+     3.18. Real Syntax Registration  . . . . . . . . . . . . . . . .  21
+     3.19. Text Syntax Registration  . . . . . . . . . . . . . . . .  22
+     3.20. Time Of Day Syntax Registration . . . . . . . . . . . . .  22
+     3.21. UInt8 Syntax Registration . . . . . . . . . . . . . . . .  22
+     3.22. UInt16 Syntax Registration  . . . . . . . . . . . . . . .  23
+     3.23. UInt32 Syntax Registration  . . . . . . . . . . . . . . .  23
+     3.24. UInt64 Syntax Registration  . . . . . . . . . . . . . . .  23
+     3.25. URI Syntax Registration . . . . . . . . . . . . . . . . .  24
+     3.26. Visible String Syntax Registration  . . . . . . . . . . .  24
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  24
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  24
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . .  24
+     5.2.  Informative References  . . . . . . . . . . . . . . . . .  25
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  26
+   Contributors  . . . . . . . . . . . . . . . . . . . . . . . . . .  26
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  26
+
+1.  Introduction
+
+   The Lightweight Directory Access Protocol (LDAP) directory defines
+   several data types which specify the syntax definitions of
+   attributes.  These are identified by ASN.1 OBJECT IDENTIFIERS.
+   Furthermore, these syntax definitions could be used to uniquely
+   identify data types as character representations in other
+   applications.  Some widely used syntax specifications are missing
+   from the initial LDAP specification.  This document provides
+   additional syntax definitions that have been registered and may be
+   used by application providers.
+
+1.1.  Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   Syntax definitions are written according to the regular expressions
+   defined in [RFC9485].
+
+2.  Syntaxes
+
+   The following additional syntaxes and their associated descriptions
+   and OBJECT IDENTIFIER are defined.
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 3]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+2.1.  ASN.1 Syntax Definitions
+
+   The following additional syntaxes are defined and are based on
+   [ASN.1].
+
+2.1.1.  Date
+
+   The Date type represents a date in the Gregorian calender.  It is
+   defined as a useful TIME type in [ASN.1] and conforms to the extended
+   format syntax of a calendar date as defined in [ISO.8601.2004].
+
+   A Date value SHALL be written using the following syntax: YYYY-MM-DD
+   where YYYY represents a year between 1582 and 9999, MM the month
+   value from 01 to 12 and DD a day in the month from 01 to 31.
+
+   Examples
+
+   *  9999-02-25
+
+   *  1583-01-31
+
+   The LDAP definition for the Date syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.31 DESC 'Date' )
+
+   This syntax corresponds to the DATE ASN.1 type from [ASN.1].
+
+2.1.2.  Date-Time
+
+   The Date-time type represents a date and local time using a 24 hour
+   clock.  It is defined as a useful TIME type in [ASN.1] and conforms
+   to the extended format syntax of a date and time without any timezone
+   specifier as defined in [ISO.8601.2004].
+
+   A Date-Time value SHALL be written using the following syntax: YYYY-
+   MM-DDThh:mm:ss where YYYY represents a year between 1582 and 9999, MM
+   the month value from 01 to 12, DD a day in the month from 01 to 31,
+   hh the hour from 00 to 24, mm the minute from 00 to 59, and ss the
+   seconnds with allowed values of 00 to 60 where 60 represents a leap
+   second
+
+   Examples
+
+   *  1583-01-01T00:59:59
+
+   *  1975-01-19T23:45:34
+
+   The LDAP definition for the Date-Time syntax is:
+
+
+
+Codère                    Expires 8 August 2025                 [Page 4]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   *  ( 1.3.6.1.4.1.61799.5.40.33 DESC 'Date-Time' )
+
+   This syntax corresponds to the DATE-TIME ASN.1 type from [ASN.1].
+
+2.1.3.  Duration
+
+   The Duration type represents an elapsed time with a resolution of up
+   to a fractions of seconds.  It is defined as a useful TIME type in
+   [ASN.1] and conforms to the extended format syntax of a time interval
+   by duration as defined in [ISO.8601.2004].
+
+   A duration syntax value SHALL conform to the following regular
+   expression
+
+   P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?
+
+   Examples
+
+   *  P29M0D -- 29 months
+
+   *  P29MT0S -- 29 months
+
+   *  PT3445.5S -- 3445.55 seconds
+
+   The LDAP definition for the Duration syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.34 DESC 'Duration' )
+
+   This syntax corresponds to a very strict subset of DURATION ASN.1
+   type from [ASN.1], in that the order of parameters need to be
+   respected.
+
+2.1.4.  Real
+
+   The Real type represents the computational approximations to the
+   mathematical "real number".  The format for the Real is as defined in
+   Section 21 of [ASN.1].
+
+   A Real syntax value SHALL conform to the following regular expression
+
+   ([-]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?)|PLUS-INFINITY|MINUS-INFINITY|NOT-A-NUMBER
+
+   Examples
+
+   *  3.14159
+
+   *  MINUS-INFINITY
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 5]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   *  -5.3E4 -- Equal to -53000
+
+   The LDAP definition for the Real syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.9 DESC 'Real' )
+
+   This syntax corresponds to a subset of the REAL ASN.1 type from
+   [ASN.1] where the sequence syntax is not allowed and the values are
+   limited to base ten.
+
+2.1.5.  Time Of Day
+
+   The Time Of Day type represents a local time using a 24 hour clock.
+   It is defined as a useful TIME type in [ASN.1] and conforms to the
+   extended format syntax of a local time as defined in [ISO.8601.2004].
+
+   A Time Of Day value SHALL be written using the following syntax:
+   hh:mm:ss where hh represents the hour from 00 to 24, mm represents
+   the minute from 00 to 59, and ss represents the seconnds with allowed
+   values of 00 to 60 where 60 represents a leap second.
+
+   Examples for Time Of Day:
+
+   *  00:59:59
+
+   *  01:45:54
+
+   The LDAP definition for the Time Of Day syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.32 DESC 'Time Of Day' )
+
+   This syntax corresponds to the TIME-OF-DAY ASN.1 type from [ASN.1].
+
+2.1.6.  Visible String
+
+   The Visible string type represents a character repertoire that the
+   contains printable ASCII character set (in the range 0020-007E
+   hexadecimal).  It is defined in [ASN.1].
+
+   Examples
+
+   *  hello world
+
+   *  (x+y)=z
+
+   The LDAP definition for the Visible String syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.26 DESC 'Visible String' )
+
+
+
+Codère                    Expires 8 August 2025                 [Page 6]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   This syntax corresponds to the VisibleString ASN.1 type from [ASN.1].
+
+2.2.  Constrained ASN.1 Syntax Definitions
+
+   The following additional syntaxes are defined as constraints of basic
+   ASN.1 types that may be used to be more precise in encoding and input
+   validation.
+
+   It is to note that length constraints of string types is already
+   allowed in LDAP using the attribute definition syntax, as specified
+   in [RFC4517] by adding curly braces following the syntax's OBJECT
+   IDENTIFIER in an attribute type definition.  The additional
+   constrained string types here are present in case they are needed in
+   the future or as a way to not use the above extension, which does not
+   seem to be available in pure X.500 implementatons.
+
+2.2.1.  Short String
+
+   The Short String type represents an UTF-8 string that is limited to
+   127 octets when encoded.  The acual number of characters that can be
+   encoded depends on the characters.
+
+   Examples
+
+   *  Hello world
+
+   *  Short
+
+   The LDAP definition for the Short String type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.12.1 DESC 'Short String' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Shortstring ::= UTF8String(SIZE (0..127))
+
+2.2.2.  Long String
+
+   The Long String type represents a UTF-8 string that is limited to
+   1000 octets when encoded.  The acual number of characters that can be
+   encoded depends on the characters.
+
+   Examples
+
+   *  This is a bigger sentence
+
+   *  Ceci est une phrase qui est plus longue que la précèdente
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 7]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   The LDAP definition for the Long String type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.12.2 DESC 'Long String' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Longstring ::= UTF8String(SIZE (0..1000))
+
+2.2.3.  Text
+
+   The text type represents a UTF-8 string that is limited to 65535
+   octets when encoded.  The acual number of characters that can be
+   encoded depends on the characters.
+
+   Examples
+
+   *  Hello world
+
+   *  Ceci est une phrase qui est encore plus longue que la précèdente
+
+   The LDAP definition for the Text type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.12.3 DESC 'Text' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Text ::= UTF8String(SIZE (0..65535))
+
+2.2.4.  Float32
+
+   The Float32 type represents a real number which fits in the range of
+   a [IEEE_754_2019] single precision floating point value.
+
+   Examples
+
+   *  3.14159
+
+   *  MINUS-INFINITY
+
+   *  -5.3E4 -- Equal to -53000
+
+   The LDAP definition for the Float32 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.9.4 DESC 'Float32' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 8]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+               Float32 ::= REAL (WITH COMPONENTS {
+               mantissa (-16777215..16777215),
+               base (2),
+               exponent (-149..104) })
+
+2.2.5.  Float64
+
+   The Float64 type represents a real number which fits in the range of
+   a [IEEE_754_2019] double precision floating point value.
+
+   Examples
+
+   *  3.1415926535897932
+
+   *  NOT-A-NUMBER
+
+   *  -5.3E4 -- Equal to -53000
+
+   The LDAP definition for the Float64 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.9.8 DESC 'Float64' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+               Float64 ::= REAL (WITH COMPONENTS {
+               mantissa (-9007199254740991..9007199254740991),
+               base (2),
+               exponent (-1074..971) })
+
+2.2.6.  UInt8
+
+   The UInt8 type represents an unsigned integer value within the range
+   0 to 255 inclusive.
+
+   Examples
+
+   *  0
+
+   *  34
+
+   The LDAP definition for the UInt8 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.21 DESC 'UInt8' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   UInt8 ::= INTEGER(0..255)
+
+
+
+
+Codère                    Expires 8 August 2025                 [Page 9]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+2.2.7.  UInt16
+
+   The UInt16 type represents an unsigned integer value within the range
+   0 to 65535 inclusive.
+
+   Examples
+
+   *  0
+
+   *  64991
+
+   The LDAP definition for the UInt16 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.22 DESC 'UInt16' )
+
+   This syntax syntax corresponds to the following ASN.1 type from
+   [ASN.1]:
+
+   UInt16 ::= INTEGER(0..65535)
+
+2.2.8.  UInt32
+
+   The UInt32 type represents an unsigned integer value within the range
+   0 to 4294967295 inclusive.
+
+   Examples
+
+   *  0
+
+   *  40000000
+
+   The LDAP definition for the UInt32 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.24 DESC 'UInt32' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   UInt32 ::= INTEGER(0..4294967295)
+
+2.2.9.  UInt64
+
+   The UInt64 type represents an unsigned integer value within the range
+   0 to 18446744073709551615 inclusive.
+
+   Examples
+
+   *  0
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 10]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   *  844674407370955
+
+   The LDAP definition for the UInt64 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.28 DESC 'UInt64' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   UInt64 ::= INTEGER(0..18446744073709551615)
+
+2.2.10.  Int8
+
+   The Int8 type represents a signed integer value within the range -128
+   to 127 inclusive.
+
+   Examples
+
+   *  0
+
+   *  -123
+
+   The LDAP definition for the Int8 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.1 DESC 'Int8' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Int8 ::= INTEGER(-128..127)
+
+2.2.11.  Int16
+
+   The Int16 type represents a signed integer value within the range
+   -32768 to 32767 inclusive.
+
+   Examples
+
+   *  15667
+
+   *  -32000
+
+   The LDAP definition for the Int16 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.2 DESC 'Int16' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Int16 ::= INTEGER(-32768 .. 32767)
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 11]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+2.2.12.  Int32
+
+   The Int32 type represents a signed integer value within the range
+   -2147483648 to 2147483647 inclusive.
+
+   Examples
+
+   *  15667
+
+   *  -3200000
+
+   The LDAP definition for the Int32 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.4 DESC 'Int32' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Int32 ::= INTEGER(-2147483648..2147483647)
+
+2.2.13.  Int64
+
+   The Int64 type represents a signed integer value within the range
+   -9223372036854775808 to 9223372036854775807 inclusive.
+
+   Examples
+
+   *  -2337203685477580
+
+   *  3372036854775807
+
+   The LDAP definition for the Int64 type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.8 DESC 'Int64' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Int64 ::= INTEGER(-9223372036854775808..9223372036854775807)
+
+2.2.14.  Percentage
+
+   The Percentage type represents a percentage value, that is an
+   unsigned integer in the range 0 to 100 inclusive.
+
+   Examples
+
+   *  0
+
+   *  99
+
+
+
+Codère                    Expires 8 August 2025                [Page 12]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   The LDAP definition for the Percentage type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.2.20 DESC 'Percentage' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Percentage ::= INTEGER(0..100)
+
+2.3.  Other Syntax Definitions
+
+   The following additional syntaxes are defined and are based on IETF
+   RFC's, or other international standards.
+
+2.3.1.  DCMIType
+
+   DCMIType is a controlled vocabulary to describe the type of a
+   resource.  It is specified in [DCMIType]
+
+   Examples
+
+   *  Text
+
+   *  Moving Image
+
+   The LDAP definition for the DCMIType syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.19.2 DESC 'DCMIType' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   DCMIType ::= PrintableString("Collection" | "Dataset" |
+                "Event" | "Image" | "Interactive Resource" |
+                "Moving Image" |
+                "Physical Object" |
+                "Service" | "Software" |
+                "Sound" |
+                "Still Image" |
+                "Text")
+
+2.3.2.  Language
+
+   A language provides a representation of a spoken or written language
+   as well as an optional locale specifier.  The exact syntax allowed is
+   defined in Section 2 [RFC5646].
+
+   A Language syntax value SHALL conform to the following regular
+   expression
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 13]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   [a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*
+
+   Examples
+
+   *  en
+
+   *  fr-CA
+
+   The LDAP definition for the Language syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.19.1 DESC 'Language' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   Language ::= PrintableString(SIZE (1..255)) -- ISO 639 code minimally
+
+2.3.3.  Media type
+
+   The Media Type syntax type should be used to identify values that
+   represent a Media type.  The format for the MIME Media type is
+   defined in Section 5.1 of [RFC6838].  A Media type should match the
+   following regular expression:
+
+   This syntax value SHALL conform to the following regular expression
+
+   [A-Za-z0-9]([A-Za-z0-9!#$&^_.+-]){0,126}/[A-Za-z0-9]([A-Za-z0-9!#$&^_.+-]){0,126}
+
+   Examples
+
+   *  text/xhtml
+
+   *  application/alto-costmap+json
+
+   The LDAP definition for the MIME Media type syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.26.5 DESC 'Media Type' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   MediaType ::= VisibleString (SIZE(3..255)) -- IANA Registered Media type
+
+2.3.4.  OpenDate
+
+   An OpenDate represents either part of a Date or a Date and Time in
+   extended format as specified in ISO 8601.  The exact syntax allowed
+   is defined by W3C Date and Time formats [W3C.NOTE-datetime-19980827]
+   with a 3 digit fraction.
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 14]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   Examples for OpenDate:
+
+   *  2034
+
+   *  1975-01-19
+
+   *  2000-01-19T23:59:01Z
+
+   The LDAP definition for the Open Date syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.14.1 DESC 'OpenDate' )
+
+   This syntax corresponds to a subset of the TIME ASN.1 type from
+   [ASN.1] with the specified configuration:
+
+   OpenDate ::=  TIME((SETTINGS "Basic=Date Date=Y Year=Basic")|
+           (SETTINGS "Basic=Date Date=YM Year=Basic")|
+           (SETTINGS "Basic=Date Date=YMD Year=Basic")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM Local-or-UTC=LD")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=LD")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3 Local-or-UTC=LD")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM Local-or-UTC=Z")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=Z")|
+           (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3 Local-or-UTC=Z"))
+
+2.3.5.  URI
+
+   The URI syntax type should be used to identify values that are
+   referenced by a Uniform Resource Identifier (URI).  The format for
+   the URI is as defined in Section 3 of [RFC3986].
+
+   Examples
+
+   *  http://www.example.com/my/picture.jpg
+
+   *  ldap://ldap.example.com/cn=babs%20jensen
+
+   The LDAP definition for the URI syntax is:
+
+   *  ( 1.3.6.1.4.1.61799.5.40.26.4 DESC 'URI' )
+
+   This syntax corresponds to the following ASN.1 type from [ASN.1]:
+
+   URI ::= VisibleString (SIZE(1..ub-uri-length))
+
+   The value of ub-uri-length (an integer) is implementation defined but
+   must be at least 2000 octets.
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 15]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.  IANA Considerations
+
+   The IANA has registered the LDAP values [RFC4520] specified in this
+   document.
+
+3.1.  Date Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.31
+
+   Description:  Date
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Date syntax.
+
+3.2.  Date-Time Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.33
+
+   Description:  Date-Time
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Date-Time syntax.
+
+3.3.  DCMIType Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.19.2
+
+   Description:  DCMIType
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 16]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   Comments: Identifies the DCMIType syntax.
+
+3.4.  DCMIType Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.19.2
+
+   Description:  DCMIType
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the DCMIType syntax.
+
+3.5.  Duration Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.34
+
+   Description:  Duration
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Duration syntax.
+
+3.6.  Float32 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.9.4
+
+   Description:  Float32
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Float32 syntax.
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 17]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.7.  Float64 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.9.8
+
+   Description:  Float64
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Float64 syntax.
+
+3.8.  Int8 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.1
+
+   Description:  Int8
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Int8 syntax.
+
+3.9.  Int16 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.2
+
+   Description:  Int32
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Int16 syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 18]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.10.  Int32 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.4
+
+   Description:  Int32
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Int32 syntax.
+
+3.11.  Int64 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.8
+
+   Description:  Int64
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Int64 syntax.
+
+3.12.  Language Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.19.1
+
+   Description:  Language
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Language syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 19]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.13.  Short String Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.12.1
+
+   Description:  Short String
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Short String syntax.
+
+3.14.  Long String Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.12.2
+
+   Description:  Long String
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Long String syntax.
+
+3.15.  Media Type Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.26.5
+
+   Description:  Media Type
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Media Type syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 20]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.16.  OpenDate Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.14.1
+
+   Description:  OpenDate
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the OpenDate syntax.
+
+3.17.  Percentage Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.20
+
+   Description:  Percentage
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Percentage syntax.
+
+3.18.  Real Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.9
+
+   Description:  Real
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Real syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 21]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.19.  Text Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.12.3
+
+   Description:  Text
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Text syntax.
+
+3.20.  Time Of Day Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.32
+
+   Description:  Time Of Day
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Time Of Day syntax.
+
+3.21.  UInt8 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.21
+
+   Description:  UInt8
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the UInt8 syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 22]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.22.  UInt16 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.22
+
+   Description:  UInt16
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the UInt16 syntax.
+
+3.23.  UInt32 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.24
+
+   Description:  UInt32
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the UInt32 syntax.
+
+3.24.  UInt64 Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.2.28
+
+   Description:  UInt64
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the UInt64 syntax.
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 23]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+3.25.  URI Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.26.4
+
+   Description:  URI
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the URI syntax.
+
+3.26.  Visible String Syntax Registration
+
+   Object Identifier:  1.3.6.1.4.1.61799.5.40.26
+
+   Description:  Visible String
+
+   Person & email address to contact for further information:
+      carl.codere@optimasc.com
+
+   Specification: []
+
+   Author/Change Controller: IESG
+
+   Comments: Identifies the Visible String syntax.
+
+4.  Security Considerations
+
+   This document should not affect the security of the Internet.
+
+5.  References
+
+5.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 24]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   [RFC9485]  Bormann, C. and T. Bray, "I-Regexp: An Interoperable
+              Regular Expression Format", RFC 9485,
+              DOI 10.17487/RFC9485, October 2023,
+              <https://www.rfc-editor.org/info/rfc9485>.
+
+   [RFC6838]  Freed, N., Klensin, J., and T. Hansen, "Media Type
+              Specifications and Registration Procedures", BCP 13,
+              RFC 6838, DOI 10.17487/RFC6838, January 2013,
+              <https://www.rfc-editor.org/info/rfc6838>.
+
+   [RFC5646]  Phillips, A., Ed. and M. Davis, Ed., "Tags for Identifying
+              Languages", BCP 47, RFC 5646, DOI 10.17487/RFC5646,
+              September 2009, <https://www.rfc-editor.org/info/rfc5646>.
+
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/info/rfc3986>.
+
+   [IEEE_754_2019]
+              IEEE, "IEEE Standard for Floating-Point Arithmetic",
+              IEEE IEEE 754-2019, DOI 10.1109/IEEESTD.2019.8766229, 18
+              July 2019, <https://ieeexplore.ieee.org/document/8766229>.
+
+   [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
+              Considerations for the Lightweight Directory Access
+              Protocol (LDAP)", BCP 64, RFC 4520, DOI 10.17487/RFC4520,
+              June 2006, <https://www.rfc-editor.org/info/rfc4520>.
+
+   [W3C.NOTE-datetime-19980827]
+              Wicksteed, C., Ed. and M. Wolf, Ed., "Date and Time
+              Formats", W3C NOTE NOTE-datetime-19980827, W3C NOTE-
+              datetime-19980827, 27 August 1998,
+              <http://www.w3.org/TR/1998/NOTE-datetime-19980827>.
+
+   [DCMIType] Dublincore, "DCMI Metadata Terms: DCMI Type Vocabulary",
+              January 2020, <https://www.dublincore.org/specifications/
+              dublin-core/dcmi-terms/2020-01-20/>.
+
+5.2.  Informative References
+
+   [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
+              (LDAP): Syntaxes and Matching Rules", RFC 4517,
+              DOI 10.17487/RFC4517, June 2006,
+              <https://www.rfc-editor.org/info/rfc4517>.
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 25]
+
+Internet-Draft              Abbreviated Title              February 2025
+
+
+   [ASN.1]    International Telephone and Telegraph Consultative
+              Committee, "Abstract Syntax Notation One (ASN.1):
+              Specification of basic notation", CCITT Recommendation
+              X.680, February 2021.
+
+   [ISO.8601.2004]
+              International Organization for Standardization, "Data
+              elements and interchange formats - Information interchange
+              - Representation of dates and times", ISO Standard 8601,
+              December 2004.
+
+   [ITU.X500.2019]
+              International Telecommunications Union, "Information
+              Technology - Open Systems Interconnection - The Directory:
+              Overview of Concepts, Models and Services",
+              ITU-T Recommendation X.500, ISO Standard 9594-1, October
+              2019.
+
+Acknowledgements
+
+   This template uses extracts from templates written by Pekka Savola,
+   Elwyn Davies and Henrik Levkowetz.
+
+Contributors
+
+   Thanks to all of the contributors.
+
+Author's Address
+
+   Carl Eric Codere (editor)
+   Optima SC Inc.
+   Canada
+   Email: carl.codere@optimasc.com
+   URI:   http://www.optimasc.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Codère                    Expires 8 August 2025                [Page 26]
