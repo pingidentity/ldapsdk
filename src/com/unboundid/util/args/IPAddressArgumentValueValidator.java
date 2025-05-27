@@ -173,44 +173,37 @@ public final class IPAddressArgumentValueValidator
                valueString, argument.getIdentifierString(), c));
         }
       }
+
+
+      // If we've gotten here, then we know that the value string contains only
+      // characters that are allowed in an IPv6 address literal.  Let
+      // InetAddress.getByName do the heavy lifting for the rest of the
+      // validation.
+      try
+      {
+        LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(valueString);
+      }
+      catch (final Exception e)
+      {
+        Debug.debugException(e);
+        throw new ArgumentException(
+             ERR_IP_VALIDATOR_MALFORMED.get(valueString,
+                  argument.getIdentifierString()),
+             e);
+      }
     }
     else if (valueString.indexOf('.') >= 0)
     {
-      for (final char c : valueString.toCharArray())
+      if (! isValidNumericIPv4Address(valueString))
       {
-        if ((c == '.') || ((c >= '0') && (c <= '9')))
-        {
-          // This character is allowed in an IPv4 address.
-        }
-        else
-        {
-          throw new ArgumentException(ERR_IP_VALIDATOR_ILLEGAL_IPV4_CHAR.get(
-               valueString, argument.getIdentifierString(), c));
-        }
+        throw new ArgumentException(ERR_IP_VALIDATOR_INVALID_IPV4_ADDRESS.get(
+             valueString, argument.getIdentifierString()));
       }
     }
     else
     {
       throw new ArgumentException(ERR_IP_VALIDATOR_MALFORMED.get(valueString,
            argument.getIdentifierString()));
-    }
-
-
-    // If we've gotten here, then we know that the value string contains only
-    // characters that are allowed in IP address literal.  Let
-    // InetAddress.getByName do the heavy lifting for the rest of the
-    // validation.
-    try
-    {
-      LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(valueString);
-    }
-    catch (final Exception e)
-    {
-      Debug.debugException(e);
-      throw new ArgumentException(
-           ERR_IP_VALIDATOR_MALFORMED.get(valueString,
-                argument.getIdentifierString()),
-           e);
     }
 
 
@@ -263,28 +256,77 @@ public final class IPAddressArgumentValueValidator
       return false;
     }
 
+    final StringBuilder octetBuffer = new StringBuilder();
+
+    int numPeriodsFound = 0;
     for (final char c : s.toCharArray())
     {
-      if ((c == '.') || ((c >= '0') && (c <= '9')))
+      if (c == '.')
       {
-        // This character is allowed in an IPv4 address.
+        if (! isValidNumericIPv4AddressOctet(octetBuffer.toString()))
+        {
+          return false;
+        }
+
+        numPeriodsFound++;
+        octetBuffer.setLength(0);
       }
       else
       {
-        return false;
+        octetBuffer.append(c);
       }
+    }
+
+    if (numPeriodsFound != 3)
+    {
+      return false;
+    }
+
+    if (! isValidNumericIPv4AddressOctet(octetBuffer.toString()))
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid octet within an
+   * IPv4 address.
+   *
+   * @param  s  The string for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid IPv4
+   *          address octet, or {@code false} if not.
+   */
+  private static boolean isValidNumericIPv4AddressOctet(@NotNull final String s)
+  {
+    if (s.isEmpty())
+    {
+      // The octet cannot be empty.
+      return false;
     }
 
     try
     {
-      LDAPConnectionOptions.DEFAULT_NAME_RESOLVER.getByName(s);
-      return true;
+      final int octetValue = Integer.parseInt(s);
+      if ((octetValue < 0) || (octetValue > 255))
+      {
+        // The octet value is out of range.
+        return false;
+      }
     }
-    catch (final Exception e)
+    catch (final NumberFormatException e)
     {
       Debug.debugException(e);
+
+      // The address has a non-numeric octet.
       return false;
     }
+
+    return true;
   }
 
 

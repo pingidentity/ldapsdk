@@ -394,6 +394,111 @@ public final class IPAddressArgumentValueValidatorTestCase
 
       new Object[]
       {
+        "1.2.3",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        ".1.2.3",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.x.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.x",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.4.",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.4.5",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1234.5.6.7",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2345.6.7",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3456.7",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.4567",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "-1.2.3.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.-2.3.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.-3.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3.-4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
         "1..2..3..4",
         false,
         false
@@ -402,6 +507,27 @@ public final class IPAddressArgumentValueValidatorTestCase
       new Object[]
       {
         "1..23.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1..2.3.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2..3.4",
+        false,
+        false
+      },
+
+      new Object[]
+      {
+        "1.2.3..4",
         false,
         false
       },
