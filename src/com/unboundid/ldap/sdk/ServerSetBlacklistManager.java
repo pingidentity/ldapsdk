@@ -45,9 +45,11 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import javax.net.SocketFactory;
 
 import com.unboundid.util.Debug;
+import com.unboundid.util.DebugType;
 import com.unboundid.util.Mutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
@@ -311,10 +313,20 @@ public final class ServerSetBlacklistManager
   {
     if (healthCheck == null)
     {
+      Debug.debug(Level.INFO, DebugType.CONNECT,
+           "Adding server " + hostPort.getFirst() + ':' + hostPort.getSecond() +
+                " to the blacklist for server set " + serverSetString +
+                " with a default health check.");
+
       blacklistedServers.put(hostPort, new LDAPConnectionPoolHealthCheck());
     }
     else
     {
+      Debug.debug(Level.INFO, DebugType.CONNECT,
+           "Adding server " + hostPort.getFirst() + ':' + hostPort.getSecond() +
+                " to the blacklist for server set " + serverSetString +
+                " with health check " + healthCheck + '.');
+
       blacklistedServers.put(hostPort, healthCheck);
     }
     ensureTimerIsRunning();
@@ -345,6 +357,10 @@ public final class ServerSetBlacklistManager
    */
   void removeFromBlacklist(@NotNull final ObjectPair<String,Integer> hostPort)
   {
+    Debug.debug(Level.INFO, DebugType.CONNECT,
+         "Removing server " + hostPort.getFirst() + ':' + hostPort.getSecond() +
+              " from the blacklist for server set " + serverSetString + '.');
+
     blacklistedServers.remove(hostPort);
     if (! blacklistedServers.isEmpty())
     {
@@ -359,6 +375,9 @@ public final class ServerSetBlacklistManager
    */
   void clear()
   {
+    Debug.debug(Level.INFO, DebugType.CONNECT,
+         "Clearing the blacklist for server set " + serverSetString + '.');
+
     blacklistedServers.clear();
   }
 
@@ -407,6 +426,13 @@ public final class ServerSetBlacklistManager
       {
         ServerSet.doBindPostConnectAndHealthCheckProcessing(conn, bindRequest,
              postConnectProcessor, healthCheck);
+
+        Debug.debug(Level.INFO, DebugType.CONNECT,
+             "Removing server " + hostPort.getFirst() + ':' +
+                  hostPort.getSecond() + " from the blacklist for server set " +
+                  serverSetString + " after a background health check " +
+                  "indicated that the server is now available.");
+
         iterator.remove();
       }
       catch (final Exception ex)
