@@ -61,6 +61,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -189,6 +190,34 @@ public final class StaticUtils
   private static final boolean IS_WITHIN_UNIT_TESTS =
        Boolean.getBoolean("com.unboundid.ldap.sdk.RunningUnitTests") ||
        Boolean.getBoolean("com.unboundid.directory.server.RunningUnitTests");
+
+
+
+  /**
+   * A map containing all environment variables that have been defined in the
+   * JVM process.  Environment variables aren't supposed ot change over the
+   * life of the process, and retrieving values from an un-synchronized map is
+   * way faster than calling {@code System.getenv}, so we'll retrieve the
+   * environment variables once and put them in a map for faster access.
+   */
+  @NotNull private static final Map<String,String> ENVIRONMENT_VARIABLES;
+  static
+  {
+    final Map<String,String> envVarMap = new HashMap<>();
+    try
+    {
+      for (final Map.Entry<String,String> e : System.getenv().entrySet())
+      {
+        envVarMap.put(e.getKey(), e.getValue());
+      }
+    }
+    catch (final Exception e)
+    {
+      StaticUtils.getExceptionMessage(e);
+    }
+
+    ENVIRONMENT_VARIABLES = Collections.unmodifiableMap(envVarMap);
+  }
 
 
 
@@ -587,18 +616,7 @@ public final class StaticUtils
   @NotNull()
   public static Map<String,String> getEnvironmentVariables()
   {
-    try
-    {
-      return System.getenv();
-    }
-    catch (final Throwable t)
-    {
-      // It is possible that the call to System.getenv could fail under some
-      // security managers.  In that case, simply swallow the error and pretend
-      // that the environment variable is not set.
-      Debug.debugException(t);
-      return Collections.emptyMap();
-    }
+    return ENVIRONMENT_VARIABLES;
   }
 
 
@@ -616,18 +634,7 @@ public final class StaticUtils
   @Nullable()
   public static String getEnvironmentVariable(@NotNull final String name)
   {
-    try
-    {
-      return System.getenv(name);
-    }
-    catch (final Throwable t)
-    {
-      // It is possible that the call to System.getenv could fail under some
-      // security managers.  In that case, simply swallow the error and pretend
-      // that the environment variable is not set.
-      Debug.debugException(t);
-      return null;
-    }
+    return ENVIRONMENT_VARIABLES.get(name);
   }
 
 
