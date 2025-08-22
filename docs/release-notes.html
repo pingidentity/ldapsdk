@@ -23,8 +23,17 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the PropertyManager class to make it possible to cache property values
+                  for faster access with less contention.  Caching is disabled by default, but
+                  you can enable it by specifying a maximum cache duration.  Additional methods
+                  are provided to clear the cache, and to populate the cache based on the
+                  currently defined system properties and environment variables.
+                  <br><br>
+                </li>
+
+                <li>
                   Improved performance and reduced contention when retrieving environment variables
-                    from the JVM process.
+                  from the JVM process.
                   <br><br>
                 </li>
               </ul>

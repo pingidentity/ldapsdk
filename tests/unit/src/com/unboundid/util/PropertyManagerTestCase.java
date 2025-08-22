@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -953,6 +954,269 @@ public final class PropertyManagerTestCase
           assertNull(properties.getProperty(nameArray[j]));
         }
       }
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior when the property manager is configured to use caching.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCaching()
+         throws Exception
+  {
+    // Generate random property names to use for testing.  Make sure that those
+    // properties aren't actually defined.
+    final String stringPropertyName = UUID.randomUUID().toString();
+    final String booleanPropertyName = UUID.randomUUID().toString();
+    final String intPropertyName = UUID.randomUUID().toString();
+    final String longPropertyName = UUID.randomUUID().toString();
+
+    assertNull(System.getProperty(stringPropertyName));
+    assertNull(System.getProperty(booleanPropertyName));
+    assertNull(System.getProperty(intPropertyName));
+    assertNull(System.getProperty(longPropertyName));
+
+
+    // Enable caching for 1 second.
+    PropertyManager.setCacheDurationMillis(1_000);
+    assertEquals(PropertyManager.getCacheDurationMillis(), 1_000);
+
+    try
+    {
+      // Clear the cache and make sure that it starts empty.
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
+
+
+      // Make initial attempts to retrieve the properties using the associated
+      // syntax.  Ensure that all of the attempts indicate that the properties
+      // aren't defined.
+      assertNull(PropertyManager.get(stringPropertyName));
+      assertNull(PropertyManager.getBoolean(booleanPropertyName));
+      assertNull(PropertyManager.getInt(intPropertyName));
+      assertNull(PropertyManager.getLong(longPropertyName));
+
+
+      // Make sure that the cache is no longer empty.
+      assertEquals(PropertyManager.getCache().size(), 4);
+
+
+      // Set values for each of the system properties.
+      System.setProperty(stringPropertyName, "foo");
+      System.setProperty(booleanPropertyName, "true");
+      System.setProperty(intPropertyName, "1234");
+      System.setProperty(longPropertyName, "5678");
+
+
+      // Make sure that the attempts to retrieve the property values still
+      // indicate that they're undefined because the existing cache records
+      // aren't yet expired.
+      assertNull(PropertyManager.get(stringPropertyName));
+      assertNull(PropertyManager.getBoolean(booleanPropertyName));
+      assertNull(PropertyManager.getInt(intPropertyName));
+      assertNull(PropertyManager.getLong(longPropertyName));
+
+
+      // Sleep for more than 1 second to ensure that the cache records have
+      // time to expire.
+      Thread.sleep(1_100L);
+
+
+      // Try to retrieve the property values again.  This time, it should
+      // reflect the new values.
+      assertEquals(PropertyManager.get(stringPropertyName), "foo");
+      assertEquals(PropertyManager.getBoolean(booleanPropertyName),
+           Boolean.TRUE);
+      assertEquals(PropertyManager.getInt(intPropertyName),
+           Integer.valueOf(1234));
+      assertEquals(PropertyManager.getLong(longPropertyName),
+           Long.valueOf(5678L));
+
+
+      // Change the values of the associated system properties to something
+      // different.
+      System.setProperty(stringPropertyName, "bar");
+      System.setProperty(booleanPropertyName, "false");
+      System.setProperty(intPropertyName, "4321");
+      System.setProperty(longPropertyName, "8765");
+
+
+      // Re-retrieve the property values.  This should use the values cached
+      // from before the most recent change.
+      assertEquals(PropertyManager.get(stringPropertyName), "foo");
+      assertEquals(PropertyManager.getBoolean(booleanPropertyName),
+           Boolean.TRUE);
+      assertEquals(PropertyManager.getInt(intPropertyName),
+           Integer.valueOf(1234));
+      assertEquals(PropertyManager.getLong(longPropertyName),
+           Long.valueOf(5678L));
+
+
+      // Clear the cache.
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
+
+
+      // Re-retrieve the property values one more time and verify that we now
+      // get the most recent version of the values.
+      assertEquals(PropertyManager.get(stringPropertyName), "bar");
+      assertEquals(PropertyManager.getBoolean(booleanPropertyName),
+           Boolean.FALSE);
+      assertEquals(PropertyManager.getInt(intPropertyName),
+           Integer.valueOf(4321));
+      assertEquals(PropertyManager.getLong(longPropertyName),
+           Long.valueOf(8765L));
+
+      assertEquals(PropertyManager.getCache().size(), 4);
+    }
+    finally
+    {
+      // Disable caching.
+      PropertyManager.setCacheDurationMillis(0);
+      assertEquals(PropertyManager.getCacheDurationMillis(), 0);
+
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
+
+      System.clearProperty(stringPropertyName);
+      System.clearProperty(booleanPropertyName);
+      System.clearProperty(intPropertyName);
+      System.clearProperty(longPropertyName);
+    }
+  }
+
+
+  /**
+   * Tests the behavior for caching when cache records are obtained from
+   * system properties rather than environment variables.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testCachingWithEnvironmentVariables()
+         throws Exception
+  {
+    // Enable caching with no timeout.
+    PropertyManager.setCacheDurationMillis(Integer.MAX_VALUE);
+    assertEquals(PropertyManager.getCacheDurationMillis(), Integer.MAX_VALUE);
+
+    try
+    {
+      // Clear the cache and make sure that it starts empty.
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
+
+
+      // Iterate through all of the environment variables defined in the JVM
+      // process and retrieve their values.
+      for (final Map.Entry<String,String> e :
+           StaticUtils.getEnvironmentVariables().entrySet())
+      {
+        final String envVarName = e.getKey();
+        final String envVarValue = e.getValue();
+
+        assertEquals(PropertyManager.get(envVarName), envVarValue);
+      }
+
+
+      // Make sure that the cache is no longer empty.
+      assertFalse(PropertyManager.getCache().isEmpty());
+
+
+      // Re-iterate through all of the environment variables again and
+      // re-retrieve their values.  The values won't have changed, but at least
+      // this time they should have been retrieved from the cache rather than
+      // directly from the underlying environment variable.
+      for (final Map.Entry<String,String> e :
+           StaticUtils.getEnvironmentVariables().entrySet())
+      {
+        final String envVarName = e.getKey();
+        final String envVarValue = e.getValue();
+
+        assertEquals(PropertyManager.get(envVarName), envVarValue);
+      }
+    }
+    finally
+    {
+      // Disable caching.
+      PropertyManager.setCacheDurationMillis(0);
+      assertEquals(PropertyManager.getCacheDurationMillis(), 0);
+
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
+    }
+  }
+
+
+
+  /**
+   * Tests the behavior of the {@code populateCache} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testPopulateCache()
+         throws Exception
+  {
+    // Ensure that caching is currently disabled and the cache is empty.
+    assertEquals(PropertyManager.getCacheDurationMillis(), 0);
+    assertTrue(PropertyManager.getCache().isEmpty());
+
+
+    // Call the populate cache method.  This shouldn't have any effect when
+    // caching is disabled.
+    PropertyManager.populateCache();
+    assertTrue(PropertyManager.getCache().isEmpty());
+
+
+    // Enable caching.
+    PropertyManager.setCacheDurationMillis(Integer.MAX_VALUE);
+
+    try
+    {
+      // Make sure that the cache is still empty.
+      assertEquals(PropertyManager.getCacheDurationMillis(), Integer.MAX_VALUE);
+      assertTrue(PropertyManager.getCache().isEmpty());
+
+
+      // Make another call to populate the cache.
+      PropertyManager.populateCache();
+
+
+      // Make sure that the cache is no longer empty.
+      assertFalse(PropertyManager.getCache().isEmpty());
+
+
+      // Make sure that the cache has a record for every system property that is
+      // currently defined.
+      for (final String propertyName :
+           System.getProperties().stringPropertyNames())
+      {
+        assertTrue(PropertyManager.getCache().containsKey(propertyName));
+      }
+
+
+      // Make sure that the cache has a record for every environment variable
+      // that is currently defined.
+      for (final Map.Entry<String,String> e :
+           StaticUtils.getEnvironmentVariables().entrySet())
+      {
+        final String envVarName = e.getKey();
+        assertTrue(PropertyManager.getCache().containsKey(envVarName));
+      }
+    }
+    finally
+    {
+      // Disable caching.
+      PropertyManager.setCacheDurationMillis(0);
+      assertEquals(PropertyManager.getCacheDurationMillis(), 0);
+
+      PropertyManager.clearCache();
+      assertTrue(PropertyManager.getCache().isEmpty());
     }
   }
 }

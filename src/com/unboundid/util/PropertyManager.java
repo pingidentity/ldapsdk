@@ -40,7 +40,10 @@ package com.unboundid.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.unboundid.util.UtilityMessages.*;
 
@@ -58,6 +61,23 @@ import static com.unboundid.util.UtilityMessages.*;
 @ThreadSafety(level=ThreadSafetyLevel.COMPLETELY_THREADSAFE)
 public final class PropertyManager
 {
+  /**
+   * A reference to the length of time in milliseconds that property information
+   * should be cached after retrieving it.
+   */
+  @NotNull private static final AtomicInteger CACHE_DURATION_MILLIS =
+       new AtomicInteger(0);
+
+
+
+  /**
+   * A map containing cached property information.
+   */
+  @NotNull private static final Map<String,PropertyManagerCacheRecord> CACHE =
+     new ConcurrentHashMap<>();
+
+
+
   /**
    * Prevents this utility class from being instantiated.
    */
@@ -106,17 +126,45 @@ public final class PropertyManager
   public static String get(@NotNull final String propertyName,
                            @Nullable final String defaultValue)
   {
+    // See if there is a valid cache record for the property.  If so, then use
+    // it.
+    final int cacheDurationMillis = CACHE_DURATION_MILLIS.get();
+    if (cacheDurationMillis > 0)
+    {
+      final PropertyManagerCacheRecord cacheRecord = CACHE.get(propertyName);
+      if ((cacheRecord != null) && (! cacheRecord.isExpired()))
+      {
+        return cacheRecord.stringValue(defaultValue);
+      }
+    }
+
+
+    // See if the property is defined via a system property.
     final String systemPropertyValue =
          StaticUtils.getSystemProperty(propertyName);
     if (systemPropertyValue != null)
     {
+      if (cacheDurationMillis > 0)
+      {
+        CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+             systemPropertyValue, cacheDurationMillis));
+      }
+
       return systemPropertyValue;
     }
 
+
+    // See if the property is defined via an environment variable.
     final String environmentVariableValue =
          StaticUtils.getEnvironmentVariable(propertyName);
     if (environmentVariableValue != null)
     {
+      if (cacheDurationMillis > 0)
+      {
+        CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+             environmentVariableValue, cacheDurationMillis));
+      }
+
       return environmentVariableValue;
     }
 
@@ -129,8 +177,23 @@ public final class PropertyManager
                 alternativeEnvironmentVariableName);
       if (alternativeEnvironmentVariableValue != null)
       {
+        if (cacheDurationMillis > 0)
+        {
+          CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+               alternativeEnvironmentVariableValue, cacheDurationMillis));
+        }
+
         return alternativeEnvironmentVariableValue;
       }
+    }
+
+
+    // If we've gotten here, then the property is not defined.  Cache that it's
+    // not defined, if appropriate.
+    if (cacheDurationMillis > 0)
+    {
+      CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+           null, cacheDurationMillis));
     }
 
     return defaultValue;
@@ -222,12 +285,60 @@ public final class PropertyManager
                                    final boolean throwOnInvalidValue)
          throws IllegalArgumentException
   {
+    // See if there is a valid cache record for the property.  If so, then use
+    // it.
+    final int cacheDurationMillis = CACHE_DURATION_MILLIS.get();
+    if (cacheDurationMillis > 0)
+    {
+      final PropertyManagerCacheRecord cacheRecord = CACHE.get(propertyName);
+      if ((cacheRecord != null) && (! cacheRecord.isExpired()))
+      {
+        return cacheRecord.booleanValue(defaultValue, throwOnInvalidValue);
+      }
+    }
+
+
     final String stringValue = get(propertyName);
     if (stringValue == null)
     {
       return defaultValue;
     }
 
+    final Boolean booleanValue = parseBoolean(stringValue);
+    if (booleanValue == null)
+    {
+      if (throwOnInvalidValue)
+      {
+        throw new IllegalArgumentException(
+             ERR_PROPERTY_MANAGER_NOT_BOOLEAN.get(
+                  getIdentifierString(propertyName), stringValue));
+      }
+      else
+      {
+        return defaultValue;
+      }
+    }
+    else
+    {
+      return booleanValue;
+    }
+  }
+
+
+
+  /**
+   * Attempts to parse the provided string value as a {@code Boolean}.
+   *
+   * @param  stringValue  The string value to parse.  It must not be
+   *                      {@code null}.
+   *
+   * @return  The {@code Boolean} value that was parsed from the given string,
+   *          or {@code null} if the provided string could not be parsed as a
+   *          {@code Boolean}.
+   */
+  @Nullable()
+  static Boolean parseBoolean(@NotNull final String stringValue)
+  {
     final String lowerValue = StaticUtils.toLowerCase(stringValue.trim());
     switch (lowerValue)
     {
@@ -246,16 +357,7 @@ public final class PropertyManager
       case "0":
         return Boolean.FALSE;
       default:
-        if (throwOnInvalidValue)
-        {
-          throw new IllegalArgumentException(
-               ERR_PROPERTY_MANAGER_NOT_BOOLEAN.get(
-                    getIdentifierString(propertyName), stringValue));
-        }
-        else
-        {
-          return defaultValue;
-        }
+        return null;
     }
   }
 
@@ -345,6 +447,19 @@ public final class PropertyManager
                                final boolean throwOnInvalidValue)
          throws IllegalArgumentException
   {
+    // See if there is a valid cache record for the property.  If so, then use
+    // it.
+    final int cacheDurationMillis = CACHE_DURATION_MILLIS.get();
+    if (cacheDurationMillis > 0)
+    {
+      final PropertyManagerCacheRecord cacheRecord = CACHE.get(propertyName);
+      if ((cacheRecord != null) && (! cacheRecord.isExpired()))
+      {
+        return cacheRecord.intValue(defaultValue, throwOnInvalidValue);
+      }
+    }
+
+
     final String stringValue = get(propertyName);
     if (stringValue == null)
     {
@@ -458,6 +573,19 @@ public final class PropertyManager
                              final boolean throwOnInvalidValue)
          throws IllegalArgumentException
   {
+    // See if there is a valid cache record for the property.  If so, then use
+    // it.
+    final int cacheDurationMillis = CACHE_DURATION_MILLIS.get();
+    if (cacheDurationMillis > 0)
+    {
+      final PropertyManagerCacheRecord cacheRecord = CACHE.get(propertyName);
+      if ((cacheRecord != null) && (! cacheRecord.isExpired()))
+      {
+        return cacheRecord.longValue(defaultValue, throwOnInvalidValue);
+      }
+    }
+
+
     final String stringValue = get(propertyName);
     if (stringValue == null)
     {
@@ -681,5 +809,109 @@ public final class PropertyManager
     }
 
     return null;
+  }
+
+
+
+  /**
+   * Retrieves the maximum length of time in milliseconds that property values
+   * should be cached for faster retrieval.  A value of zero indicates that no
+   * caching should be performed.  A value of {@code Integer.MAX_VALUE}
+   * indicates that cache records should never expire.
+   *
+   * @return  The maximum length of time in milliseconds that property values
+   *          should be cached for faster retrieval.
+   */
+  public static int getCacheDurationMillis()
+  {
+    return CACHE_DURATION_MILLIS.get();
+  }
+
+
+
+  /**
+   * Specifies the maximum length of time in milliseconds that property values
+   * should be cached for faster retrieval.
+   *
+   * @param  cacheDurationMillis  The maximum length of time in milliseconds
+   *                              that property values should be cached for
+   *                              faster retrieval.  A value that is less than
+   *                              or equal to zero indicates that values should
+   *                              not be cached.  A value of
+   *                              {@code Integer.MAX_VALUE} indicates that cache
+   *                              records should never expire.
+   */
+  public static void setCacheDurationMillis(final int cacheDurationMillis)
+  {
+    if (cacheDurationMillis > 0)
+    {
+      PropertyManager.CACHE_DURATION_MILLIS.set(cacheDurationMillis);
+    }
+    else
+    {
+      PropertyManager.CACHE_DURATION_MILLIS.set(0);
+    }
+  }
+
+
+
+  /**
+   * Retrieves a handle to the cache.  This method is only intended for testing
+   * purposes.
+   *
+   * @return  A handle to the cache.
+   */
+  @NotNull()
+  static Map<String,PropertyManagerCacheRecord> getCache()
+  {
+    return CACHE;
+  }
+
+
+
+  /**
+   * Populates the cache with current values obtained from system properties
+   * and environment variables.  This will not have any effect if caching is
+   * disabled.
+   */
+  public static void populateCache()
+  {
+    clearCache();
+
+    final int cacheDurationMillis = CACHE_DURATION_MILLIS.get();
+    if (cacheDurationMillis <= 0)
+    {
+      return;
+    }
+
+    for (final Map.Entry<String,String> envVar :
+         StaticUtils.getEnvironmentVariables().entrySet())
+    {
+      final String propertyName = envVar.getKey();
+      final String stringValue = envVar.getValue();
+
+      CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+           stringValue, cacheDurationMillis));
+    }
+
+    for (final Map.Entry<Object,Object> systemProperty :
+         StaticUtils.getSystemProperties().entrySet())
+    {
+      final String propertyName = String.valueOf(systemProperty.getKey());
+      final String stringValue = String.valueOf(systemProperty.getValue());
+
+      CACHE.put(propertyName, new PropertyManagerCacheRecord(propertyName,
+           stringValue, cacheDurationMillis));
+    }
+  }
+
+
+
+  /**
+   * Clears any cached property information.
+   */
+  public static void clearCache()
+  {
+    CACHE.clear();
   }
 }
