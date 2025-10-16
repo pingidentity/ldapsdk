@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added client-side support for a W3C trace context request control that can be
+                  used to convey information for use in distributed tracing (e.g., via
+                  OpenTelemetry).  This control was originally defined in the ForgeRock Directory
+                  Server (now known as PingDS), and will also be supported in the Ping Identity
+                  Directory Server.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the server set blacklist manager to improve debug logging in the event
                   that servers are added to or removed from the blacklist.  The round robin and
                   fewest connections server sets can be configured to use this blacklist manager to

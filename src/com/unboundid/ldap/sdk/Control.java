@@ -75,6 +75,8 @@ import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl;
 import com.unboundid.ldap.sdk.controls.SubtreeDeleteRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewRequestControl;
 import com.unboundid.ldap.sdk.controls.VirtualListViewResponseControl;
+import com.unboundid.ldap.sdk.forgerockds.controls.
+            W3CTraceContextRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccessLogFieldRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableRequestControl;
 import com.unboundid.ldap.sdk.unboundidds.controls.AccountUsableResponseControl;
@@ -1427,6 +1429,10 @@ public class Control
 
       case VirtualListViewResponseControl.VIRTUAL_LIST_VIEW_RESPONSE_OID:
         return VirtualListViewResponseControl.decodeJSONControl(
+             controlObject, strict);
+
+      case W3CTraceContextRequestControl.W3C_TRACE_CONTEXT_REQUEST_OID:
+        return W3CTraceContextRequestControl.decodeJSONControl(
              controlObject, strict);
 
       default:
