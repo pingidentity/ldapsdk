@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Added a "discard results" search result listener that can be used in cases where
+                    a search should be performed, but the actual contents of any applicable search
+                    result entries or references are not needed.  The number of entries and
+                    references returned will still be available in the search result.  For example,
+                    this may be useful for testing purposes, if a search should be performed and
+                    you want to verify the result and potentially the number of entries and/or
+                    references returned, but you don't need to examine their contents.
+                  <br><br>
+                </li>
+
+                <li>
                   Added client-side support for a W3C trace context request control that can be
                   used to convey information for use in distributed tracing (e.g., via
                   OpenTelemetry).  This control was originally defined in the ForgeRock Directory
