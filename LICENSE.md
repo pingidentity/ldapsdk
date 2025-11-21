@@ -21,7 +21,7 @@ The main requirements when using the LDAP SDK under the terms of the Apache Lice
 
 * You are required to include the text of the full license (as provided below, or online at [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)) with your application.
 
-* You are not required to provide source code for the LDAP SDK, even if you make changes to it. However, if you do distribute the source code for the LDAP SDK, then you are not permitted not remove any existing copyright notices. If you distribute a modified version of the LDAP SDK source code, then you need to indicate what changes you made to it.
+* You are not required to provide source code for the LDAP SDK, even if you make changes to it. However, if you do distribute the source code for the LDAP SDK, then you are not permitted to remove any existing copyright notices. If you distribute a modified version of the LDAP SDK source code, then you need to indicate what changes you made to it.
 
 * You cannot hold Ping Identity Corporation or any developers liable for any defects or other problems found with the software.
 

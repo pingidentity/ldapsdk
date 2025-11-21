@@ -48,7 +48,7 @@ License, Version 2.0 are as follows:
 
 * You are not required to provide source code for the LDAP SDK, even if you
   make changes to it. However, if you do distribute the source code for the
-  LDAP SDK, then you are not permitted not remove any existing copyright
+  LDAP SDK, then you are not permitted to remove any existing copyright
   notices. If you distribute a modified version of the LDAP SDK source code,
   then you need to indicate what changes you made to it.
 
