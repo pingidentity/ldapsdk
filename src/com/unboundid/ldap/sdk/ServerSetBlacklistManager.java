@@ -313,7 +313,7 @@ public final class ServerSetBlacklistManager
   {
     if (healthCheck == null)
     {
-      Debug.debug(Level.INFO, DebugType.CONNECT,
+      Debug.debug(Level.WARNING, DebugType.CONNECT,
            "Adding server " + hostPort.getFirst() + ':' + hostPort.getSecond() +
                 " to the blacklist for server set " + serverSetString +
                 " with a default health check.");
@@ -322,7 +322,7 @@ public final class ServerSetBlacklistManager
     }
     else
     {
-      Debug.debug(Level.INFO, DebugType.CONNECT,
+      Debug.debug(Level.WARNING, DebugType.CONNECT,
            "Adding server " + hostPort.getFirst() + ':' + hostPort.getSecond() +
                 " to the blacklist for server set " + serverSetString +
                 " with health check " + healthCheck + '.');
