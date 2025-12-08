@@ -559,13 +559,15 @@
   <target name="create-maven-repository">
     <property name="maven.dir"
               location="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven" />
-    <mkdir dir="${maven.dir}" />
+    <property name="maven.files.dir"
+              location="${maven.dir}/com/unboundid/unboundid-ldapsdk/${MMPQ}" />
+    <mkdir dir="${maven.files.dir}" />
 
     <copy file="${sdk.package.dir}/unboundid-ldapsdk.jar"
-          toFile="${maven.dir}/unboundid-ldapsdk-${MMPQ}.jar" />
+          toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.jar" />
     <copy file="${sdk.package.dir}/src.zip"
-          toFile="${maven.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar" />
-    <jar jarfile="${maven.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar"
+          toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar" />
+    <jar jarfile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar"
          compress="true"
          index="true">
       <fileset dir="${sdk.package.dir}/docs/javadoc" />
@@ -574,7 +576,7 @@
 
     <!-- Copy the POM into place. -->
     <copy file="${resource.dir}/unboundid-ldapsdk.pom"
-          tofile="${maven.dir}/unboundid-ldapsdk-${MMPQ}.pom"
+          tofile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.pom"
           overwrite="true">
       <filterchain>
         <expandproperties />
@@ -582,16 +584,64 @@
     </copy>
 
 
+    <!-- Generate MD5 and SHA-1 digests of the appropriate files.  Yes, these
+         algorithms are sorely out of date, but they're still in use by
+         Maven. -->
+    <mkdir dir="${digest.classes.dir}" />
+    <javac srcdir="${digest.src.dir}" destdir="${digest.classes.dir}"
+           source="8" target="8" deprecation="true" fork="true"
+           memoryInitialSize="${MEM}" memoryMaximumSize="${MEM}"
+           optimize="true" debug="on" debuglevel="lines,source,vars"
+           includeAntRuntime="true">
+      <compilerarg value="-Xlint:all" />
+    </javac>
+
+    <taskdef name="digest"
+             className="com.unboundid.buildtools.digest.GenerateDigest">
+      <classpath>
+        <pathelement location="${digest.classes.dir}" />
+      </classpath>
+    </taskdef>
+
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.jar.md5"
+            algorithm="MD5" />
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.jar.sha1"
+            algorithm="SHA1" />
+
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar.md5"
+            algorithm="MD5" />
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-sources.jar.sha1"
+            algorithm="SHA1" />
+
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar.md5"
+            algorithm="MD5" />
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}-javadoc.jar.sha1"
+            algorithm="SHA1" />
+
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.pom"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.pom.md5"
+            algorithm="MD5" />
+    <digest file="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.pom"
+            toFile="${maven.files.dir}/unboundid-ldapsdk-${MMPQ}.pom.sha1"
+            algorithm="SHA1" />
+
+
     <!-- Sign the Maven artifacts.  This will only actually be done for
          release builds (if the env.GPG_PASSPHRASE property is set). -->
     <antcall target="sign-maven-components" />
 
 
-    <!-- Generate a jar file with all the Maven artifacts. -->
-    <jar jarfile="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven.jar"
-         compress="true" index="false">
+    <!-- Generate a zip file with all the Maven artifacts. -->
+    <zip destfile="${package.dir}/unboundid-ldapsdk-${MMPQ}-maven.zip"
+         compress="true">
       <fileset dir="${maven.dir}" />
-    </jar>
+    </zip>
 
     <delete dir="${maven.dir}" />
   </target>
@@ -600,22 +650,22 @@
 
   <!-- Sign the Maven components with GPG if the key is available. -->
   <target name="sign-maven-components" if="env.GPG_PASSPHRASE">
-    <exec dir="${maven.dir}" executable="gpg"
+    <exec dir="${maven.files.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}.pom.asc unboundid-ldapsdk-${MMPQ}.pom" />
     </exec>
 
-    <exec dir="${maven.dir}" executable="gpg"
+    <exec dir="${maven.files.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}.jar.asc unboundid-ldapsdk-${MMPQ}.jar" />
     </exec>
 
-    <exec dir="${maven.dir}" executable="gpg"
+    <exec dir="${maven.files.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}-sources.jar.asc unboundid-ldapsdk-${MMPQ}-sources.jar" />
     </exec>
 
-    <exec dir="${maven.dir}" executable="gpg"
+    <exec dir="${maven.files.dir}" executable="gpg"
           inputString="${env.GPG_PASSPHRASE}" failOnError="true">
       <arg line="-ab --no-tty --batch --passphrase-fd 0 --output unboundid-ldapsdk-${MMPQ}-javadoc.jar.asc unboundid-ldapsdk-${MMPQ}-javadoc.jar" />
     </exec>
