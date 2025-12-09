@@ -446,8 +446,8 @@ public final class OIDRegistryTestCase
            "target=\"_blank\">Understanding LDAP Schema</a> section of this " +
            "website. A much more thorough, walkable OID reference database " +
            "(including non-LDAP-related OIDs) may be found at <a " +
-           "href=\"https://oidref.com/\" " +
-           "target=\"_blank\">https://oidref.com/</a>. To obtain your own " +
+           "href=\"https://oid-base.com/\" " +
+           "target=\"_blank\">https://oid-base.com/</a>. To obtain your own " +
            "OID base from the <a href=\"https://www.iana.org/assignments/" +
            "enterprise-numbers/enterprise-numbers\" target=\"_blank\">IANA " +
            "private enterprise number</a> registry, <a " +
