@@ -1575,7 +1575,8 @@ public final class DefaultObjectEncoder
       {
         final ByteArrayInputStream bais =
              new ByteArrayInputStream(v.getValue());
-        final ObjectInputStream ois = new ObjectInputStream(bais);
+        final ObjectInputStream ois =
+             new DefaultObjectEncoderWhitelistingObjectInputStream(bais, t);
         final Object o = ois.readObject();
         ois.close();
         return o;

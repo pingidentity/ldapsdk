@@ -14,6 +14,19 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the LDAP SDK's persistence framework to provide improved security
+                  validation when using Java serialization with the DefaultObjectEncoder.  Relying
+                  on Java serialization is not recommended, especially when using the persistence
+                  framework (a) because it's not necessarily safe in general to load Java arbitrary
+                  Java objects from an external data store, and (b) because the resulting attribute
+                  values won't be usable by anything other than Java applications able to
+                  deserialize them.  This is contrary to the intent of the persistence framework,
+                  which is meant to allow store objects in an LDAP server in a way that makes them
+                  generally accessible to other kinds of LDAP clients.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated an ldapdelete example usage to include --searchBaseDN argument that was
                   mentioned in the example description but inadvertently omitted from the example
                   arguments.
