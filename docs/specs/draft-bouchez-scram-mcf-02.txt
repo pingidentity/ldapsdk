@@ -4,12 +4,12 @@
 
 KITTEN                                                        A. Bouchez
 Internet-Draft                                           Tranquil IT SAS
-Intended status: Standards Track                        23 November 2025
-Expires: 27 May 2026
+Intended status: Standards Track                             3 June 2026
+Expires: 5 December 2026
 
 
               SCRAM with Modular Crypt Format (SCRAM-MCF)
-                       draft-bouchez-scram-mcf-01
+                       draft-bouchez-scram-mcf-02
 
 Abstract
 
@@ -47,20 +47,20 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 May 2026.
+   This Internet-Draft will expire on 5 December 2026.
 
 
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 1]
+Bouchez                  Expires 5 December 2026                [Page 1]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 2]
+Bouchez                  Expires 5 December 2026                [Page 2]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
    Modern password hashing algorithms (Argon2 – winner of the 2015
@@ -165,9 +165,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 3]
+Bouchez                  Expires 5 December 2026                [Page 3]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
 3.2.  Server-first-message Changes
@@ -221,9 +221,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 4]
+Bouchez                  Expires 5 December 2026                [Page 4]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
    *  If the client does not recognize or support the MCF identifier, it
@@ -277,9 +277,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 5]
+Bouchez                  Expires 5 December 2026                [Page 5]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
 4.  Formal ABNF Changes (augmented from RFC 5802)
@@ -333,9 +333,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 6]
+Bouchez                  Expires 5 December 2026                [Page 6]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
    Tune iteratively based on client load; aim for ~500ms-1s per
@@ -347,7 +347,7 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
     +=============+===============+===============+===================+
     | KDF         | Minimum       | Recommended   | Notes             |
-    |             | Acceptable    | (2025+)       |                   |
+    |             | Acceptable    | (2026+)       |                   |
     +=============+===============+===============+===================+
     | Argon2id    | Memory: 19    | Memory: 64    | Memory-hard;      |
     | (preferred) | MiB           | MiB           | primary           |
@@ -389,9 +389,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 7]
+Bouchez                  Expires 5 December 2026                [Page 7]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
    HMAC constructions (including HMAC-SHA-256 and HMAC-SHA-512 refered
@@ -445,9 +445,9 @@ S: v=2c7tBGYYY8tx/oLZNhZVJnjQKWeku17ZDaV0Jh3Hvmo=
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 8]
+Bouchez                  Expires 5 December 2026                [Page 8]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
 8.  Acknowledgments
@@ -501,9 +501,9 @@ Internet-Draft                  SCRAM-MCF                  November 2025
 
 
 
-Bouchez                    Expires 27 May 2026                  [Page 9]
+Bouchez                  Expires 5 December 2026                [Page 9]
 
-Internet-Draft                  SCRAM-MCF                  November 2025
+Internet-Draft                  SCRAM-MCF                      June 2026
 
 
    [NIST.SP.800-63B]
@@ -515,9 +515,8 @@ Internet-Draft                  SCRAM-MCF                  November 2025
               <https://doi.org/10.6028/NIST.SP.800-63b>.
 
    [OWASP.PasswordStorage]
-              Foundation, OWASP., "Password Storage Cheat Sheet",
-              November 2025,
-              <https://cheatsheetseries.owasp.org/cheatsheets/
+              Foundation, OWASP., "Password Storage Cheat Sheet", June
+              2026, <https://cheatsheetseries.owasp.org/cheatsheets/
               Password_Storage_Cheat_Sheet.html>.
 
 Author's Address
@@ -557,4 +556,5 @@ Author's Address
 
 
 
-Bouchez                    Expires 27 May 2026                 [Page 10]
+
+Bouchez                  Expires 5 December 2026               [Page 10]

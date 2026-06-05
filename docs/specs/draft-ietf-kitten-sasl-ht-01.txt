@@ -4,24 +4,27 @@
 
 Common Authentication Technology Next Generation (kitten)     F. Schmaus
 Internet-Draft         Friedrich-Alexander-Universität Erlangen-Nürnberg
-Intended status: Standards Track                                C. Egger
-Expires: 25 August 2025                Chalmers University of Technology
-                                                        21 February 2025
+Intended status: Standards Track                              T. Molitor
+Expires: 12 November 2026                        Monal Instant Messenger
+                                                                C. Egger
+                                       Chalmers University of Technology
+                                                             11 May 2026
 
 
                     The Hashed Token SASL Mechanism
-                      draft-ietf-kitten-sasl-ht-00
+                      draft-ietf-kitten-sasl-ht-01
 
 Abstract
 
-   This document specifies the family of Hashed Token SASL mechanisms
+   This document specifies the family of Hashed Token SASL mechanisms,
    which enable a proof-of-possession-based authentication scheme and
-   are meant to be used to quickly re-authenticate of a previous
-   session.  The Hashed Token SASL mechanism's authentication sequence
-   consists of only one round-trip.  The usage of short-lived,
-   exclusively ephemeral hashed tokens is achieving the single round-
-   trip property.  The SASL mechanism specified herein further provides
-   hash agility, mutual authentication and support for channel binding.
+   are meant to quickly re-authenticate a previous session.  The Hashed
+   Token SASL mechanism's authentication sequence consists of only one
+   round-trip.  The usage of short-lived, exclusively ephemeral hashed
+   tokens is achieving the single round-trip property.  The SASL
+   mechanism specified herein further provides hash agility, mutual
+   authentication, support for channel binding, and the capability to
+   exchange authenticated key/value pairs.
 
 About This Document
 
@@ -44,23 +47,27 @@ Status of This Memo
    working documents as Internet-Drafts.  The list of current Internet-
    Drafts is at https://datatracker.ietf.org/drafts/current/.
 
+
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 1]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 August 2025.
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 1]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
+   This Internet-Draft will expire on 12 November 2026.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -74,25 +81,38 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Conventions and Terminology . . . . . . . . . . . . . . .   3
-     1.2.  Applicability . . . . . . . . . . . . . . . . . . . . . .   3
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Conventions and Terminology . . . . . . . . . . . . . . .   4
+     1.2.  Applicability . . . . . . . . . . . . . . . . . . . . . .   4
    2.  The HT Family of Mechanisms . . . . . . . . . . . . . . . . .   4
    3.  The HT Authentication Exchange  . . . . . . . . . . . . . . .   5
-     3.1.  Initiator First Message . . . . . . . . . . . . . . . . .   5
-     3.2.  Initiator Authentication  . . . . . . . . . . . . . . . .   6
-     3.3.  Final Responder Message . . . . . . . . . . . . . . . . .   6
-       3.3.1.  Success Response  . . . . . . . . . . . . . . . . . .   7
-       3.3.2.  Failure Response  . . . . . . . . . . . . . . . . . .   7
-   4.  Compliance with SASL Mechanism Requirements . . . . . . . . .   7
-   5.  Requirements for the Application-Protocol Extension . . . . .   8
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .  11
-   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  12
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
+     3.1.  Initiator First Message . . . . . . . . . . . . . . . . .   6
+     3.2.  Initiator Authentication  . . . . . . . . . . . . . . . .   7
+     3.3.  Final Responder Message . . . . . . . . . . . . . . . . .   7
+       3.3.1.  Success Response  . . . . . . . . . . . . . . . . . .   8
+       3.3.2.  Failure Response  . . . . . . . . . . . . . . . . . .   8
+   4.  Compliance with SASL Mechanism Requirements . . . . . . . . .   9
+   5.  Requirements for the Application-Protocol Extension . . . . .   9
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  10
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  12
+   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  13
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  13
+
+
+
+
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 2]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
 1.  Introduction
 
@@ -104,17 +124,18 @@ Table of Contents
    round-trip re-authentication of a previous session.
 
    Further properties of the HT mechanism are 1) hash agility, 2) mutual
-   authentication, and 3) support for channel binding.
+   authentication, 3) support for channel binding, and 4) the optional
+   exchange of authenticated key/value pairs.
 
+   The ability to include arbitrary key/value pairs allows the initiator
+   and responder to negotiate session parameters or exchange context-
+   specific data concurrently with the authentication exchange, with
+   cryptographic guarantees regarding their integrity and authenticity.
+   An example use case for these key/value pairs is transmitting a
+   downgrade protection hash of the initially offered SASL mechanisms
+   and channel-binding types (see [XEP-0474]).
 
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 2]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
-   Clients should to request SASL-HT tokens from the server after being
+   Clients should request SASL-HT tokens from the server after being
    authenticated using a "strong" SASL mechanism like SCRAM [RFC5802].
    Hence a typical sequence of actions using HT may look like the
    following:
@@ -133,13 +154,21 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    specific extension, which allows clients to request a new SASL-HT
    token (see Section 5 (Section 5)).  Examples of such an application-
    protocol-specific extension based on HT are [XEP-0397] and
-   [XEP-0484].  This XMPP [RFC6120] extension protocol allows, amongst
-   other things, B) and C),
+   [XEP-0484].
 
    Since the SASL-HT token is not salted, and only one hash iteration is
    used, the HT mechanism is not suitable to protect long-lived shared
    secrets (e.g., "passwords").  You may want to look at [RFC5802] for
    that.
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 3]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
 1.1.  Conventions and Terminology
 
@@ -157,21 +186,11 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    not control, the HT mechanism *MUST* only be used over channels
    protected by Transport Layer Security (TLS, see [RFC8446]) or over
    similar integrity-protected and authenticated channels.  Also, the
-   application-protcol-specific extension that requests a new SASL-HT
+   application-protocol-specific extension that requests a new SASL-HT
    token *SHOULD* only be used over similarly protected channels.
 
-   Also, when TLS is used, the client *MUST* successfully validate the
-   server's certificate ([RFC5280], [RFC6125]).
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 3]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
    The family of HT mechanisms is not applicable for proxy
-   authentication since they can not carry an authorization identity
+   authentication since they cannot carry an authorization identity
    string (authzid).
 
 2.  The HT Family of Mechanisms
@@ -198,6 +217,15 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    "Channel-Binding Types" registry [iana-cbt] as specified in
    [RFC5056].
 
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 4]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
    In the special case of 'NONE' no channel binding will be used.  In
    this case, cb-data is to be an empty string.
 
@@ -219,13 +247,6 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    The following table lists some examples of HT SASL mechanisms
    registered by this document.
 
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 4]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
       +==================+===================+======================+
       | Mechanism Name   | HT Hash Algorithm | Channel-binding      |
       |                  |                   | unique prefix        |
@@ -246,22 +267,39 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
 3.  The HT Authentication Exchange
 
    The mechanism consists of a simple exchange of precisely two messages
-   between the initiator and responder.
+   between the initiator and responder.  Both messages allow the
+   inclusion of arbitrary key/value pairs.
 
    The following syntax specifications use the Augmented Backus-Naur
    form (ABNF) notation as specified in [RFC5234].
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 5]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
 3.1.  Initiator First Message
 
    The HT mechanism starts with the initiator-msg, which is sent by the
    initiator to the responder.  The following lists the ABNF grammar for
-   the initiator-msg:
+   SASL-HT in general and initiator-msg in particular:
 
-   initiator-msg = authcid NUL initiator-hashed-token
-   authcid = 1*SAFE ; MUST accept up to 255 octets
+   initiator-msg          = authcid
+                            NUL extra-initiator-values
+                            NUL initiator-hashed-token
+   authcid                = 1*SAFE ;; MUST accept up to 255 octets
+   extra-initiator-values = key-value-pairs
+   key-value-pairs        = [ key-value-pair *( "," key-value-pair ) ]
+   key-value-pair         = 1*key-value-char "=" 1*key-value-char
    initiator-hashed-token = 1*OCTET
 
-   NUL    = %0x00 ; The null octet
+   key-value-char     = ALPHA / DIGIT / "/" / "+" / "-" / "_"
+
+   NUL    = %0x00 ;; The null octet
    SAFE   = UTF1 / UTF2 / UTF3 / UTF4
             ;; any UTF-8 encoded Unicode character except NUL
 
@@ -273,22 +311,37 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
             %xF4 %x80-8F 2(UTF0)
    UTF0   = %x80-BF
 
-
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 5]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
    The initiator's first message starts with the authentication identity
-   (authcid, see[RFC4422]) as UTF-8 [RFC3629] encoded string.  It is
-   followed by initiator-hashed-token separated by a single null octet.
+   (authcid, see[RFC4422]) as UTF-8 [RFC3629] encoded string and its
+   terminating null octet followed by an optional set of comma-separated
+   key/value pairs (extra-initiator-values).  This, in turn, is followed
+   by another null octet and the initiator-hashed-token.
+
+   The extra-initiator-values allow the initiator to pass arbitrary key/
+   value pairs to the responder during the initial exchange.  Because
+   these key/value pairs are appended to the initiator-hmac-message
+   before the HMAC calculation, their integrity and authenticity are
+   guaranteed by the resulting initiator-hashed-token.  If no extra
+   values are being sent, the extra-initiator-values field remains
+   empty, resulting in two consecutive null octets between the authcid
+   and the initiator-hashed-token.
 
    The value of the initiator-hashed-token is defined as follows:
 
-   initiator-hashed-token := HMAC(token, "Initiator" || cb-data)
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 6]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
+   initiator-hashed-token := HMAC(token, initiator-hmac-message)
+   initiator-hmac-message := "Initiator"
+                             || cb-data
+                             || extra-initiator-values
 
    HMAC() is the function defined in [RFC2104] with H being the selected
    HT hash algorithm, 'cb-data' represents the data provided by the
@@ -330,51 +383,72 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    continues the SASL authentication by sending the responder-msg to the
    initiator.
 
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 6]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
    The ABNF for responder-msg is:
 
-   responder-msg = success-response / error-response
-   success-response = NUL 1*OCTET
-   failure-response = %x01 1*SAFE
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 7]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
+   responder-msg          = success-response / failure-response
+   success-response       = NUL extra-responder-values
+                            NUL responder-hashed-token
+   extra-responder-values = key-value-pairs
+   responder-hashed-token = 1*OCTET
+   failure-response       = %x01 failure-description
 
 3.3.1.  Success Response
 
-   The success-response value is defined as follows:
-
-   success-response := NUL HMAC(token, "Responder" || cb-data)
-
    A success response starts with an octet whose value is set to zero
-   (null), followed by the octet string of the result of the HMAC
-   function.
+   (null), followed by an optional set of comma-separated key/value
+   pairs (extra-responder-values).  This is followed by another null
+   octet and the octet string of the result of the HMAC function
+   (responder-hashed-token).
+
+   responder-hashed-token := HMAC(token, responder-hmac-message)
+   responder-hmac-message := "Responder"
+                             || cb-data
+                             || extra-responder-values
+
+   Similar to the initiator's message, the responder can use extra-
+   responder-values to return arbitrary data.  Because these values are
+   incorporated into the responder-hmac-message prior to calculating the
+   HMAC, the initiating entity can mutually authenticate the responder
+   while simultaneously verifying the integrity of the provided key/
+   value pairs.
 
    The initiating entity *MUST* verify the responder-msg to achieve
    mutual authentication.
 
 3.3.2.  Failure Response
 
-   The failure-response value is defined as follows:
-
-   failure-response := %x01 <failure-description>
-   failure-description = "unknown-user" /
-                         "invalid-token" /
-                         "other-error"/
-                         failure-description-ext
-   failure-description-ext = <additional custom failure reasons>
-
    A failure response starts with an octet whose value is set to one
-   (0x01), followed by an an octet string describing the reason for the
-   failure.
+   (0x01), followed by an octet string describing the reason for the
+   failure (failure-description).
+
+   failure-description     = "unknown-user" /
+                             "invalid-token" /
+                             "other-error"/
+                             failure-description-ext
+   failure-description-ext = 1*SAFE ;; additional custom failure reasons
 
    Unrecognized failure descriptions should be treated as "other-error".
    The responder may substitute the actual failure cause with "other-
    error" to prevent information disclosure.
+
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 8]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
 4.  Compliance with SASL Mechanism Requirements
 
@@ -383,16 +457,6 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
 
    1.  "HT-SHA-256-ENDP", "HT-SHA-256-UNIQ", "HT-SHA3-512-ENDP", "HT-
        SHA3-512-UNIQ", ….
-
-
-
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 7]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
 
    2.  Definition of server-challenges and client-responses: a) HT is a
        client-first mechanism. b) HT does send additional data with
@@ -415,12 +479,12 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    contain at least 128 bits of entropy.
 
    It is *RECOMMENDED* that the protocol allows the requestor to signal
-   the name of the SASL mechanism that he intends to use with the token.
-   If a token is used with a mechanism different from the one signaled
-   upon requesting the token, then the authentication *MUST* fail.  This
-   requirement allows pinning the token to a SASL mechanism, which
-   increases the security because it makes it impossible for an attacker
-   to downgrade the SASL mechanism.
+   the name of the SASL mechanism that the requestor intends to use with
+   the token.  If a token is used with a mechanism different from the
+   one signaled upon requesting the token, then the authentication
+   *MUST* fail.  This requirement allows pinning the token to a SASL
+   mechanism, which increases the security because it makes it
+   impossible for an attacker to downgrade the SASL mechanism.
 
    It is *RECOMMENDED* that the protocol defines a way for a client to
    request rotation or revocation of a token.
@@ -434,21 +498,20 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    authentication using a strong SASL mechanism that does not use the
    SASL-HT token.
 
+
+
+
+Schmaus, et al.         Expires 12 November 2026                [Page 9]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
    A cryptographically secure random generator must generate the SASL-HT
    token.  See [RFC4086] for more information about Randomness
    Requirements for Security.  In addition, a comparison of the
    initiator's HMAC with the responder's calculated HMAC *SHOULD* be
    performed via constant-time comparison functions to protect against
    timing attacks.
-
-
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 8]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
 
    The tokens used with HT mechanisms *SHOULD* have a limited lifetime,
    e.g., based on usage count or time elapsed since issuance.
@@ -468,9 +531,9 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
 
       SASL mechanism name (or prefix for the family): HT-*
 
-      Security considerations: Section 6 of draft-schmaus-kitten-sasl-ht
+      Security considerations: Section 6 of draft-ietf-kitten-sasl-ht
 
-      Published specification (optional, recommended): draft-schmaus-
+      Published specification (optional, recommended): draft-ietf-
       kitten-sasl-ht-XX (TODO)
 
       Person & email address to contact for further information: IETF
@@ -490,6 +553,15 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
 
 8.1.  Normative References
 
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026               [Page 10]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
+
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
               Hashing for Message Authentication", RFC 2104,
               DOI 10.17487/RFC2104, February 1997,
@@ -498,13 +570,6 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
    [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
               10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
               2003, <https://www.rfc-editor.org/info/rfc3629>.
-
-
-
-Schmaus & Egger          Expires 25 August 2025                 [Page 9]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
 
    [RFC4086]  Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
@@ -525,22 +590,9 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
               DOI 10.17487/RFC5234, January 2008,
               <https://www.rfc-editor.org/info/rfc5234>.
 
-   [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
-              Housley, R., and W. Polk, "Internet X.509 Public Key
-              Infrastructure Certificate and Certificate Revocation List
-              (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
-              <https://www.rfc-editor.org/info/rfc5280>.
-
    [RFC5929]  Altman, J., Williams, N., and L. Zhu, "Channel Bindings
               for TLS", RFC 5929, DOI 10.17487/RFC5929, July 2010,
               <https://www.rfc-editor.org/info/rfc5929>.
-
-   [RFC6125]  Saint-Andre, P. and J. Hodges, "Representation and
-              Verification of Domain-Based Application Service Identity
-              within Internet Public Key Infrastructure Using X.509
-              (PKIX) Certificates in the Context of Transport Layer
-              Security (TLS)", RFC 6125, DOI 10.17487/RFC6125, March
-              2011, <https://www.rfc-editor.org/info/rfc6125>.
 
    [RFC6920]  Farrell, S., Kutscher, D., Dannewitz, C., Ohlman, B.,
               Keranen, A., and P. Hallam-Baker, "Naming Things with
@@ -553,18 +605,18 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
               RFC 7627, DOI 10.17487/RFC7627, September 2015,
               <https://www.rfc-editor.org/info/rfc7627>.
 
-
-
-
-
-Schmaus & Egger          Expires 25 August 2025                [Page 10]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
-
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/info/rfc8446>.
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026               [Page 11]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
    [RFC9266]  Whited, S., "Channel Bindings for TLS 1.3", RFC 9266,
               DOI 10.17487/RFC9266, July 2022,
@@ -596,10 +648,6 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
               DOI 10.17487/RFC5802, July 2010,
               <https://www.rfc-editor.org/info/rfc5802>.
 
-   [RFC6120]  Saint-Andre, P., "Extensible Messaging and Presence
-              Protocol (XMPP): Core", RFC 6120, DOI 10.17487/RFC6120,
-              March 2011, <https://www.rfc-editor.org/info/rfc6120>.
-
    [RFC8126]  Cotton, M., Leiba, B., and T. Narten, "Guidelines for
               Writing an IANA Considerations Section in RFCs", BCP 26,
               RFC 8126, DOI 10.17487/RFC8126, June 2017,
@@ -609,18 +657,22 @@ Internet-Draft       The Hashed Token SASL Mechanism       February 2025
               November 2018,
               <https://xmpp.org/extensions/xep-0397.html>.
 
-
-
-
-
-Schmaus & Egger          Expires 25 August 2025                [Page 11]
-
-Internet-Draft       The Hashed Token SASL Mechanism       February 2025
-
+   [XEP-0474] Molitor, T., "XEP-0474: SASL SCRAM Downgrade Protection",
+              25 October 2025,
+              <https://xmpp.org/extensions/xep-0474.html>.
 
    [XEP-0484] Wild, M., "XEP-0484: Fast Authentication Streamlining
               Tokens", 30 June 2024,
               <https://xmpp.org/extensions/xep-0484.html>.
+
+
+
+
+
+Schmaus, et al.         Expires 12 November 2026               [Page 12]
+
+Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+
 
 Acknowledgments
 
@@ -637,6 +689,12 @@ Authors' Addresses
    Friedrich-Alexander-Universität Erlangen-Nürnberg
    Germany
    Email: flow@cs.fau.de
+
+
+   Thilo Molitor
+   Monal Instant Messenger
+   Germany
+   Email: thilo+ietf@eightysoft.de
 
 
    Christoph Egger
@@ -667,6 +725,4 @@ Authors' Addresses
 
 
 
-
-
-Schmaus & Egger          Expires 25 August 2025                [Page 12]
+Schmaus, et al.         Expires 12 November 2026               [Page 13]
