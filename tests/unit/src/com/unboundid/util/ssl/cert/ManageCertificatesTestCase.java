@@ -2045,6 +2045,7 @@ public final class ManageCertificatesTestCase
 
     // Test importing an incomplete certificate chain that does not include the
     // root certificate.
+    ksFile = copyFile(emptyKeyStorePath);
     manageCertificates(ResultCode.PARAM_ERROR, null,
          "import-certificate",
          "--keystore", ksFile.getAbsolutePath(),
@@ -2057,9 +2058,23 @@ public final class ManageCertificatesTestCase
          "--no-prompt",
          "--display-keytool-command");
 
+    manageCertificates(ResultCode.SUCCESS, null,
+         "import-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", serverCertificateAlias,
+         "--certificate-file", serverCertificatePath,
+         "--certificate-file", intermediateCACertificatePath,
+         "--private-key-file", serverKeyPath,
+         "--no-prompt",
+         "--skip-validation",
+         "--display-keytool-command");
+
 
     // Test importing an incomplete certificate chain that does not include an
     // intermediate certificate.
+    ksFile = copyFile(emptyKeyStorePath);
     manageCertificates(ResultCode.PARAM_ERROR, null,
          "import-certificate",
          "--keystore", ksFile.getAbsolutePath(),
@@ -2072,9 +2087,23 @@ public final class ManageCertificatesTestCase
          "--no-prompt",
          "--display-keytool-command");
 
+    manageCertificates(ResultCode.SUCCESS, null,
+         "import-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", serverCertificateAlias,
+         "--certificate-file", serverCertificatePath,
+         "--certificate-file", rootCACertificatePath,
+         "--private-key-file", serverKeyPath,
+         "--no-prompt",
+         "--skip-validation",
+         "--display-keytool-command");
+
 
     // Test importing a certificate chain that has a self-signed certificate at
     // the head of the chain, and then has other certificates after that.
+    ksFile = copyFile(emptyKeyStorePath);
     manageCertificates(ResultCode.PARAM_ERROR, null,
          "import-certificate",
          "--keystore", ksFile.getAbsolutePath(),
@@ -2086,6 +2115,20 @@ public final class ManageCertificatesTestCase
          "--certificate-file", serverCertificatePath,
          "--private-key-file", rootCAKeyPath,
          "--no-prompt",
+         "--display-keytool-command");
+
+    manageCertificates(ResultCode.SUCCESS, null,
+         "import-certificate",
+         "--keystore", ksFile.getAbsolutePath(),
+         "--keystore-password", "password",
+         "--keystore-type", "JKS",
+         "--alias", serverCertificateAlias,
+         "--certificate-file", rootCACertificatePath,
+         "--certificate-file", intermediateCACertificatePath,
+         "--certificate-file", serverCertificatePath,
+         "--private-key-file", rootCAKeyPath,
+         "--no-prompt",
+         "--skip-validation",
          "--display-keytool-command");
 
 

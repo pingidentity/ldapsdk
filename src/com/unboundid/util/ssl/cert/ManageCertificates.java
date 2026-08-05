@@ -1278,6 +1278,13 @@ public final class ManageCertificates
     importCertNoPrompt.addLongIdentifier("noPrompt", true);
     importCertParser.addArgument(importCertNoPrompt);
 
+    final BooleanArgument importCertSkipValidation = new BooleanArgument(null,
+         "skip-validation", 1,
+         INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_SKIP_VALIDATION_DESC.get());
+    importCertSkipValidation.addLongIdentifier("skipValidation", true);
+    importCertSkipValidation.setHidden(true);
+    importCertParser.addArgument(importCertSkipValidation);
+
     final BooleanArgument importCertDisplayCommand = new BooleanArgument(null,
          "display-keytool-command", 1,
          INFO_MANAGE_CERTS_SC_IMPORT_CERT_ARG_DISPLAY_COMMAND_DESC.get());
@@ -5611,6 +5618,11 @@ public final class ManageCertificates
     final boolean noPrompt =
          ((noPromptArgument != null) && noPromptArgument.isPresent());
 
+    final BooleanArgument skipValidationArgument =
+         subCommandParser.getBooleanArgument("skip-validation");
+    final boolean skipValidation = ((skipValidationArgument != null) &&
+         skipValidationArgument.isPresent());
+
     final String keystoreType;
     final File keystorePath = getKeystorePath();
     final boolean isNewKeystore = (! keystorePath.exists());
@@ -5758,51 +5770,54 @@ public final class ManageCertificates
     }
 
 
-    // Look at all the certificates to be imported.  Make sure that every
-    // subsequent certificate in the chain is the issuer for the previous.
-    final Iterator<X509Certificate> certIterator = certList.iterator();
-    X509Certificate subjectCert = certIterator.next();
-    while (true)
+    if (! skipValidation)
     {
-      if (subjectCert.isSelfSigned())
+      // Look at all the certificates to be imported.  Make sure that every
+      // subsequent certificate in the chain is the issuer for the previous.
+      final Iterator<X509Certificate> certIterator = certList.iterator();
+      X509Certificate subjectCert = certIterator.next();
+      while (true)
       {
-        if (certIterator.hasNext())
+        if (subjectCert.isSelfSigned())
         {
-          wrapErr(0, WRAP_COLUMN,
-               ERR_MANAGE_CERTS_IMPORT_CERT_SELF_SIGNED_NOT_LAST.get(
-                    subjectCert.getSubjectDN()));
-          return ResultCode.PARAM_ERROR;
+          if (certIterator.hasNext())
+          {
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_IMPORT_CERT_SELF_SIGNED_NOT_LAST.get(
+                      subjectCert.getSubjectDN()));
+            return ResultCode.PARAM_ERROR;
+          }
         }
-      }
 
-      if (! certIterator.hasNext())
-      {
-        break;
-      }
-
-      final X509Certificate issuerCert = certIterator.next();
-      final StringBuilder notIssuerReason = new StringBuilder();
-      if (! issuerCert.isIssuerFor(subjectCert, notIssuerReason))
-      {
-        // In some cases, the process of signing a certificate can put two
-        // certificates in the output file (both the signed certificate and its
-        // issuer.  If the same certificate is in the chain twice, then we'll
-        // silently ignore it.
-        if (Arrays.equals(issuerCert.getX509CertificateBytes(),
-                 subjectCert.getX509CertificateBytes()))
+        if (! certIterator.hasNext())
         {
-          certIterator.remove();
+          break;
         }
-        else
-        {
-          wrapErr(0, WRAP_COLUMN,
-               ERR_MANAGE_CERTS_IMPORT_CERT_NEXT_NOT_ISSUER_OF_PREV.get(
-                    notIssuerReason.toString()));
-          return ResultCode.PARAM_ERROR;
-        }
-      }
 
-      subjectCert = issuerCert;
+        final X509Certificate issuerCert = certIterator.next();
+        final StringBuilder notIssuerReason = new StringBuilder();
+        if (! issuerCert.isIssuerFor(subjectCert, notIssuerReason))
+        {
+          // In some cases, the process of signing a certificate can put two
+          // certificates in the output file (both the signed certificate and
+          // its issuer.  If the same certificate is in the chain twice, then
+          // we'll silently ignore it.
+          if (Arrays.equals(issuerCert.getX509CertificateBytes(),
+               subjectCert.getX509CertificateBytes()))
+          {
+            certIterator.remove();
+          }
+          else
+          {
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_IMPORT_CERT_NEXT_NOT_ISSUER_OF_PREV.get(
+                      notIssuerReason.toString()));
+            return ResultCode.PARAM_ERROR;
+          }
+        }
+
+        subjectCert = issuerCert;
+      }
     }
 
 
@@ -5821,88 +5836,91 @@ public final class ManageCertificates
       chain = new ArrayList<>(certList.size() + 5);
       chain.addAll(certList);
 
-      final AtomicReference<KeyStore> jvmDefaultTrustStoreRef =
-           new AtomicReference<>();
-      final AtomicReference<DN> missingIssuerRef = new AtomicReference<>();
-
-      X509Certificate c = certList.get(certList.size() - 1);
-      while (! c.isSelfSigned())
+      if (! skipValidation)
       {
-        final X509Certificate issuer;
-        try
-        {
-          issuer = getIssuerCertificate(c, keystore, jvmDefaultTrustStoreRef,
-               missingIssuerRef);
-        }
-        catch (final Exception e)
-        {
-          Debug.debugException(e);
-          wrapErr(0, WRAP_COLUMN,
-               ERR_MANAGE_CERTS_IMPORT_CERT_CANNOT_GET_ISSUER.get(
-                    c.getIssuerDN()));
-          e.printStackTrace(getErr());
-          return ResultCode.LOCAL_ERROR;
-        }
+        final AtomicReference<KeyStore> jvmDefaultTrustStoreRef =
+             new AtomicReference<>();
+        final AtomicReference<DN> missingIssuerRef = new AtomicReference<>();
 
-        if (issuer == null)
+        X509Certificate c = certList.get(certList.size() - 1);
+        while (! c.isSelfSigned())
         {
-          final byte[] authorityKeyIdentifier = getAuthorityKeyIdentifier(c);
-
-          // We couldn't find the issuer certificate.  If we're importing a
-          // private key, or if the keystore already has a key entry with the
-          // same alias that we're going to use, then this is definitely an
-          // error because we can only write a key entry if we have a complete
-          // certificate chain.
-          //
-          // If we weren't explicitly provided with a private key, then it's
-          // still an undesirable thing to import a certificate without having
-          // the complete set of issuers, but we'll go ahead and let it slide
-          // with just a warning.
-          if ((privateKey != null) || hasKeyAlias(keystore, alias))
+          final X509Certificate issuer;
+          try
           {
-            if (authorityKeyIdentifier == null)
+            issuer = getIssuerCertificate(c, keystore, jvmDefaultTrustStoreRef,
+                 missingIssuerRef);
+          }
+          catch (final Exception e)
+          {
+            Debug.debugException(e);
+            wrapErr(0, WRAP_COLUMN,
+                 ERR_MANAGE_CERTS_IMPORT_CERT_CANNOT_GET_ISSUER.get(
+                      c.getIssuerDN()));
+            e.printStackTrace(getErr());
+            return ResultCode.LOCAL_ERROR;
+          }
+
+          if (issuer == null)
+          {
+            final byte[] authorityKeyIdentifier = getAuthorityKeyIdentifier(c);
+
+            // We couldn't find the issuer certificate.  If we're importing a
+            // private key, or if the keystore already has a key entry with the
+            // same alias that we're going to use, then this is definitely an
+            // error because we can only write a key entry if we have a complete
+            // certificate chain.
+            //
+            // If we weren't explicitly provided with a private key, then it's
+            // still an undesirable thing to import a certificate without having
+            // the complete set of issuers, but we'll go ahead and let it slide
+            // with just a warning.
+            if ((privateKey != null) || hasKeyAlias(keystore, alias))
             {
-              err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_NO_AKI.get(
-                        c.getIssuerDN()));
+              if (authorityKeyIdentifier == null)
+              {
+                err();
+                wrapErr(0, WRAP_COLUMN,
+                     ERR_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_NO_AKI.get(
+                          c.getIssuerDN()));
+              }
+              else
+              {
+                err();
+                wrapErr(0, WRAP_COLUMN,
+                     ERR_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_WITH_AKI.get(
+                          c.getIssuerDN(),
+                          toColonDelimitedHex(authorityKeyIdentifier)));
+              }
+
+              return ResultCode.PARAM_ERROR;
             }
             else
             {
-              err();
-              wrapErr(0, WRAP_COLUMN,
-                   ERR_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_WITH_AKI.get(
-                        c.getIssuerDN(),
-                        toColonDelimitedHex(authorityKeyIdentifier)));
-            }
+              if (authorityKeyIdentifier == null)
+              {
+                err();
+                wrapErr(0, WRAP_COLUMN,
+                     WARN_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_NO_AKI.get(
+                          c.getIssuerDN()));
+              }
+              else
+              {
+                err();
+                wrapErr(0, WRAP_COLUMN,
+                     WARN_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_WITH_AKI.get(
+                          c.getIssuerDN(),
+                          toColonDelimitedHex(authorityKeyIdentifier)));
+              }
 
-            return ResultCode.PARAM_ERROR;
+              break;
+            }
           }
           else
           {
-            if (authorityKeyIdentifier == null)
-            {
-              err();
-              wrapErr(0, WRAP_COLUMN,
-                   WARN_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_NO_AKI.get(
-                        c.getIssuerDN()));
-            }
-            else
-            {
-              err();
-              wrapErr(0, WRAP_COLUMN,
-                   WARN_MANAGE_CERTS_IMPORT_CERT_NO_ISSUER_WITH_AKI.get(
-                        c.getIssuerDN(),
-                        toColonDelimitedHex(authorityKeyIdentifier)));
-            }
-
-            break;
+            chain.add(issuer);
+            c = issuer;
           }
-        }
-        else
-        {
-          chain.add(issuer);
-          c = issuer;
         }
       }
     }
@@ -5912,21 +5930,24 @@ public final class ManageCertificates
     // perform the necessary validation and do the import.
     if (privateKey != null)
     {
-      // Make sure that the keystore doesn't already have a key or certificate
-      // with the specified alias.
-      if (hasKeyAlias(keystore, alias))
+      if (! skipValidation)
       {
-        wrapErr(0, WRAP_COLUMN,
-             ERR_MANAGE_CERTS_IMPORT_CERT_WITH_PK_KEY_ALIAS_CONFLICT.get(
-                  alias));
-        return ResultCode.PARAM_ERROR;
-      }
-      else if (hasCertificateAlias(keystore, alias))
-      {
-        wrapErr(0, WRAP_COLUMN,
-             ERR_MANAGE_CERTS_IMPORT_CERT_WITH_PK_CERT_ALIAS_CONFLICT.get(
-                  alias));
-        return ResultCode.PARAM_ERROR;
+        // Make sure that the keystore doesn't already have a key or certificate
+        // with the specified alias.
+        if (hasKeyAlias(keystore, alias))
+        {
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_IMPORT_CERT_WITH_PK_KEY_ALIAS_CONFLICT.get(
+                    alias));
+          return ResultCode.PARAM_ERROR;
+        }
+        else if (hasCertificateAlias(keystore, alias))
+        {
+          wrapErr(0, WRAP_COLUMN,
+               ERR_MANAGE_CERTS_IMPORT_CERT_WITH_PK_CERT_ALIAS_CONFLICT.get(
+                    alias));
+          return ResultCode.PARAM_ERROR;
+        }
       }
 
 
