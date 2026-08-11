@@ -6,6 +6,32 @@ ${TARGET="offline"}                <br>
 
               <h2>Release Notes</h2>
 
+              <h3>Version 7.0.6</h3>
+
+              <p>
+                The following changes were made between the 7.0.5 and 7.0.6 releases:
+              </p>
+
+              <ul>
+                <li>
+                  Added a new VerifyChainSignaturesTrustManager class, which represents an X.509
+                  trust manager that can be used to verify the signatures in a presented
+                  certificate chain.  If the chain includes a self-signed certificate, then it will
+                  ensure that it has a valid signature, and if the chain includes multiple
+                  certificates, it will ensure that each subsequent certificate in the chain is the
+                  correct signer for the previous certificate in that chain.  Note that this does
+                  not perform any other validation and should only be used specifically for
+                  validating signatures in a certificate chain, so it is recommended to use it only
+                  in an AggregateTrustManager that combines this logic with other appropraite forms
+                  of trust processing.
+                  <br><br>
+                </li>
+              </ul>
+
+              <p></p>
+
+
+
               <h3>Version 7.0.5</h3>
 
               <p>
