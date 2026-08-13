@@ -81,6 +81,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -167,6 +169,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -243,6 +247,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -317,6 +323,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -404,6 +412,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -480,6 +490,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -554,6 +566,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -641,6 +655,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -716,6 +732,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -793,6 +811,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -867,6 +887,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -954,6 +976,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1030,6 +1054,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1099,6 +1125,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1174,6 +1202,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1261,6 +1291,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1336,6 +1368,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1413,6 +1447,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1487,6 +1523,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1574,6 +1612,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1649,6 +1689,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertTrue(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1726,6 +1768,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -1800,6 +1844,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -1886,6 +1932,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -2114,6 +2162,325 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+  }
+
+
+
+  /**
+   * Tests the behavior related to the no JFR property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testNoJFR()
+         throws Exception
+  {
+    CollectSupportDataTaskProperties p = new CollectSupportDataTaskProperties();
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getNoJFR());
+
+    assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setNoJFR(true);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNotNull(p.getNoJFR());
+    assertTrue(p.getNoJFR());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setNoJFR(false);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNotNull(p.getNoJFR());
+    assertFalse(p.getNoJFR());
+
+    assertNull(p.getSecurityLevel());
+
+    assertNull(p.getReportCount());
+
+    assertNull(p.getReportIntervalSeconds());
+
+    assertNull(p.getJStackCount());
+
+    assertNull(p.getLogStartTime());
+
+    assertNull(p.getLogEndTime());
+
+    assertNull(p.getLogDuration());
+
+    assertNull(p.getLogDurationMillis());
+
+    assertNull(p.getLogFileHeadCollectionSizeKB());
+
+    assertNull(p.getLogFileTailCollectionSizeKB());
+
+    assertNull(p.getComment());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveCount());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAge());
+
+    assertNull(p.getRetainPreviousSupportDataArchiveAgeMillis());
+
+    assertNull(p.getTaskID());
+
+    assertNull(p.getScheduledStartTime());
+
+    assertNotNull(p.getDependencyIDs());
+    assertTrue(p.getDependencyIDs().isEmpty());
+
+    assertNull(p.getFailedDependencyAction());
+
+    assertNotNull(p.getNotifyOnStart());
+    assertTrue(p.getNotifyOnStart().isEmpty());
+
+    assertNotNull(p.getNotifyOnCompletion());
+    assertTrue(p.getNotifyOnCompletion().isEmpty());
+
+    assertNotNull(p.getNotifyOnSuccess());
+    assertTrue(p.getNotifyOnSuccess().isEmpty());
+
+    assertNotNull(p.getNotifyOnError());
+    assertTrue(p.getNotifyOnError().isEmpty());
+
+    assertNull(p.getAlertOnStart());
+
+    assertNull(p.getAlertOnSuccess());
+
+    assertNull(p.getAlertOnError());
+
+    assertNotNull(p.toString());
+
+
+    p.setNoJFR(null);
+    p = new CollectSupportDataTaskProperties(p);
+
+    assertNull(p.getOutputPath());
+
+    assertNull(p.getEncryptionPassphraseFile());
+
+    assertNull(p.getIncludeExpensiveData());
+
+    assertNull(p.getIncludeReplicationStateDump());
+
+    assertNull(p.getIncludeBinaryFiles());
+
+    assertNull(p.getIncludeExtensionSource());
+
+    assertNull(p.getNoJFR());
+
+    assertNull(p.getUseSequentialMode());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -2200,6 +2567,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -2278,6 +2647,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getUseSequentialMode());
 
+      assertNull(p.getNoJFR());
+
       assertNotNull(p.getSecurityLevel());
       assertEquals(p.getSecurityLevel(), l);
 
@@ -2354,6 +2725,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -2441,6 +2814,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -2515,6 +2890,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -2592,6 +2969,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNotNull(p.getReportCount());
@@ -2667,6 +3046,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -2754,6 +3135,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -2828,6 +3211,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -2905,6 +3290,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -2980,6 +3367,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -3067,6 +3456,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3141,6 +3532,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -3218,6 +3611,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3293,6 +3688,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -3380,6 +3777,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3459,6 +3858,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3536,6 +3937,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3611,6 +4014,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -3698,6 +4103,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3772,6 +4179,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -3857,6 +4266,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -3934,6 +4345,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -4008,6 +4421,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4085,6 +4500,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4173,6 +4590,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -4247,6 +4666,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4323,6 +4744,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4411,6 +4834,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -4485,6 +4910,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4561,6 +4988,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4648,6 +5077,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -4722,6 +5153,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4798,6 +5231,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -4886,6 +5321,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -4960,6 +5397,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5036,6 +5475,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5124,6 +5565,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5198,6 +5641,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5284,6 +5729,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5362,6 +5809,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5436,6 +5885,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5514,6 +5965,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5601,6 +6054,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5675,6 +6130,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5751,6 +6208,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -5838,6 +6297,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5914,6 +6375,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -5989,6 +6452,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6076,6 +6541,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -6150,6 +6617,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6227,6 +6696,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -6301,6 +6772,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6377,6 +6850,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6464,6 +6939,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -6542,6 +7019,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
       assertNull(p.getUseSequentialMode());
 
+      assertNull(p.getNoJFR());
+
       assertNull(p.getSecurityLevel());
 
       assertNull(p.getReportCount());
@@ -6618,6 +7097,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6705,6 +7186,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -6780,6 +7263,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -6858,6 +7343,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -6932,6 +7419,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7009,6 +7498,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7096,6 +7587,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -7171,6 +7664,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7249,6 +7744,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -7323,6 +7820,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7400,6 +7899,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7487,6 +7988,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -7562,6 +8065,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7640,6 +8145,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -7714,6 +8221,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7791,6 +8300,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -7878,6 +8389,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -7953,6 +8466,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8031,6 +8546,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8105,6 +8622,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8182,6 +8701,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8269,6 +8790,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8343,6 +8866,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8420,6 +8945,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8495,6 +9022,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8582,6 +9111,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8656,6 +9187,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8733,6 +9266,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8808,6 +9343,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -8895,6 +9432,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -8969,6 +9508,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -9046,6 +9587,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -9120,6 +9663,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
     assertNull(p.getIncludeExtensionSource());
 
     assertNull(p.getUseSequentialMode());
+
+    assertNull(p.getNoJFR());
 
     assertNull(p.getSecurityLevel());
 
@@ -9207,6 +9752,8 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNull(p.getUseSequentialMode());
 
+    assertNull(p.getNoJFR());
+
     assertNull(p.getSecurityLevel());
 
     assertNull(p.getReportCount());
@@ -9275,6 +9822,7 @@ public final class CollectSupportDataTaskPropertiesTestCase
     p.setIncludeBinaryFiles(true);
     p.setIncludeExtensionSource(false);
     p.setUseSequentialMode(true);
+    p.setNoJFR(true);
     p.setSecurityLevel(CollectSupportDataSecurityLevel.MAXIMUM);
     p.setReportCount(2);
     p.setReportIntervalSeconds(3);
@@ -9325,6 +9873,9 @@ public final class CollectSupportDataTaskPropertiesTestCase
 
     assertNotNull(p.getUseSequentialMode());
     assertTrue(p.getUseSequentialMode());
+
+    assertNotNull(p.getNoJFR());
+    assertTrue(p.getNoJFR());
 
     assertNotNull(p.getSecurityLevel());
     assertEquals(p.getSecurityLevel(), CollectSupportDataSecurityLevel.MAXIMUM);

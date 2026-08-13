@@ -125,6 +125,7 @@ import static com.unboundid.ldap.sdk.unboundidds.extensions.ExtOpMessages.*;
  *           port                            INTEGER (1..65535),
  *           ... } OPTIONAL,
  *      maximumFragmentSizeBytes        [1] INTEGER DEFAULT 1048576,
+ *      noJFR                           [15] BOOLEAN DEFAULT FALSE,
  *      ... }
  * </PRE>
  * <BR><BR>
@@ -274,6 +275,14 @@ public final class CollectSupportDataExtendedRequest
 
 
   /**
+   * The BER type for the request element that indicates whether to skip the
+   * collection of Java Flight Recorder data.
+   */
+  private static final byte TYPE_NO_JFR = (byte) 0x8F;
+
+
+
+  /**
    * The integer value for the {@link CollectSupportDataSecurityLevel#NONE}
    * security level.
    */
@@ -320,6 +329,9 @@ public final class CollectSupportDataExtendedRequest
   // Indicates whether to include a replication state dump in the support data
   // archive.
   @Nullable private final Boolean includeReplicationStateDump;
+
+  // Indicates whether to skip the collection of Java Flight Recorder data.
+  @Nullable private final Boolean noJFR;
 
   // Indicates whether to capture information sequentially rather than in
   // parallel.
@@ -404,6 +416,7 @@ public final class CollectSupportDataExtendedRequest
     includeExpensiveData = properties.getIncludeExpensiveData();
     includeExtensionSource = properties.getIncludeExtensionSource();
     includeReplicationStateDump = properties.getIncludeReplicationStateDump();
+    noJFR = properties.getNoJFR();
     useSequentialMode = properties.getUseSequentialMode();
     logCaptureWindow = properties.getLogCaptureWindow();
     securityLevel = properties.getSecurityLevel();
@@ -563,6 +576,12 @@ public final class CollectSupportDataExtendedRequest
            maximumFragmentSizeBytes));
     }
 
+    final Boolean noJFR = properties.getNoJFR();
+    if (noJFR != null)
+    {
+      elements.add(new ASN1Boolean(TYPE_NO_JFR, noJFR));
+    }
+
     return new ASN1OctetString(new ASN1Sequence(elements).encode());
   }
 
@@ -614,6 +633,7 @@ public final class CollectSupportDataExtendedRequest
       Boolean includeBinary = null;
       Boolean includeSource = null;
       Boolean sequentialMode = null;
+      Boolean skipJFR = null;
       CollectSupportDataSecurityLevel secLevel = null;
       Integer jCount = null;
       Integer rCount = null;
@@ -711,6 +731,9 @@ public final class CollectSupportDataExtendedRequest
           case TYPE_MAXIMUM_FRAGMENT_SIZE_BYTES:
             maxFragmentSize = ASN1Integer.decodeAsInteger(e).intValue();
             break;
+          case TYPE_NO_JFR:
+            skipJFR = ASN1Boolean.decodeAsBoolean(e).booleanValue();
+            break;
         }
       }
 
@@ -721,6 +744,7 @@ public final class CollectSupportDataExtendedRequest
       includeBinaryFiles = includeBinary;
       includeExtensionSource = includeSource;
       useSequentialMode = sequentialMode;
+      noJFR = skipJFR;
       securityLevel = secLevel;
       jstackCount = jCount;
       reportCount = rCount;
@@ -890,6 +914,24 @@ public final class CollectSupportDataExtendedRequest
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
+  }
+
+
+
+  /**
+   * Retrieves the value of a flag that indicates whether the server should skip
+   * the collection of Java Flight Recorder (JFR) data.
+   *
+   * @return  The value of a flag that indicates whether the server should skip
+   *          the collection of Java Flight Recorder data, or {@code null} if
+   *          the property should not be specified when the request is created
+   *          (in which case the server will use a default behavior of
+   *          collecting JFR data if a recording is available).
+   */
+  @Nullable()
+  public Boolean getNoJFR()
+  {
+    return noJFR;
   }
 
 
@@ -1225,6 +1267,12 @@ public final class CollectSupportDataExtendedRequest
     {
       buffer.append(", useSequentialMode=");
       buffer.append(useSequentialMode);
+    }
+
+    if (noJFR != null)
+    {
+      buffer.append(", noJFR=");
+      buffer.append(noJFR);
     }
 
     if (securityLevel != null)

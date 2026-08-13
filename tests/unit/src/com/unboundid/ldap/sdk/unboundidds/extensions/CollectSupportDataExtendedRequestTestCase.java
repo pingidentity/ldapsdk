@@ -111,6 +111,8 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     assertNull(r.getUseSequentialMode());
 
+    assertNull(r.getNoJFR());
+
     assertNull(r.getSecurityLevel());
 
     assertNull(r.getJStackCount());
@@ -162,6 +164,7 @@ public final class CollectSupportDataExtendedRequestTestCase
     properties.setIncludeBinaryFiles(true);
     properties.setIncludeExtensionSource(false);
     properties.setUseSequentialMode(true);
+    properties.setNoJFR(true);
     properties.setSecurityLevel(CollectSupportDataSecurityLevel.MAXIMUM);
     properties.setJStackCount(1);
     properties.setReportCount(2);
@@ -212,6 +215,9 @@ public final class CollectSupportDataExtendedRequestTestCase
 
     assertNotNull(r.getUseSequentialMode());
     assertTrue(r.getUseSequentialMode());
+
+    assertNotNull(r.getNoJFR());
+    assertTrue(r.getNoJFR());
 
     assertNotNull(r.getSecurityLevel());
     assertEquals(r.getSecurityLevel(),
@@ -303,6 +309,8 @@ public final class CollectSupportDataExtendedRequestTestCase
 
       assertNull(r.getUseSequentialMode());
 
+      assertNull(r.getNoJFR());
+
       assertNotNull(r.getSecurityLevel());
       assertEquals(r.getSecurityLevel(), securityLevel);
 
@@ -392,6 +400,8 @@ public final class CollectSupportDataExtendedRequestTestCase
       assertNull(r.getIncludeExpensiveData());
 
       assertNull(r.getUseSequentialMode());
+
+      assertNull(r.getNoJFR());
 
       assertNull(r.getSecurityLevel());
 

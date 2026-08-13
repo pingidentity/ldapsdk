@@ -123,6 +123,8 @@ import static com.unboundid.ldap.sdk.unboundidds.tasks.TaskMessages.*;
  *   <LI>The amount of data in kilobytes to capture from the beginning or end of
  *       each log file.  If this is not provided, the server will automatically
  *       select the amount of log content to include.</LI>
+ *   <LI>A flag that indicates whether the server should exclude Java Flight
+ *       Recorder (JFR) data from the archive.</LI>
  *   <LI>An optional comment to include in the support data archive.</LI>
  * </UL>
  */
@@ -315,6 +317,15 @@ public final class CollectSupportDataTask
 
 
   /**
+   * The name of the attribute used to indicate whether to skip the collection
+   * of Java Flight Recorder data.
+   */
+  @NotNull public static final String ATTR_NO_JFR =
+       ATTR_PREFIX + "no-jfr";
+
+
+
+  /**
    * The name of the attribute used to indicate whether to collect items
    * sequentially rather than in parallel.
    */
@@ -464,6 +475,17 @@ public final class CollectSupportDataTask
 
 
   /**
+   * The task property that will be used for the no JFR flag.
+   */
+  @NotNull static final TaskProperty PROPERTY_NO_JFR =
+     new TaskProperty(ATTR_NO_JFR,
+          INFO_CSD_DISPLAY_NAME_NO_JFR.get(),
+          INFO_CSD_DESCRIPTION_NO_JFR.get(),
+          Boolean.class, false, false, false);
+
+
+
+  /**
    * The task property that will be used for the output path.
    */
   @NotNull static final TaskProperty PROPERTY_OUTPUT_PATH =
@@ -572,6 +594,9 @@ public final class CollectSupportDataTask
   // archive.
   @Nullable private final Boolean includeReplicationStateDump;
 
+  // Indicates whether to skip the collection of Java Flight Recorder data.
+  @Nullable private final Boolean noJFR;
+
   // Indicates whether to capture information sequentially rather than in
   // parallel.
   @Nullable private final Boolean useSequentialMode;
@@ -656,6 +681,7 @@ public final class CollectSupportDataTask
     includeExpensiveData = properties.getIncludeExpensiveData();
     includeExtensionSource = properties.getIncludeExtensionSource();
     includeReplicationStateDump = properties.getIncludeReplicationStateDump();
+    noJFR = properties.getNoJFR();
     useSequentialMode = properties.getUseSequentialMode();
     securityLevel = properties.getSecurityLevel();
     jstackCount = properties.getJStackCount();
@@ -700,6 +726,7 @@ public final class CollectSupportDataTask
          entry.getAttributeValueAsBoolean(ATTR_INCLUDE_REPLICATION_STATE_DUMP);
     useSequentialMode =
          entry.getAttributeValueAsBoolean(ATTR_USE_SEQUENTIAL_MODE);
+    noJFR = entry.getAttributeValueAsBoolean(ATTR_NO_JFR);
 
     jstackCount = entry.getAttributeValueAsInteger(ATTR_JSTACK_COUNT);
     logFileHeadCollectionSizeKB = entry.getAttributeValueAsInteger(
@@ -830,6 +857,7 @@ public final class CollectSupportDataTask
     Boolean includeReplicationState = null;
     Boolean includeSource = null;
     Boolean sequentialMode = null;
+    Boolean skipJFR = null;
     CollectSupportDataSecurityLevel secLevel = null;
     Date logEndDate = null;
     Date logStartDate = null;
@@ -872,6 +900,10 @@ public final class CollectSupportDataTask
       else if (attrName.equals(ATTR_USE_SEQUENTIAL_MODE))
       {
         sequentialMode = parseBoolean(p, values, sequentialMode);
+      }
+      else if (attrName.equals(ATTR_NO_JFR))
+      {
+        skipJFR = parseBoolean(p, values, skipJFR);
       }
       else if (attrName.equals(ATTR_SECURITY_LEVEL))
       {
@@ -968,6 +1000,7 @@ public final class CollectSupportDataTask
     includeReplicationStateDump = includeReplicationState;
     includeExtensionSource = includeSource;
     useSequentialMode = sequentialMode;
+    noJFR = skipJFR;
     securityLevel = secLevel;
     jstackCount = numJStacks;
     logFileHeadCollectionSizeKB = logHeadSizeKB;
@@ -1186,6 +1219,24 @@ public final class CollectSupportDataTask
   public Boolean getUseSequentialMode()
   {
     return useSequentialMode;
+  }
+
+
+
+  /**
+   * Retrieves the value of a flag that indicates whether the server should skip
+   * the collection of Java Flight Recorder (JFR) data.
+   *
+   * @return  The value of a flag that indicates whether the server should skip
+   *          the collection of Java Flight Recorder data, or {@code null} if
+   *          the property should not be specified when the task is created (in
+   *          which case the server will use a default behavior of collecting
+   *          JFR data if a recording is available).
+   */
+  @Nullable()
+  public Boolean getNoJFR()
+  {
+    return noJFR;
   }
 
 
@@ -1516,6 +1567,11 @@ public final class CollectSupportDataTask
            useSequentialMode ? "TRUE" : "FALSE"));
     }
 
+    if (noJFR != null)
+    {
+      attrList.add(new Attribute(ATTR_NO_JFR, noJFR ? "TRUE" : "FALSE"));
+    }
+
     if (securityLevel != null)
     {
       attrList.add(new Attribute(ATTR_SECURITY_LEVEL, securityLevel.getName()));
@@ -1605,6 +1661,7 @@ public final class CollectSupportDataTask
          PROPERTY_INCLUDE_BINARY_FILES,
          PROPERTY_INCLUDE_EXTENSION_SOURCE,
          PROPERTY_USE_SEQUENTIAL_MODE,
+         PROPERTY_NO_JFR,
          PROPERTY_SECURITY_LEVEL,
          PROPERTY_JSTACK_COUNT,
          PROPERTY_REPORT_COUNT,
@@ -1671,6 +1728,11 @@ public final class CollectSupportDataTask
     {
       props.put(PROPERTY_USE_SEQUENTIAL_MODE,
            Collections.<Object>singletonList(useSequentialMode));
+    }
+
+    if (noJFR != null)
+    {
+      props.put(PROPERTY_NO_JFR, Collections.<Object>singletonList(noJFR));
     }
 
     if (securityLevel != null)

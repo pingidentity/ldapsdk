@@ -174,6 +174,7 @@ public final class CollectSupportData
   @Nullable private BooleanArgument encryptArg;
   @Nullable private BooleanArgument generatePassphraseArg;
   @Nullable private BooleanArgument includeBinaryFilesArg;
+  @Nullable private BooleanArgument noJFRArg;
   @Nullable private BooleanArgument noLDAPArg;
   @Nullable private BooleanArgument noPromptArg;
   @Nullable private BooleanArgument scriptFriendlyArg;
@@ -271,6 +272,7 @@ public final class CollectSupportData
     encryptArg = null;
     generatePassphraseArg = null;
     includeBinaryFilesArg = null;
+    noJFRArg = null;
     noLDAPArg = null;
     noPromptArg = null;
     scriptFriendlyArg = null;
@@ -568,6 +570,18 @@ public final class CollectSupportData
     jstackCountArg.addLongIdentifier("max-jstacks", true);
     jstackCountArg.setArgumentGroupName(INFO_CSD_ARG_GROUP_COLLECTION.get());
     parser.addArgument(jstackCountArg);
+
+    noJFRArg = new BooleanArgument(null, "noJFR", 1,
+         INFO_CSD_ARG_DESC_NO_JFR.get());
+    noJFRArg.addLongIdentifier("noJFRData", true);
+    noJFRArg.addLongIdentifier("excludeJFR", true);
+    noJFRArg.addLongIdentifier("excludeJFRData", true);
+    noJFRArg.addLongIdentifier("no-jfr", true);
+    noJFRArg.addLongIdentifier("no-jfr-data", true);
+    noJFRArg.addLongIdentifier("exclude-jfr", true);
+    noJFRArg.addLongIdentifier("exclude-jfr-data", true);
+    noJFRArg.setArgumentGroupName(INFO_CSD_ARG_GROUP_COLLECTION.get());
+    parser.addArgument(noJFRArg);
 
     reportCountArg = new IntegerArgument(null, "reportCount", false, 1,
          INFO_CSD_ARG_PLACEHOLDER_COUNT.get(),
@@ -1087,6 +1101,7 @@ public final class CollectSupportData
       properties.setIncludeExtensionSource(
            archiveExtensionSourceArg.isPresent());
       properties.setUseSequentialMode(sequentialArg.isPresent());
+      properties.setNoJFR(noJFRArg.isPresent());
 
       if (securityLevelArg.isPresent())
       {
@@ -1408,6 +1423,11 @@ public final class CollectSupportData
     {
       argList.add("--maxJstacks");
       argList.add(jstackCountArg.getValue().toString());
+    }
+
+    if (noJFRArg.isPresent())
+    {
+      argList.add("--noJFR");
     }
 
     if (collectExpensiveDataArg.isPresent())

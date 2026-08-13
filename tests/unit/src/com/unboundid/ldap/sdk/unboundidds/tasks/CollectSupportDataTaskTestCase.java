@@ -121,6 +121,8 @@ public final class CollectSupportDataTaskTestCase
 
     assertNull(t.getUseSequentialMode());
 
+    assertNull(t.getNoJFR());
+
     assertNull(t.getSecurityLevel());
 
     assertNull(t.getReportCount());
@@ -243,6 +245,7 @@ public final class CollectSupportDataTaskTestCase
     p.setIncludeBinaryFiles(true);
     p.setIncludeExtensionSource(false);
     p.setUseSequentialMode(true);
+    p.setNoJFR(false);
     p.setSecurityLevel(CollectSupportDataSecurityLevel.MAXIMUM);
     p.setReportCount(2);
     p.setReportIntervalSeconds(3);
@@ -306,6 +309,9 @@ public final class CollectSupportDataTaskTestCase
 
     assertNotNull(t.getUseSequentialMode());
     assertTrue(t.getUseSequentialMode());
+
+    assertNotNull(t.getNoJFR());
+    assertFalse(t.getNoJFR());
 
     assertNotNull(t.getSecurityLevel());
     assertEquals(t.getSecurityLevel(),

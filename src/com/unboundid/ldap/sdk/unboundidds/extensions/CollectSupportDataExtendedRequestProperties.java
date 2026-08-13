@@ -93,6 +93,9 @@ public final class CollectSupportDataExtendedRequestProperties
   // archive.
   @Nullable private Boolean includeReplicationStateDump;
 
+  // Indicates whether to skip the collection of Java Flight Recorder data.
+  @Nullable private Boolean noJFR;
+
   // Indicates whether to capture information sequentially rather than in
   // parallel.
   @Nullable private Boolean useSequentialMode;
@@ -146,6 +149,7 @@ public final class CollectSupportDataExtendedRequestProperties
     includeExpensiveData = null;
     includeExtensionSource = null;
     includeReplicationStateDump = null;
+    noJFR = null;
     useSequentialMode = null;
     logCaptureWindow = null;
     securityLevel = null;
@@ -175,6 +179,7 @@ public final class CollectSupportDataExtendedRequestProperties
     includeExpensiveData = properties.getIncludeExpensiveData();
     includeExtensionSource = properties.getIncludeExtensionSource();
     includeReplicationStateDump = properties.getIncludeReplicationStateDump();
+    noJFR = properties.getNoJFR();
     useSequentialMode = properties.getUseSequentialMode();
     logCaptureWindow = properties.getLogCaptureWindow();
     securityLevel = properties.getSecurityLevel();
@@ -205,6 +210,7 @@ public final class CollectSupportDataExtendedRequestProperties
     includeExpensiveData = request.getIncludeExpensiveData();
     includeExtensionSource = request.getIncludeExtensionSource();
     includeReplicationStateDump = request.getIncludeReplicationStateDump();
+    noJFR = request.getNoJFR();
     useSequentialMode = request.getUseSequentialMode();
     logCaptureWindow = request.getLogCaptureWindow();
     securityLevel = request.getSecurityLevel();
@@ -544,6 +550,45 @@ public final class CollectSupportDataExtendedRequestProperties
   public void setUseSequentialMode(@Nullable final Boolean useSequentialMode)
   {
     this.useSequentialMode = useSequentialMode;
+  }
+
+
+
+  /**
+   * Retrieves the value of a flag that indicates whether the server should skip
+   * the collection of Java Flight Recorder (JFR) data.
+   *
+   * @return  The value of a flag that indicates whether the server should skip
+   *          the collection of Java Flight Recorder data, or {@code null} if
+   *          the property should not be specified when the request is created
+   *          (in which case the server will use a default behavior of
+   *          collecting JFR data if a recording is available).
+   */
+  @Nullable()
+  public Boolean getNoJFR()
+  {
+    return noJFR;
+  }
+
+
+
+  /**
+   * Specifies the value of a flag that indicates whether the server should skip
+   * the collection of Java Flight Recorder (JFR) data.  This may be useful to
+   * avoid the additional time and space needed to include a JFR recording
+   * sample in the support data archive, especially because the archive is
+   * streamed back to the client.
+   *
+   * @param  noJFR  The value of a flag that indicates whether the server should
+   *                skip the collection of Java Flight Recorder data.  It may be
+   *                {@code null} if the property should not be specified when
+   *                the request is created (in which case the server will use a
+   *                default behavior of collecting JFR data if a recording is
+   *                available).
+   */
+  public void setNoJFR(@Nullable final Boolean noJFR)
+  {
+    this.noJFR = noJFR;
   }
 
 
@@ -958,6 +1003,7 @@ public final class CollectSupportDataExtendedRequestProperties
          includeExtensionSource);
     appendNameValuePair(buffer, "securityLevel", securityLevel);
     appendNameValuePair(buffer, "useSequentialMode", useSequentialMode);
+    appendNameValuePair(buffer, "noJFR", noJFR);
     appendNameValuePair(buffer, "jstackCount", jstackCount);
     appendNameValuePair(buffer, "reportCount", reportCount);
     appendNameValuePair(buffer, "reportIntervalSeconds", reportIntervalSeconds);

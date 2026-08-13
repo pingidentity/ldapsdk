@@ -14,6 +14,15 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the collect-support-data tool, extended request, and administrative task
+                  to add an option to exclude Java Flight Recorder data from the resulting archive.
+                  This may be useful in cases where it is desirable to make collect-support-data
+                  processing operate as quickly as possible, or to minimize the size of the
+                  generated archive.
+                  <br><br>
+                </li>
+
+                <li>
                   Added a new VerifyChainSignaturesTrustManager class, which represents an X.509
                   trust manager that can be used to verify the signatures in a presented
                   certificate chain.  If the chain includes a self-signed certificate, then it will
