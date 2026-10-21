@@ -230,6 +230,25 @@ public final class BouncyCastleFIPSHelper
 
 
   /**
+   * The name of a Java property (org.bouncycastle.native.cpu_variant) that the
+   * Bouncy Castle FIPS provider uses to determine which set of native CPU
+   * instructions may be used during processing.
+   */
+  @NotNull public static final String PROPERTY_CPU_VARIANT =
+       "org.bouncycastle.native.cpu_variant";
+
+
+
+  /**
+   * The CPU variant property value that may be used to indicate that the Bouncy
+   * Castle FIPS provider should not use any native CPU instructions, but should
+   * instead fall back to pure Java implementations.
+   */
+  @NotNull public static final String CPU_VARIANT_JAVA = "java";
+
+
+
+  /**
    * The name of a Java property (org.bouncycastle.jca.enable_jks) that the
    * Bouncy Castle FIPS provider uses to determine whether to allow the use of
    * JKS key stores to access certificates.
@@ -413,6 +432,8 @@ public final class BouncyCastleFIPSHelper
          "true");
     StaticUtils.setSystemPropertyIfNotAlreadyDefined(
          PROPERTY_ALLOW_RSA_MULTI_USE, "true");
+    StaticUtils.setSystemPropertyIfNotAlreadyDefined(PROPERTY_CPU_VARIANT,
+         CPU_VARIANT_JAVA);
     StaticUtils.setSystemPropertyIfNotAlreadyDefined(PROPERTY_ENABLE_MD5,
          "true");
   }
