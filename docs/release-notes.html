@@ -49,6 +49,19 @@ ${TARGET="offline"}                <br>
                   generated archive.
                   <br><br>
                 </li>
+
+                <li>
+                  Updated the BouncyCastleFIPSHelper class to add a couple of constants to make it
+                  easier to use the LDAP SDK in conjunction with version 2.1.3 of the Bouncy Castle
+                  bc-fips provider to enable support for FIPS 140-3 compliance.  This release of
+                  the provider introduced support for using native CPU instructions for certain
+                  kinds of operations, but this has been observed to result in failures in some
+                  environments.  The use of native CPU instructions can be disabled by setting the
+                  "org.bouncycastle.native.cpu_variant" system property with a value of "java", and
+                  the new PROPERTY_CPU_VARIANT and CPU_VARIANT_JAVA constants can help make that
+                  easier to accomplish programmatically.
+                  <br><br>
+                </li>
               </ul>
 
               <p></p>
