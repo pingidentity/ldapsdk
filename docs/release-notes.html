@@ -14,6 +14,31 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Improved the logic used by the Attribute.nameIsValid methods.  These methods are
+                  used to determine whether a given string represents a valid attribute
+                  description, which consists of a base name and zero or more attribute options.
+                  Previously, the method incorrectly rejected attribute options whose name started
+                  with a digit or a hyphen character, which is a valid initial character for an
+                  attribute option, but not for the base attribute name.  Further, the method
+                  previously only supported textual attribute names, but it now supports numeric
+                  OIDs.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added an Attribute.baseNameIsValid method, which can be used to determine whether
+                  a given string represents a valid base attribute type name, optionally allowing
+                  for numeric OIDs.
+                  <br><br>
+                </li>
+
+                <li>
+                  Added an Attribute.optionNameIsValid method, which can be used to determine
+                  whether a given string represents a valid attribute option name.
+                  <br><br>
+                </li>
+
+                <li>
                   Permanently disabled auto-reconnect functionality in the LDAP SDK.  This
                   capability had been deprecated for over ten years, as it was very fragile and
                   could only work under limited circumstances.  The autoReconnect() and
@@ -24,20 +49,6 @@ ${TARGET="offline"}                <br>
                   connection pool instead of an individual connection, using the pool's
                   setRetryFailedOperationsDueToInvalidConnections() method to enable automatic
                   retry, and use the pool's LDAPInterface methods to process operations.
-                  <br><br>
-                </li>
-
-                <li>
-                  Added a new VerifyChainSignaturesTrustManager class, which represents an X.509
-                  trust manager that can be used to verify the signatures in a presented
-                  certificate chain.  If the chain includes a self-signed certificate, then it will
-                  ensure that it has a valid signature, and if the chain includes multiple
-                  certificates, it will ensure that the certificates actually representa a valid
-                  issuer chain, with valid signatures and no unrelated certificates.  Note that
-                  this does not perform any other validation and should only be used specifically
-                  for validating signatures in a certificate chain, so it is recommended to use it
-                  only in an AggregateTrustManager that combines this logic with other appropraite
-                  forms of trust processing.
                   <br><br>
                 </li>
 

@@ -419,7 +419,7 @@ public final class OID
 
   /**
    * Indicates whether the provided string represents a valid numeric OID.  Note
-   * this this method only ensures that the value is made up of a dotted list of
+   * that this method only ensures that the value is made up of a dotted list of
    * numbers that does not start or end with a period and does not contain two
    * consecutive periods.  The {@link #isStrictlyValidNumericOID(String)} method
    * performs additional validation, including ensuring that the OID contains
@@ -441,7 +441,7 @@ public final class OID
 
   /**
    * Indicates whether the provided string represents a valid numeric OID.  Note
-   * this this method only ensures that the value is made up of a dotted list of
+   * that this method only ensures that the value is made up of a dotted list of
    * numbers that does not start or end with a period and does not contain two
    * consecutive periods.  The {@link #isStrictlyValidNumericOID()} method
    * performs additional validation, including ensuring that the OID contains

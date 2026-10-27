@@ -67,6 +67,7 @@ import com.unboundid.util.Debug;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import com.unboundid.util.OID;
 import com.unboundid.util.StaticUtils;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
@@ -777,12 +778,31 @@ public final class Attribute
 
   /**
    * Indicates whether the name of this attribute is valid as per RFC 4512.  The
-   * name will be considered valid only if it starts with an ASCII alphabetic
-   * character ('a' through 'z', or 'A' through 'Z'), and contains only ASCII
-   * alphabetic characters, ASCII numeric digits ('0' through '9'), and the
-   * ASCII hyphen character ('-').  It will also be allowed to include zero or
-   * more attribute options, in which the option must be separate from the base
-   * name by a semicolon and has the same naming constraints as the base name.
+   * name will be considered valid if it meets the following criteria:
+   * <UL>
+   *   <LI>
+   *     The base name must be in one of the following forms:
+   *     <UL>
+   *       <LI>
+   *         A valid textual name, which starts with an ASCII alphabetic letter
+   *         ('a' through 'z' or 'A' through 'Z'), and contains only ASCII
+   *         alphabetic letters, ASCII numeric digits ('0' through '9'), and
+   *         the ASCII hyphen character ('-').
+   *       </LI>
+   *       <LI>
+   *         A valid numeric OID, which is a sequence of ASCII numeric digits
+   *         and ASCII period ('.') characters that must start and end with a
+   *         digit and must not contain consecutive periods.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     It may optionally contain zero or more attribute options, in which each
+   *     option must be preceded by an ASCII semicolon character (';') and must
+   *     consist of one or more ASCII alphabetic letters, ASCII numeric digits,
+   *     and ASCII hyphen characters.
+   *   </LI>
+   * </UL>
    *
    * @return  {@code true} if this attribute has a valid name, or {@code false}
    *          if not.
@@ -796,13 +816,32 @@ public final class Attribute
 
   /**
    * Indicates whether the provided string represents a valid attribute name as
-   * per RFC 4512.  It will be considered valid only if it starts with an ASCII
-   * alphabetic character ('a' through 'z', or 'A' through 'Z'), and contains
-   * only ASCII alphabetic characters, ASCII numeric digits ('0' through '9'),
-   * and the ASCII hyphen character ('-').  It will also be allowed to include
-   * zero or more attribute options, in which the option must be separate from
-   * the base name by a semicolon and has the same naming constraints as the
-   * base name.
+   * per RFC 4512.  The name will be considered valid if it meets the following
+   * criteria:
+   * <UL>
+   *   <LI>
+   *     The base name must be in one of the following forms:
+   *     <UL>
+   *       <LI>
+   *         A valid textual name, which starts with an ASCII alphabetic letter
+   *         ('a' through 'z' or 'A' through 'Z'), and contains only ASCII
+   *         alphabetic letters, ASCII numeric digits ('0' through '9'), and
+   *         the ASCII hyphen character ('-').
+   *       </LI>
+   *       <LI>
+   *         A valid numeric OID, which is a sequence of ASCII numeric digits
+   *         and ASCII period ('.') characters that must start and end with a
+   *         digit and must not contain consecutive periods.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     It may optionally contain zero or more attribute options, in which each
+   *     option must be preceded by an ASCII semicolon character (';') and must
+   *     consist of one or more ASCII alphabetic letters, ASCII numeric digits,
+   *     and ASCII hyphen characters.
+   *   </LI>
+   * </UL>
    *
    * @param  s  The name for which to make the determination.
    *
@@ -818,13 +857,33 @@ public final class Attribute
 
   /**
    * Indicates whether the provided string represents a valid attribute name as
-   * per RFC 4512.  It will be considered valid only if it starts with an ASCII
-   * alphabetic character ('a' through 'z', or 'A' through 'Z'), and contains
-   * only ASCII alphabetic characters, ASCII numeric digits ('0' through '9'),
-   * and the ASCII hyphen character ('-').  It may optionally be allowed to
-   * include zero or more attribute options, in which the option must be
-   * separate from the base name by a semicolon and has the same naming
-   * constraints as the base name.
+   * per RFC 4512.  The name will be considered valid if it meets the following
+   * criteria:
+   * <UL>
+   *   <LI>
+   *     The base name must be in one of the following forms:
+   *     <UL>
+   *       <LI>
+   *         A valid textual name, which starts with an ASCII alphabetic letter
+   *         ('a' through 'z' or 'A' through 'Z'), and contains only ASCII
+   *         alphabetic letters, ASCII numeric digits ('0' through '9'), and
+   *         the ASCII hyphen character ('-').
+   *       </LI>
+   *       <LI>
+   *         A valid numeric OID, which is a sequence of ASCII numeric digits
+   *         and ASCII period ('.') characters that must start and end with a
+   *         digit and must not contain consecutive periods.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     If {@code allowOptions} is {@code true}, then the name may optionally
+   *     contain zero or more attribute options, in which each option must be
+   *     preceded by an ASCII semicolon character (';') and must consist of one
+   *     or more ASCII alphabetic letters, ASCII numeric digits, and ASCII
+   *     hyphen characters.
+   *   </LI>
+   * </UL>
    *
    * @param  s             The name for which to make the determination.
    * @param  allowOptions  Indicates whether the provided name will be allowed
@@ -836,51 +895,264 @@ public final class Attribute
   public static boolean nameIsValid(@NotNull final String s,
                                     final boolean allowOptions)
   {
+    return nameIsValid(s, true, false, allowOptions);
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid attribute name as
+   * per RFC 4512.  The name will be considered valid if it meets the following
+   * criteria:
+   * <UL>
+   *   <LI>
+   *     The base name must be in one of the following forms:
+   *     <UL>
+   *       <LI>
+   *         A valid textual name, which starts with an ASCII alphabetic letter
+   *         ('a' through 'z' or 'A' through 'Z'), and contains only ASCII
+   *         alphabetic letters, ASCII numeric digits ('0' through '9'), and
+   *         the ASCII hyphen character ('-').
+   *       </LI>
+   *       <LI>
+   *         If {@code allowNumericOID} is {@code true}, then it may be a valid
+   *         numeric OID, which is a sequence of ASCII numeric digits and ASCII
+   *         period ('.') characters that must start and end with a digit and
+   *         must not contain consecutive periods.  If
+   *         {@code enforceStrictlyValidNumericOID} is {@code true}, then the
+   *         numeric OID will also be required to contain at least two sets of
+   *         numbers in which the first number must be between 0 and 2, and if
+   *         the first number is 0 or 1, then the second number must not be
+   *         greater than 39.
+   *       </LI>
+   *     </UL>
+   *   </LI>
+   *   <LI>
+   *     If {@code allowOptions} is {@code true}, then the name may optionally
+   *     contain zero or more attribute options, in which each option must be
+   *     preceded by an ASCII semicolon character (';') and must consist of one
+   *     or more ASCII alphabetic letters, ASCII numeric digits, and ASCII
+   *     hyphen characters.
+   *   </LI>
+   * </UL>
+   *
+   * @param  s                               The name for which to make the
+   *                                         determination.
+   * @param  allowNumericOID                 Indicates whether the attribute
+   *                                         type may be identified by a numeric
+   *                                         OID as an alternative to a textual
+   *                                         name.
+   * @param  enforceStrictlyValidNumericOID  Indicates whether to require
+   *                                         numeric OIDs to be strictly valid.
+   *                                         This only applies if
+   *                                         {@code allowNumericOID} is
+   *                                         {@code true} and if the base name
+   *                                         was provided as a numeric OID
+   *                                         rather than in textual form.
+   * @param  allowOptions                    Indicates whether the provided name
+   *                                         will be allowed to contain
+   *                                         attribute options.
+   *
+   * @return  {@code true} if this attribute has a valid name, or {@code false}
+   *          if not.
+   */
+  public static boolean nameIsValid(@NotNull final String s,
+              final boolean allowNumericOID,
+              final boolean enforceStrictlyValidNumericOID,
+              final boolean allowOptions)
+  {
+    // If the provided string is null or empty, then it's not a valid name.
     final int length;
     if ((s == null) || ((length = s.length()) == 0))
     {
       return false;
     }
 
-    final char firstChar = s.charAt(0);
-    if (! (((firstChar >= 'a') && (firstChar <= 'z')) ||
-          ((firstChar >= 'A') && (firstChar <= 'Z'))))
+
+    // Split the provided string using semicolon characters as the delimiter.
+    final String[] components = s.split(";", Integer.MAX_VALUE);
+
+
+    // Iterate through the components.  None of them may be empty.
+    for (int i=0; i < components.length; i++)
+    {
+      final String component = components[i];
+      if (component.isEmpty())
+      {
+        return false;
+      }
+
+
+      // If it's the first component, then ensure it represents a valid base
+      // name.  Otherwise, ensure it represents a valid attribute option.
+      if (i == 0)
+      {
+        if (! baseNameIsValid(component, allowNumericOID,
+             enforceStrictlyValidNumericOID))
+        {
+          return false;
+        }
+      }
+      else
+      {
+        if (! allowOptions)
+        {
+          return false;
+        }
+
+        if (! optionNameIsValid(component))
+        {
+          return false;
+        }
+      }
+    }
+
+
+    // If we've gotten here, then the name is valid.
+    return true;
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid base attribute
+   * name, without any attribute options.  The name will be considered valid if
+   * it meets the following criteria:
+   * <UL>
+   *   <LI>
+   *     It is a valid textual name, which starts with an ASCII alphabetic
+   *     letter ('a' through 'z' or 'A' through 'Z'), and contains only ASCII
+   *     alphabetic letters, ASCII numeric digits ('0' through '9'), and the
+   *     ASCII hyphen character ('-').
+   *   </LI>
+   *   <LI>
+   *     If {@code allowNumericOID} is {@code true}, then it may be a valid
+   *     numeric OID, which is a sequence of ASCII numeric digits and ASCII
+   *     period ('.') characters that must start and end with a digit and must
+   *     not contain consecutive periods.  If
+   *     {@code enforceStrictlyValidNumericOID} is {@code true}, then the
+   *     numeric OID will also be required to contain at least two sets of
+   *     numbers in which the first number must be between 0 and 2, and if the
+   *     first number is 0 or 1, then the second number must not be greater than
+   *     39.
+   *   </LI>
+   * </UL>
+   *
+   * @param  s                               The name for which to make the
+   *                                         determination.
+   * @param  allowNumericOID                 Indicates whether the attribute
+   *                                         type may be identified by a numeric
+   *                                         OID as an alternative to a textual
+   *                                         name.
+   * @param  enforceStrictlyValidNumericOID  Indicates whether to require
+   *                                         numeric OIDs to be strictly valid.
+   *                                         This only applies if
+   *                                         {@code allowNumericOID} is
+   *                                         {@code true} and if the base name
+   *                                         was provided as a numeric OID
+   *                                         rather than in textual form.
+   *
+   * @return  {@code true} if the provided string represents a valid base
+   *          attribute name, or {@code false} if not.
+   */
+  public static boolean baseNameIsValid(@NotNull final String s,
+              final boolean allowNumericOID,
+              final boolean enforceStrictlyValidNumericOID)
+  {
+    if ((s == null) || s.isEmpty())
     {
       return false;
     }
 
-    boolean lastWasSemiColon = false;
-    for (int i=1; i < length; i++)
+
+    // Look at the first character of the name to determine whether it might be
+    // a textual name (if it starts with an ASCII letter) or a numeric OID (if
+    // it starts with a digit).  If so, then validate it accordingly.  If not,
+    // then it's not a valid name.
+    final char firstChar = s.charAt(0);
+    if (((firstChar >= 'a') && (firstChar <= 'z')) ||
+        ((firstChar >= 'A') && (firstChar <= 'Z')))
+    {
+      // This may be a textual attribute name.  Make sure that it's valid.
+      for (int i=1; i < s.length(); i++)
+      {
+        final char c = s.charAt(i);
+        if (((c >= 'a') && (c <= 'z')) ||
+            ((c >= 'A') && (c <= 'Z')) ||
+            ((c >= '0') && (c <= '9')) ||
+            (c == '-'))
+        {
+          // The character is valid for inclusion in the attribute name, at
+          // least.
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+    else if ((firstChar >= '0') && (firstChar <= '9'))
+    {
+      // This may be a numeric OID.  Make sure that's allowed, and make sure
+      // that it's valid.
+      if (allowNumericOID)
+      {
+        if (enforceStrictlyValidNumericOID)
+        {
+          return OID.isStrictlyValidNumericOID(s);
+        }
+        else
+        {
+          return OID.isValidNumericOID(s);
+        }
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      // The first character cannot be valid for an attribute name.
+      return false;
+    }
+  }
+
+
+
+  /**
+   * Indicates whether the provided string represents a valid attribute option
+   * name.  The name will be considered valid if it consists of one or more of
+   * the following characters:
+   * <UL>
+   *   <LI>ASCII alphabetic letters ('a' through 'z' or 'A' through 'Z')</LI>
+   *   <LI>ASCII numeric digits ('0' through '9')</LI>
+   *   <LI>The ASCII hyphen character ('-')</LI>
+   * </UL>
+   *
+   * @param  s  The name for which to make the determination.
+   *
+   * @return  {@code true} if the provided string represents a valid attribute
+   *          option name, or {@code false} if not.
+   */
+  public static boolean optionNameIsValid(@NotNull final String s)
+  {
+    if ((s == null) || s.isEmpty())
+    {
+      return false;
+    }
+
+    for (int i=0; i < s.length(); i++)
     {
       final char c = s.charAt(i);
       if (((c >= 'a') && (c <= 'z')) ||
-          ((c >= 'A') && (c <= 'Z')))
+          ((c >= 'A') && (c <= 'Z')) ||
+          ((c >= '0') && (c <= '9')) ||
+          (c == '-'))
       {
-        // This will always be acceptable.
-        lastWasSemiColon = false;
-      }
-      else if (((c >= '0') && (c <= '9')) ||
-               (c == '-'))
-      {
-        // These will only be acceptable if the last character was not a
-        // semicolon.
-        if (lastWasSemiColon)
-        {
-          return false;
-        }
-
-        lastWasSemiColon = false;
-      }
-      else if (c == ';')
-      {
-        // This will only be acceptable if attribute options are allowed and the
-        // last character was not a semicolon.
-        if (lastWasSemiColon || (! allowOptions))
-        {
-          return false;
-        }
-
-        lastWasSemiColon = true;
+        // The character is valid for inclusion anywhere in the option name.
       }
       else
       {
@@ -888,7 +1160,7 @@ public final class Attribute
       }
     }
 
-    return (! lastWasSemiColon);
+    return true;
   }
 
 

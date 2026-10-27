@@ -1306,25 +1306,74 @@ public class AttributeTestCase
   /**
    * Provides test coverage for the {@code nameIsValid} method.
    *
-   * @param  name   The string to test.
-   * @param  valid  Indicates whether the provided name is expected to be valid.
+   * @param  name                         The string to test.
+   * @param  isBaseMethodValid            Indicates whether the name should be
+   *                                      considered valid in accordance with
+   *                                      the default method behavior.
+   * @param  isValidWithOptions           Indicates whether the name should be
+   *                                      considered valid when attribute
+   *                                      options are allowed.
+   * @param  isValidWithoutOptions        Indicates whether the name should be
+   *                                      considered valid when attribute
+   *                                      options are not allowed.
+   * @param  isValidWithNumericOIDLax     Indicates whether the name should be
+   *                                      considered valid when numeric OIDs are
+   *                                      allowed but when not requiring strict
+   *                                      OID compliance.
+   * @param  isValidWithNumericOIDStrict  Indicates whether the name should be
+   *                                      considered valid when numeric OIDs are
+   *                                      allowed and when requiring strict OID
+   *                                      compliance.
+   * @param  isValidWithoutNumericOID     Indicates whether the name should be
+   *                                      considered valid when numeric OIDs are
+   *                                      not allowed.
+   * @param  description                  A description of the test value.
    *
    * @throws  Exception  If an unexpected problem occurs.
    */
   @Test(dataProvider="testNames")
-  public void testNameIsValid(final String name, final boolean valid)
+  public void testNameIsValid(final String name,
+                              final boolean isBaseMethodValid,
+                              final boolean isValidWithOptions,
+                              final boolean isValidWithoutOptions,
+                              final boolean isValidWithNumericOIDLax,
+                              final boolean isValidWithNumericOIDStrict,
+                              final boolean isValidWithoutNumericOID,
+                              final String description)
          throws Exception
   {
-    assertEquals(Attribute.nameIsValid(name), valid);
+    assertEquals(Attribute.nameIsValid(name), isBaseMethodValid);
 
     if (name != null)
     {
-      if (name.contains(";"))
-      {
-        assertFalse(Attribute.nameIsValid(name, false));
-      }
+      assertEquals(new Attribute(name).nameIsValid(), isBaseMethodValid);
+    }
 
-      assertEquals(new Attribute(name).nameIsValid(), valid);
+    assertEquals(Attribute.nameIsValid(name, true), isValidWithOptions);
+    assertEquals(Attribute.nameIsValid(name, false), isValidWithoutOptions);
+
+    assertEquals(Attribute.nameIsValid(name, true, false, true),
+         isValidWithNumericOIDLax);
+    assertEquals(Attribute.nameIsValid(name, true, true, true),
+         isValidWithNumericOIDStrict);
+    assertEquals(Attribute.nameIsValid(name, false, false, true),
+         isValidWithoutNumericOID);
+
+    if (isValidWithoutOptions && isValidWithoutNumericOID)
+    {
+      assertTrue(Attribute.baseNameIsValid(name, true, false));
+      assertTrue(Attribute.baseNameIsValid(name, true, true));
+      assertTrue(Attribute.baseNameIsValid(name, false, false));
+      assertTrue(Attribute.baseNameIsValid(name, false, true));
+    }
+
+    if (isValidWithOptions && (! isValidWithoutOptions))
+    {
+      final String[] components = name.split(";");
+      for (int i=1; i < components.length; i++)
+      {
+        assertTrue(Attribute.optionNameIsValid(components[i]));
+      }
     }
   }
 
@@ -1343,60 +1392,333 @@ public class AttributeTestCase
   {
     return new Object[][]
     {
-      new Object[] { null, false },
-      new Object[] { "", false},
-      new Object[] { "a", true },
-      new Object[] { "b", true },
-      new Object[] { "z", true },
-      new Object[] { "A", true },
-      new Object[] { "B", true },
-      new Object[] { "Z", true },
-      new Object[] { "0", false },
-      new Object[] { "1", false },
-      new Object[] { "9", false },
-      new Object[] { "-", false },
-      new Object[] { ";", false },
-      new Object[] { " ", false },
-      new Object[] { "_", false },
-      new Object[] { "aa", true },
-      new Object[] { "a0", true },
-      new Object[] { "a1", true },
-      new Object[] { "a9", true },
-      new Object[] { "a9", true },
-      new Object[] { "a-", true },
-      new Object[] { "Aa", true },
-      new Object[] { "aA", true },
-      new Object[] { "AA", true },
-      new Object[] { "A0", true },
-      new Object[] { "A1", true },
-      new Object[] { "A9", true },
-      new Object[] { "A9", true },
-      new Object[] { "A-", true },
-      new Object[] { " a", false },
-      new Object[] { "a ", false },
-      new Object[] { "a_", false },
-      new Object[] { "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                          "0123456789-",
-                     true },
-      new Object[] { "a;a", true },
-      new Object[] { "b;B", true },
-      new Object[] { "A;a", true },
-      new Object[] { "B;B", true },
-      new Object[] { "a;a0", true },
-      new Object[] { "b;B1", true },
-      new Object[] { "A;a2", true },
-      new Object[] { "B;B3", true },
-      new Object[] { "a;a0;a1", true },
-      new Object[] { "b;B1;b2", true },
-      new Object[] { "A;a2;A3", true },
-      new Object[] { "B;B3;B4", true },
-      new Object[] { "a;", false },
-      new Object[] { "a;;a", false },
-      new Object[] { "a;0", false },
-      new Object[] { "a;a;0", false },
-      new Object[] { "a; ", false },
-      new Object[] { "a;a ", false },
+      new Object[]
+      {
+        null,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A null value"
+      },
+
+      new Object[]
+      {
+        "",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "An empty value"
+      },
+
+      new Object[]
+      {
+        " ",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A value that's just a space"
+      },
+
+      new Object[]
+      {
+        ",",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A value that consists only of a character that's never allowed"
+      },
+
+      new Object[]
+      {
+        "a",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A valid single-character textual name without options"
+      },
+
+      new Object[]
+      {
+        "A-Valid-Textual-Name-1234",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A valid multi-character textual name without options"
+      },
+
+      new Object[]
+      {
+        "1.2.3.4",
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        "A strictly valid numeric OID without options"
+      },
+
+      new Object[]
+      {
+        "1.234.567",
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        "A loosely (but not strictly) valid numeric OID without options"
+      },
+
+      new Object[]
+      {
+        "an_invalid_name",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A textual name that contains an invalid non-initial character"
+      },
+
+      new Object[]
+      {
+        "1.2.3.x",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A numeric OID that contains an invalid non-initial character"
+      },
+
+      new Object[]
+      {
+        "a;b",
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        "A textual name with a single option that's a single character"
+      },
+
+      new Object[]
+      {
+        "aB-1;cD-2;Ef-3;4gH;-iJ",
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        "A textual name with multiple options that are all valid"
+      },
+
+      new Object[]
+      {
+        ";abc",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "An empty base name"
+      },
+
+      new Object[]
+      {
+        "abcd;",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A textual name that has one option that's empty"
+      },
+
+      new Object[]
+      {
+        "abcd;;efgh",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A textual name that has multiple options with one empty"
+      },
+
+      new Object[]
+      {
+        "abcd;efgh;ij_kl",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "A textual name that has multiple options with one invalid"
+      },
+
+      new Object[]
+      {
+        "m",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A single-character base name that consists of a lowercase letter in " +
+             "the middle of the allowed range"
+      },
+
+      new Object[]
+      {
+        "z",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A single-character base name that consists of a lowercase letter at " +
+             "the end of the allowed range"
+      },
+
+      new Object[]
+      {
+        "A",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A single-character base name that starts with an uppercase letter " +
+             "at the start of the range"
+      },
+
+      new Object[]
+      {
+        "M",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A single-character base name that consists of an uppercase letter " +
+             "in the middle of the allowed range"
+      },
+
+      new Object[]
+      {
+        "Z",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        "A single-character base name that consists of an uppercase letter " +
+             "at the end of the allowed range"
+      },
+
+      new Object[]
+      {
+        "0.1.2.3",
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        "A strictly valid numeric OID in which the first character is at the" +
+             "beginning of the range"
+      },
+
+      new Object[]
+      {
+        "9.87.654.3210",
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        "A laxly valid numeric OID in which the first character is at the" +
+             "end of the range"
+      }
     };
+  }
+
+
+
+  /**
+   * Tests to ensure that a null value is not considered a valid base name.
+   */
+  @Test()
+  public void testBaseNameIsValidNull()
+  {
+    assertFalse(Attribute.baseNameIsValid(null, true, false));
+  }
+
+
+
+  /**
+   * Tests to ensure that an empty value is not considered a valid base name.
+   */
+  @Test()
+  public void testBaseNameIsValidEmpty()
+  {
+    assertFalse(Attribute.baseNameIsValid("", true, false));
+  }
+
+
+
+  /**
+   * Tests to ensure that a null value is not considered a valid option name.
+   */
+  @Test()
+  public void testOptionNameIsValidNull()
+  {
+    assertFalse(Attribute.optionNameIsValid(null));
+  }
+
+
+
+  /**
+   * Tests to ensure that an empty value is not considered a valid option name.
+   */
+  @Test()
+  public void testOptionNameIsValidEmpty()
+  {
+    assertFalse(Attribute.optionNameIsValid(""));
   }
 
 
