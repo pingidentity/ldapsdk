@@ -5,14 +5,14 @@
 Common Authentication Technology Next Generation (kitten)     F. Schmaus
 Internet-Draft         Friedrich-Alexander-Universität Erlangen-Nürnberg
 Intended status: Standards Track                              T. Molitor
-Expires: 12 November 2026                        Monal Instant Messenger
+Expires: 24 December 2026                        Monal Instant Messenger
                                                                 C. Egger
                                        Chalmers University of Technology
-                                                             11 May 2026
+                                                            22 June 2026
 
 
                     The Hashed Token SASL Mechanism
-                      draft-ietf-kitten-sasl-ht-01
+                      draft-ietf-kitten-sasl-ht-02
 
 Abstract
 
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 1]
+Schmaus, et al.         Expires 24 December 2026                [Page 1]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    Internet-Drafts are draft documents valid for a maximum of six months
@@ -63,7 +63,7 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 November 2026.
+   This Internet-Draft will expire on 24 December 2026.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 2]
+Schmaus, et al.         Expires 24 December 2026                [Page 2]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 3]
+Schmaus, et al.         Expires 24 December 2026                [Page 3]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
 1.1.  Conventions and Terminology
@@ -198,13 +198,13 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
    Each mechanism in this family differs by choice of the hash algorithm
    and the selection of the channel binding [RFC5929] type.
 
-   An HT mechanism name is a string beginning with "HT-" followed by the
-   capitalized name of the used hash, followed by "-", and suffixed by
-   one of 'ENDP', 'UNIQ', 'EXPR' or 'NONE'.
+   An HT mechanism name is a string beginning with "HT2-" followed by
+   the capitalized name of the used hash, followed by "-", and suffixed
+   by one of 'ENDP', 'UNIQ', 'EXPR' or 'NONE'.
 
    Hence, each HT mechanism has a name of the following form:
 
-   HT-<hash-alg>-<cb-type>
+   HT2-<hash-alg>-<cb-type>
 
    Where <hash-alg> is the capitalized "Hash Name String" of the IANA
    "Named Information Hash Algorithm Registry" [iana-hash-alg] as
@@ -221,9 +221,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 4]
+Schmaus, et al.         Expires 24 December 2026                [Page 4]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    In the special case of 'NONE' no channel binding will be used.  In
@@ -247,22 +247,22 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
    The following table lists some examples of HT SASL mechanisms
    registered by this document.
 
-      +==================+===================+======================+
-      | Mechanism Name   | HT Hash Algorithm | Channel-binding      |
-      |                  |                   | unique prefix        |
-      +==================+===================+======================+
-      | HT-SHA-512-ENDP  | SHA-512           | tls-server-end-point |
-      +------------------+-------------------+----------------------+
-      | HT-SHA-512-UNIQ  | SHA-512           | tls-unique           |
-      +------------------+-------------------+----------------------+
-      | HT-SHA3-512-ENDP | SHA3-512          | tls-server-end-point |
-      +------------------+-------------------+----------------------+
-      | HT-SHA-256-UNIQ  | SHA-256           | tls-unique           |
-      +------------------+-------------------+----------------------+
-      | HT-SHA-256-NONE  | SHA-256           | N/A                  |
-      +------------------+-------------------+----------------------+
+     +===================+===================+======================+
+     | Mechanism Name    | HT Hash Algorithm | Channel-binding      |
+     |                   |                   | unique prefix        |
+     +===================+===================+======================+
+     | HT2-SHA-512-ENDP  | SHA-512           | tls-server-end-point |
+     +-------------------+-------------------+----------------------+
+     | HT2-SHA-512-UNIQ  | SHA-512           | tls-unique           |
+     +-------------------+-------------------+----------------------+
+     | HT2-SHA3-512-ENDP | SHA3-512          | tls-server-end-point |
+     +-------------------+-------------------+----------------------+
+     | HT2-SHA-256-UNIQ  | SHA-256           | tls-unique           |
+     +-------------------+-------------------+----------------------+
+     | HT2-SHA-256-NONE  | SHA-256           | N/A                  |
+     +-------------------+-------------------+----------------------+
 
-                  Table 2: Examples of HT SASL mechanisms
+                 Table 2: Examples of HT SASL mechanisms
 
 3.  The HT Authentication Exchange
 
@@ -277,9 +277,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 5]
+Schmaus, et al.         Expires 24 December 2026                [Page 5]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
 3.1.  Initiator First Message
@@ -291,7 +291,7 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
    initiator-msg          = authcid
                             NUL extra-initiator-values
                             NUL initiator-hashed-token
-   authcid                = 1*SAFE ;; MUST accept up to 255 octets
+   authcid                = 1*255SAFE ;; MUST accept up to 255 octets
    extra-initiator-values = key-value-pairs
    key-value-pairs        = [ key-value-pair *( "," key-value-pair ) ]
    key-value-pair         = 1*key-value-char "=" 1*key-value-char
@@ -333,9 +333,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 6]
+Schmaus, et al.         Expires 24 December 2026                [Page 6]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    initiator-hashed-token := HMAC(token, initiator-hmac-message)
@@ -389,9 +389,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 7]
+Schmaus, et al.         Expires 24 December 2026                [Page 7]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    responder-msg          = success-response / failure-response
@@ -445,9 +445,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 8]
+Schmaus, et al.         Expires 24 December 2026                [Page 8]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
 4.  Compliance with SASL Mechanism Requirements
@@ -455,8 +455,8 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
    This section describes compliance with SASL mechanism requirements
    specified in Section 5 of [RFC4422].
 
-   1.  "HT-SHA-256-ENDP", "HT-SHA-256-UNIQ", "HT-SHA3-512-ENDP", "HT-
-       SHA3-512-UNIQ", ….
+   1.  "HT2-SHA-256-ENDP", "HT2-SHA-256-UNIQ", "HT2-SHA3-512-ENDP",
+       "HT2-SHA3-512-UNIQ", ….
 
    2.  Definition of server-challenges and client-responses: a) HT is a
        client-first mechanism. b) HT does send additional data with
@@ -501,9 +501,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026                [Page 9]
+Schmaus, et al.         Expires 24 December 2026                [Page 9]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    A cryptographically secure random generator must generate the SASL-HT
@@ -529,7 +529,7 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
       Subject: Registration of a new SASL family HT
 
-      SASL mechanism name (or prefix for the family): HT-*
+      SASL mechanism name (or prefix for the family): HT2-*
 
       Security considerations: Section 6 of draft-ietf-kitten-sasl-ht
 
@@ -557,9 +557,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026               [Page 10]
+Schmaus, et al.         Expires 24 December 2026               [Page 10]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
@@ -613,9 +613,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026               [Page 11]
+Schmaus, et al.         Expires 24 December 2026               [Page 11]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
    [RFC9266]  Whited, S., "Channel Bindings for TLS 1.3", RFC 9266,
@@ -669,9 +669,9 @@ Internet-Draft       The Hashed Token SASL Mechanism            May 2026
 
 
 
-Schmaus, et al.         Expires 12 November 2026               [Page 12]
+Schmaus, et al.         Expires 24 December 2026               [Page 12]
 
-Internet-Draft       The Hashed Token SASL Mechanism            May 2026
+Internet-Draft       The Hashed Token SASL Mechanism           June 2026
 
 
 Acknowledgments
@@ -725,4 +725,4 @@ Authors' Addresses
 
 
 
-Schmaus, et al.         Expires 12 November 2026               [Page 13]
+Schmaus, et al.         Expires 24 December 2026               [Page 13]

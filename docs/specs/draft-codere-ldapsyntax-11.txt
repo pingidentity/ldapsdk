@@ -4,12 +4,12 @@
 
 Internet Engineering Task Force                        C. E. Codère, Ed.
 Internet-Draft                                            Optima SC Inc.
-Intended status: Standards Track                           15 March 2026
-Expires: 16 September 2026
+Intended status: Standards Track                       12 September 2026
+Expires: 16 March 2027
 
 
    Lightweight Directory Access Protocol (LDAP): Additional Syntaxes
-                       draft-codere-ldapsyntax-10
+                       draft-codere-ldapsyntax-11
 
 Abstract
 
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 September 2026.
+   This Internet-Draft will expire on 16 March 2027.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Codère                  Expires 16 September 2026               [Page 1]
+Codère                    Expires 16 March 2027                 [Page 1]
 
-Internet-Draft          LDAP Additional syntaxes              March 2026
+Internet-Draft          LDAP Additional syntaxes          September 2026
 
 
 Table of Contents
@@ -69,49 +69,49 @@ Table of Contents
        2.1.3.  Duration  . . . . . . . . . . . . . . . . . . . . . .   4
        2.1.4.  Real  . . . . . . . . . . . . . . . . . . . . . . . .   5
        2.1.5.  Time Of Day . . . . . . . . . . . . . . . . . . . . .   6
-       2.1.6.  Visible String  . . . . . . . . . . . . . . . . . . .   6
+       2.1.6.  Visible String  . . . . . . . . . . . . . . . . . . .   7
      2.2.  Constrained ASN.1 Syntax Definitions  . . . . . . . . . .   7
        2.2.1.  Float32 . . . . . . . . . . . . . . . . . . . . . . .   7
        2.2.2.  Float64 . . . . . . . . . . . . . . . . . . . . . . .   8
        2.2.3.  UInt8 . . . . . . . . . . . . . . . . . . . . . . . .   8
        2.2.4.  UInt16  . . . . . . . . . . . . . . . . . . . . . . .   9
        2.2.5.  UInt32  . . . . . . . . . . . . . . . . . . . . . . .   9
-       2.2.6.  UInt64  . . . . . . . . . . . . . . . . . . . . . . .   9
+       2.2.6.  UInt64  . . . . . . . . . . . . . . . . . . . . . . .  10
        2.2.7.  Int8  . . . . . . . . . . . . . . . . . . . . . . . .  10
        2.2.8.  Int16 . . . . . . . . . . . . . . . . . . . . . . . .  10
        2.2.9.  Int32 . . . . . . . . . . . . . . . . . . . . . . . .  11
        2.2.10. Int64 . . . . . . . . . . . . . . . . . . . . . . . .  11
-       2.2.11. Percentage  . . . . . . . . . . . . . . . . . . . . .  11
+       2.2.11. Percentage  . . . . . . . . . . . . . . . . . . . . .  12
      2.3.  Other Syntax Definitions  . . . . . . . . . . . . . . . .  12
        2.3.1.  Language  . . . . . . . . . . . . . . . . . . . . . .  12
        2.3.2.  Media type  . . . . . . . . . . . . . . . . . . . . .  13
        2.3.3.  OpenDate  . . . . . . . . . . . . . . . . . . . . . .  13
        2.3.4.  URI . . . . . . . . . . . . . . . . . . . . . . . . .  14
        2.3.5.  NCName  . . . . . . . . . . . . . . . . . . . . . . .  15
-       2.3.6.  Qualified Name  . . . . . . . . . . . . . . . . . . .  15
+       2.3.6.  Qualified Name  . . . . . . . . . . . . . . . . . . .  16
        2.3.7.  Text  . . . . . . . . . . . . . . . . . . . . . . . .  16
        2.3.8.  Normalized String . . . . . . . . . . . . . . . . . .  18
-       2.3.9.  Token . . . . . . . . . . . . . . . . . . . . . . . .  20
-       2.3.10. Time Of Day with Timezone . . . . . . . . . . . . . .  22
-   3.  Matching rules  . . . . . . . . . . . . . . . . . . . . . . .  23
-     3.1.  uriMatch  . . . . . . . . . . . . . . . . . . . . . . . .  23
+       2.3.9.  Token . . . . . . . . . . . . . . . . . . . . . . . .  21
+       2.3.10. Time Of Day with Timezone . . . . . . . . . . . . . .  23
+   3.  Matching rules  . . . . . . . . . . . . . . . . . . . . . . .  24
+     3.1.  uriMatch  . . . . . . . . . . . . . . . . . . . . . . . .  24
      3.2.  openDateMatch . . . . . . . . . . . . . . . . . . . . . .  24
      3.3.  openDateOrderingMatch . . . . . . . . . . . . . . . . . .  25
      3.4.  timeMatch . . . . . . . . . . . . . . . . . . . . . . . .  25
-     3.5.  timeOrderingMatch . . . . . . . . . . . . . . . . . . . .  25
+     3.5.  timeOrderingMatch . . . . . . . . . . . . . . . . . . . .  26
      3.6.  timeWithTZMatch . . . . . . . . . . . . . . . . . . . . .  26
-     3.7.  timeWithTZOrderingMatch . . . . . . . . . . . . . . . . .  26
+     3.7.  timeWithTZOrderingMatch . . . . . . . . . . . . . . . . .  27
      3.8.  realMatch . . . . . . . . . . . . . . . . . . . . . . . .  27
      3.9.  realOrderingMatch . . . . . . . . . . . . . . . . . . . .  27
      3.10. durationMatch . . . . . . . . . . . . . . . . . . . . . .  28
-   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  28
-     4.1.  Syntax registration . . . . . . . . . . . . . . . . . . .  28
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  29
+     4.1.  Syntax registration . . . . . . . . . . . . . . . . . . .  29
 
 
 
-Codère                  Expires 16 September 2026               [Page 2]
+Codère                    Expires 16 March 2027                 [Page 2]
 
-Internet-Draft          LDAP Additional syntaxes              March 2026
+Internet-Draft          LDAP Additional syntaxes          September 2026
 
 
      4.2.  Object Identifier Descriptors registration  . . . . . . .  30
@@ -165,9 +165,9 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
 
 
-Codère                  Expires 16 September 2026               [Page 3]
+Codère                    Expires 16 March 2027                 [Page 3]
 
-Internet-Draft          LDAP Additional syntaxes              March 2026
+Internet-Draft          LDAP Additional syntaxes          September 2026
 
 
    A Date value SHALL be written using the following syntax: YYYY-MM-DD
@@ -221,9 +221,9 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
 
 
-Codère                  Expires 16 September 2026               [Page 4]
+Codère                    Expires 16 March 2027                 [Page 4]
 
-Internet-Draft          LDAP Additional syntaxes              March 2026
+Internet-Draft          LDAP Additional syntaxes          September 2026
 
 
    A duration syntax value SHALL conform to the following regular
@@ -231,7 +231,10 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    its associated valueSHALL be present (i.e., the strings "P" and "PT"
    are not valid Duration values):
 
-   P([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]{1,3})?S)?)?
+   NOTE: '\' line wrapping per RFC 8792
+
+   P([0-9]+Y)?([0-9]+M)?([0-9]+D)?\
+    (T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]{1,3})?S)?)?
 
    If the number of years, months, days, hours, minutes, or seconds in
    any expression equals zero, the number and its corresponding
@@ -266,21 +269,24 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    A Real syntax value SHALL conform to the following regular
    expression:
 
-   ([-]?[0-9]+(\.[0-9]+)?([E][-]?[0-9]+)?)|PLUS-INFINITY|MINUS-INFINITY|NOT-A-NUMBER
+   NOTE: '\' line wrapping per RFC 8792
+
+   ([-]?[0-9]+(\.[0-9]+)?([E][-]?[0-9]+)?)|PLUS-INFINITY\
+    |MINUS-INFINITY|NOT-A-NUMBER
+
+
+
+
+Codère                    Expires 16 March 2027                 [Page 5]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
 
    Examples:
 
    *  3.14159
 
    *  MINUS-INFINITY
-
-
-
-
-Codère                  Expires 16 September 2026               [Page 5]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  0
 
@@ -323,6 +329,15 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax corresponds to the TIME-OF-DAY ASN.1 type from [ASN.1].
 
+
+
+
+
+Codère                    Expires 16 March 2027                 [Page 6]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
 2.1.6.  Visible String
 
    The Visible String type represents a character repertoire that
@@ -330,13 +345,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    U+0020 to U+007E).  It is defined in [ASN.1].
 
    This syntax value SHALL conform to the following regular expression:
-
-
-
-Codère                  Expires 16 September 2026               [Page 6]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    [0-9A-Za-z !"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]*
 
@@ -378,21 +386,19 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    *  -5.3E4 -- Equal to -53000
 
+
+
+
+Codère                    Expires 16 March 2027                 [Page 7]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    The LDAP definition for the Float32 type syntax is:
 
    *  ( 1.3.6.1.4.1.61799.5.40.9.4 DESC 'Float32' )
 
    This syntax corresponds to the following ASN.1 type from [ASN.1]:
-
-
-
-
-
-
-Codère                  Expires 16 September 2026               [Page 7]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    Float32 ::= REAL (WITH COMPONENTS {
      mantissa (-16777215..16777215),
@@ -437,18 +443,18 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    Examples:
 
+
+
+Codère                    Expires 16 March 2027                 [Page 8]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    *  0
 
    *  34
 
    The LDAP definition for the UInt8 type syntax is:
-
-
-
-Codère                  Expires 16 September 2026               [Page 8]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  ( 1.3.6.1.4.1.61799.5.40.2.21 DESC 'UInt8' )
 
@@ -492,19 +498,20 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax corresponds to the following ASN.1 type from [ASN.1]:
 
+
+
+
+Codère                    Expires 16 March 2027                 [Page 9]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    UInt32 ::= INTEGER(0..4294967295)
 
 2.2.6.  UInt64
 
    The UInt64 type represents an unsigned integer value within the range
    0 to 18446744073709551615 inclusive.
-
-
-
-Codère                  Expires 16 September 2026               [Page 9]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    Examples:
 
@@ -548,19 +555,18 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    *  15667
 
+
+
+Codère                    Expires 16 March 2027                [Page 10]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    *  -32000
 
    The LDAP definition for the Int16 type syntax is:
 
    *  ( 1.3.6.1.4.1.61799.5.40.2.2 DESC 'Int16' )
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 10]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    This syntax corresponds to the following ASN.1 type from [ASN.1]:
 
@@ -604,19 +610,20 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    Int64 ::= INTEGER(-9223372036854775808..9223372036854775807)
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 11]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
 2.2.11.  Percentage
 
    The Percentage type represents a percentage value, that is an
    unsigned integer in the range 0 to 100 inclusive.
 
    Examples:
-
-
-
-Codère                  Expires 16 September 2026              [Page 11]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  0
 
@@ -659,20 +666,19 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    *  ( 1.3.6.1.4.1.61799.5.40.19.1 DESC 'Language' )
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 12]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    This syntax corresponds to the following ASN.1 type from [ASN.1]:
 
-   Language ::= PrintableString (PATTERN "([a-zA-Z]#(2,8)|x-[a-zA-Z0-9]#(1,8))(-[a-zA-Z0-9]#(1,8))*")
-     -- ISO 639 code minimally
-
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 12]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
+   Language ::= PrintableString (PATTERN
+    "([a-zA-Z]#(2,8)|x-[a-zA-Z0-9]#(1,8))(-[a-zA-Z0-9]#(1,8))*")
+    -- ISO 639 code minimally
 
 2.3.2.  Media type
 
@@ -682,7 +688,10 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax value SHALL conform to the following regular expression:
 
-   [A-Za-z0-9]([A-Za-z0-9!#$&^_.+-]){0,126}/[A-Za-z0-9]([A-Za-z0-9!#$&^_.+-]){0,126}
+   NOTE: '\' line wrapping per RFC 8792
+
+   [A-Za-z0-9]([A-Za-z0-9!#$&amp;^_.+-]){0,126}/\
+    [A-Za-z0-9]([A-Za-z0-9!#$&amp;^_.+-]){0,126}
 
    Examples:
 
@@ -713,6 +722,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    *  1975-01
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 13]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    *  1975-01-19
 
    *  1975-01-19T19:20+01:00
@@ -722,13 +739,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    *  1975-01-19T19:20:30.451+01:00
 
    *  1975-01-19T18:20Z
-
-
-
-Codère                  Expires 16 September 2026              [Page 13]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  1975-01-19T18:20:30Z
 
@@ -741,15 +751,22 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    This syntax corresponds to a subset of the TIME ASN.1 type from
    [ASN.1] with the specified configuration:
 
-   OpenDate ::=  TIME((SETTINGS "Basic=Date Date=Y Year=Basic")|
+   OpenDate ::=  TIME(
+    (SETTINGS "Basic=Date Date=Y Year=Basic")|
     (SETTINGS "Basic=Date Date=YM Year=Basic")|
     (SETTINGS "Basic=Date Date=YMD Year=Basic")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM Local-or-UTC=LD")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=LD")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3 Local-or-UTC=LD")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM Local-or-UTC=Z")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=Z")|
-    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3 Local-or-UTC=Z"))
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM
+      Local-or-UTC=LD")|
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS
+      Local-or-UTC=LD")|
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3
+      Local-or-UTC=LD")|
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HM
+      Local-or-UTC=Z")|
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS
+     Local-or-UTC=Z")|
+    (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMSF3
+     Local-or-UTC=Z"))
 
 2.3.4.  URI
 
@@ -760,6 +777,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    known.
 
    Examples:
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 14]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
 
    *  http://www.example.com/my/picture.jpg
 
@@ -772,19 +797,11 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    This syntax corresponds to the following ASN.1 type from
    [ITU.X520.2019]:
 
-   URI ::= VisibleString (SIZE (1..ub-uri-length)) -- ub-uri-length MUST be at least 2000
+   -- ub-uri-length MUST be at least 2000
+   URI ::= VisibleString (SIZE (1..ub-uri-length))
 
    The value of ub-uri-length (an integer) is implementation defined but
    MUST be at least 2000 characters.
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 14]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
 2.3.5.  NCName
 
@@ -809,10 +826,21 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    This syntax corresponds to the following ASN.1 type from
    [ITU.X520.2019]:
 
-   -- NOTE: This type does not capture the
-   -- structural constraints on permitted characters and start characters.
-   -- The regular expression is the normative definition of valid values
+   -- NOTE: This type does not capture the structural constraints
+   -- on permitted characters and start characters. The regular
+   -- expression is the normative definition of valid values
    NCName ::= UnboundedDirectoryString
+
+
+
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 15]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
 
 2.3.6.  Qualified Name
 
@@ -822,7 +850,10 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax value SHALL conform to the following regular expression:
 
-   [\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}._-]*(:[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}._-]*)?
+   NOTE: '\' line wrapping per RFC 8792
+
+   [\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}._-]*\
+    (:[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}._-]*)?
 
    Examples:
 
@@ -834,20 +865,12 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    *  ( 1.3.6.1.4.1.61799.5.40.12.7 DESC 'QualifiedName' )
 
-
-
-
-Codère                  Expires 16 September 2026              [Page 15]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
    This syntax corresponds to the following ASN.1 type from
    [ITU.X520.2019]:
 
-   -- NOTE: This type does not capture the
-   -- structural constraints on permitted characters and start characters.
-   -- The regular expression is the normative definition of valid values
+   -- NOTE: This type does not capture the structural constraints
+   -- on permitted characters and start characters. The regular
+   -- expression is the normative definition of valid values
    QualifiedName ::= UnboundedDirectoryString
 
 2.3.7.  Text
@@ -864,6 +887,16 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    *  General_Category of Cs (Surrogate);
 
    *  General_Category of Co (Private_Use);
+
+
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 16]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
 
    *  Noncharacter_Code_Point, as defined in PropList.txt of the Unicode
       Character Database.  This is a fixed set of 66 code points:
@@ -886,17 +919,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax corresponds to the following ASN.1 type from
    [ITU.X520.2019]:
-
-
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 16]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
      Text ::= CHOICE {
        printableString  PrintableString,
@@ -924,6 +946,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 5, 0, 0}   .. {0, 5, 255, 253} | -- U+50000..U+5FFFD
            {0, 6, 0, 0}   .. {0, 6, 255, 253} | -- U+60000..U+6FFFD
            {0, 7, 0, 0}   .. {0, 7, 255, 253} | -- U+70000..U+7FFFD
+
+
+
+Codère                    Expires 16 March 2027                [Page 17]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
            {0, 8, 0, 0}   .. {0, 8, 255, 253} | -- U+80000..U+8FFFD
            {0, 9, 0, 0}   .. {0, 9, 255, 253} | -- U+90000..U+9FFFD
            {0, 10, 0, 0}  .. {0, 10, 255, 253} | -- U+A0000..U+AFFFD
@@ -946,14 +976,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 4, 0, 0}   .. {0, 4, 255, 253} | -- U+40000..U+4FFFD
            {0, 5, 0, 0}   .. {0, 5, 255, 253} | -- U+50000..U+5FFFD
            {0, 6, 0, 0}   .. {0, 6, 255, 253} | -- U+60000..U+6FFFD
-
-
-
-Codère                  Expires 16 September 2026              [Page 17]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
            {0, 7, 0, 0}   .. {0, 7, 255, 253} | -- U+70000..U+7FFFD
            {0, 8, 0, 0}   .. {0, 8, 255, 253} | -- U+80000..U+8FFFD
            {0, 9, 0, 0}   .. {0, 9, 255, 253} | -- U+90000..U+9FFFD
@@ -981,6 +1003,13 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    *  Code points with General_Category Zs (Space_Separator) other than
       U+0020 (SPACE);
 
+
+
+Codère                    Expires 16 March 2027                [Page 18]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    *  Code points with General_Category Zl (Line_Separator) or Zp
       (Paragraph_Separator).
 
@@ -1001,14 +1030,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    The LDAP definition for the Normalized String syntax is:
 
    *  ( 1.3.6.1.4.1.61799.5.40.12.4 DESC 'Normalized String' )
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 18]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    This syntax corresponds to the following ASN.1 type definition:
 
@@ -1037,6 +1058,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 0, 32, 48} .. {0, 0, 32, 94}  |  -- U+2030..U+205E
            {0, 0, 32, 96} .. {0, 0, 47, 255} |  -- U+2060..U+2FFF
            {0, 0, 48, 1}  .. {0, 0, 215, 255} | -- U+3001..U+D7FF
+
+
+
+Codère                    Expires 16 March 2027                [Page 19]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
            {0, 0, 249, 0} .. {0, 0, 253, 207} | -- U+F900..U+FDCF
            {0, 0, 253, 240} .. {0, 0, 255, 253} | -- U+FDF0..U+FFFD
            {0, 1, 0, 0}   .. {0, 1, 255, 253} | -- U+10000..U+1FFFD
@@ -1058,14 +1087,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
          (FROM(
            {0, 0, 0, 32}  .. {0, 0, 0, 126}  |  -- U+0020..U+007E
            {0, 0, 0, 161} .. {0, 0, 22, 127} |  -- U+00A1..U+167F
-
-
-
-Codère                  Expires 16 September 2026              [Page 19]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
            {0, 0, 22, 129} .. {0, 0, 31, 255} | -- U+1681..U+1FFF
            {0, 0, 32, 11} .. {0, 0, 32, 39}  |  -- U+200B..U+2027
            {0, 0, 32, 42} .. {0, 0, 32, 46}  |  -- U+202A..U+202E
@@ -1091,6 +1112,16 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
          ))
      }
 
+
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 20]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
 2.3.9.  Token
 
    The Token type represents a whitespace-normalized Unicode string.  A
@@ -1113,14 +1144,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    bidirectional controls.
 
    Examples:
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 20]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  This is a token with spaces.
 
@@ -1147,6 +1170,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 0, 48, 1}  .. {0, 0, 215, 255} | -- U+3001..U+D7FF
            {0, 0, 249, 0} .. {0, 0, 253, 207} | -- U+F900..U+FDCF
            {0, 0, 253, 240} .. {0, 0, 255, 253} -- U+FDF0..U+FFFD
+
+
+
+Codère                    Expires 16 March 2027                [Page 21]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
          ))
          (PATTERN "([^ ]+( [^ ]+)*)?"),
        universalString  UniversalString
@@ -1170,14 +1201,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 7, 0, 0}   .. {0, 7, 255, 253} | -- U+70000..U+7FFFD
            {0, 8, 0, 0}   .. {0, 8, 255, 253} | -- U+80000..U+8FFFD
            {0, 9, 0, 0}   .. {0, 9, 255, 253} | -- U+90000..U+9FFFD
-
-
-
-Codère                  Expires 16 September 2026              [Page 21]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
            {0, 10, 0, 0}  .. {0, 10, 255, 253} | -- U+A0000..U+AFFFD
            {0, 11, 0, 0}  .. {0, 11, 255, 253} | -- U+B0000..U+BFFFD
            {0, 12, 0, 0}  .. {0, 12, 255, 253} | -- U+C0000..U+CFFFD
@@ -1203,6 +1226,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
            {0, 4, 0, 0}   .. {0, 4, 255, 253} | -- U+40000..U+4FFFD
            {0, 5, 0, 0}   .. {0, 5, 255, 253} | -- U+50000..U+5FFFD
            {0, 6, 0, 0}   .. {0, 6, 255, 253} | -- U+60000..U+6FFFD
+
+
+
+Codère                    Expires 16 March 2027                [Page 22]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
            {0, 7, 0, 0}   .. {0, 7, 255, 253} | -- U+70000..U+7FFFD
            {0, 8, 0, 0}   .. {0, 8, 255, 253} | -- U+80000..U+8FFFD
            {0, 9, 0, 0}   .. {0, 9, 255, 253} | -- U+90000..U+9FFFD
@@ -1224,16 +1255,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    or as a UTC time indicated by the 'Z' designator, as defined in
    [ISO.8601.2004].
 
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 22]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
    A Time Of Day with Timezone value SHALL be written using the
    following syntax: hh:mm:ss where hh represents the hour from 00 to
    24, mm represents the minute from 00 to 59, and ss represents the
@@ -1246,7 +1267,7 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    the local time is behind UTC time.  If the time represents an UTC
    time, the time shall be followed without space, by the timezone UTC
    designator [Z].  This standard supports time differences in the range
-   –15 hours to +15 hours to align with [ASN.1].
+   -15 hours to +15 hours to align with [ASN.1].
 
    Examples:
 
@@ -1260,6 +1281,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    This syntax corresponds to a subset of the TIME ASN.1 type from
    [ASN.1] with the specified configuration:
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 23]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
 
    Time-with-timezone ::=
      TIME((SETTINGS "Basic=Time Time=HMS Local-or-UTC=LD")|
@@ -1281,14 +1310,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    The uriMatch rule compares for equality a presented value with an
    attribute value of type URI (Section 2.3.4).
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 23]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    The comparison is done using syntax-based normalization as defined in
    Section 6.2.2 of [RFC3986].
@@ -1317,6 +1338,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    4.  If the minutes component is absent it is assumed to be zero.
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 24]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    5.  If the seconds component is absent it is assumed to be zero.
 
    6.  If the decimal fraction component is absent it is assumed to be
@@ -1337,14 +1366,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    are compared chronologically.
 
    The LDAP definition for the openDateMatch rule is:
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 24]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    *  ( 1.3.6.1.4.1.61799.5.13.14.1 NAME 'openDateMatch' SYNTAX
       1.3.6.1.4.1.61799.5.40.14.1 )
@@ -1373,6 +1394,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    The timeMatch rule compares for equality a presented value with an
    attribute value of type Time Of Day (Section 2.1.5).
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 25]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    Values are compared component by component (hours, minutes, seconds)
    in order of significance.  A time value of 24:00:00 is considered end
    of day, and is therefore not equal to 00:00:00.
@@ -1393,14 +1422,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    Values are compared component by component (hours, minutes, seconds)
    in order of significance.  A time value of 24:00:00 is considered end
    of day, and is therefore greater than 00:00:00.
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 25]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    The LDAP definition for the timeOrderingMatch rule is:
 
@@ -1429,6 +1450,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    The rule returns TRUE if the attribute value represents the same Time
    Of Day with Timezone as the presented value.
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 26]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
 3.7.  timeWithTZOrderingMatch
 
    The timeWithTZOrderingMatch rule compares the ordering of a presented
@@ -1448,15 +1477,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    The rule returns TRUE if the attribute value represents a Time Of Day
    with Timezone which is earlier than the presented Time Of Day with
    Timezone.
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 26]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
 3.8.  realMatch
 
@@ -1487,6 +1507,13 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    This matching rule also applies to the Float32 and Float64 syntaxes,
    which are constrained subsets of the Real syntax.
 
+
+
+Codère                    Expires 16 March 2027                [Page 27]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    MINUS-INFINITY is less than all finite values and PLUS-INFINITY is
    greater than all finite values.  Negative zero is equal to positive
    zero for ordering purposes.  NOT-A-NUMBER is greater than all other
@@ -1506,13 +1533,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    The rule returns TRUE if the attribute value is less than the
    presented value.
-
-
-
-Codère                  Expires 16 September 2026              [Page 27]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
 3.10.  durationMatch
 
@@ -1543,6 +1563,13 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    *  ( 1.3.6.1.4.1.61799.5.13.34 NAME 'durationMatch' SYNTAX
       1.3.6.1.4.1.61799.5.40.34 )
 
+
+
+Codère                    Expires 16 March 2027                [Page 28]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    The rule returns TRUE if the attribute value represents the same
    duration as the presented value.
 
@@ -1562,13 +1589,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    Person & email address to contact for further information:
       carl.codere@optimasc.com
-
-
-
-Codère                  Expires 16 September 2026              [Page 28]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    Specification/Reference: [ RFC-to-be ]
 
@@ -1598,6 +1618,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
         | 1.3.6.1.4.1.61799.5.40.2.8  | Int64                     |
         +-----------------------------+---------------------------+
         | 1.3.6.1.4.1.61799.5.40.19.1 | Language                  |
+
+
+
+Codère                    Expires 16 March 2027                [Page 29]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
         +-----------------------------+---------------------------+
         | 1.3.6.1.4.1.61799.5.40.12.6 | NCName                    |
         +-----------------------------+---------------------------+
@@ -1618,14 +1646,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
         | 1.3.6.1.4.1.61799.5.40.12.5 | Token                     |
         +-----------------------------+---------------------------+
         | 1.3.6.1.4.1.61799.5.40.32   | Time Of Day               |
-
-
-
-Codère                  Expires 16 September 2026              [Page 29]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
-
         +-----------------------------+---------------------------+
         | 1.3.6.1.4.1.61799.5.40.35   | Time Of Day with Timezone |
         +-----------------------------+---------------------------+
@@ -1654,6 +1674,14 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
    Usage:  matching rule
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 30]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    Person & email address to contact for further information:
       carl.codere@optimasc.com
 
@@ -1662,25 +1690,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    Author/Change Controller/Owner:  IESG
 
    Comments:  See table for list of additional matching rules
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 30]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
         +=========================+===============================+
         | Name                    | OID                           |
@@ -1722,21 +1731,19 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
    compatibility with future versions of the Unicode Standard, the
    prohibited code points have been kept to a minimum.
 
+
+
+Codère                    Expires 16 March 2027                [Page 31]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    These syntaxes permit Unicode format characters (General_Category Cf)
    because they are required for the correct representation of text in
    several scripts.  However, some format characters may pose security
    risks when values are displayed or compared without appropriate
    normalization.  Applications MAY impose additional restrictions on
    permitted code points as a matter of local policy.
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 31]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    These syntaxes SHOULD NOT be used for security-sensitive attributes
    such as identifiers, group names, or access control labels.  The
@@ -1779,20 +1786,18 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
               <https://www.rfc-editor.org/info/rfc3986>.
 
+
+
+
+Codère                    Expires 16 March 2027                [Page 32]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    [IEEE_754_2019]
               IEEE, "IEEE Standard for Floating-Point Arithmetic",
               IEEE IEEE 754-2019, DOI 10.1109/IEEESTD.2019.8766229, 18
               July 2019, <https://ieeexplore.ieee.org/document/8766229>.
-
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 32]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    [RFC4520]  Zeilenga, K., "Internet Assigned Numbers Authority (IANA)
               Considerations for the Lightweight Directory Access
@@ -1836,19 +1841,19 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
 
 6.2.  Informative References
 
+
+
+
+
+Codère                    Expires 16 March 2027                [Page 33]
+
+Internet-Draft          LDAP Additional syntaxes          September 2026
+
+
    [RFC4517]  Legg, S., Ed., "Lightweight Directory Access Protocol
               (LDAP): Syntaxes and Matching Rules", RFC 4517,
               DOI 10.17487/RFC4517, June 2006,
               <https://www.rfc-editor.org/info/rfc4517>.
-
-
-
-
-
-Codère                  Expires 16 September 2026              [Page 33]
-
-Internet-Draft          LDAP Additional syntaxes              March 2026
-
 
    [RFC4518]  Zeilenga, K., "Lightweight Directory Access Protocol
               (LDAP): Internationalized String Preparation", RFC 4518,
@@ -1865,13 +1870,6 @@ Internet-Draft          LDAP Additional syntaxes              March 2026
               "XPath and XQuery Functions and Operators 3.1", W3C REC 
               xpath-functions-31, W3C xpath-functions-31,
               <https://www.w3.org/TR/xpath-functions-31/>.
-
-   [ITU.X500.2019]
-              International Telecommunications Union, "Information
-              Technology - Open Systems Interconnection - The Directory:
-              Overview of Concepts, Models and Services",
-              ITU-T Recommendation X.500, ISO Standard 9594-1, October
-              2019.
 
    [IANAREG]  IANA, "Media Types", <https://www.iana.org/assignments/
               media-types/media-types.xhtml>.
@@ -1901,4 +1899,6 @@ Author's Address
 
 
 
-Codère                  Expires 16 September 2026              [Page 34]
+
+
+Codère                    Expires 16 March 2027                [Page 34]
