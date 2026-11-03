@@ -4,13 +4,13 @@
 
 Network Working Group                                        A. Melnikov
 Internet-Draft                                                 Isode Ltd
-Intended status: Standards Track                         2 December 2024
-Expires: 5 June 2025
+Intended status: Standards Track                            26 June 2026
+Expires: 28 December 2026
 
 
       Extensions to Salted Challenge Response (SCRAM) for 2 factor
                              authentication
-                     draft-ietf-kitten-scram-2fa-05
+                     draft-ietf-kitten-scram-2fa-06
 
 Abstract
 
@@ -39,11 +39,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 June 2025.
+   This Internet-Draft will expire on 28 December 2026.
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 1]
+Melnikov                Expires 28 December 2026                [Page 1]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    and restrictions with respect to this document.  Code Components
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 2]
+Melnikov                Expires 28 December 2026                [Page 2]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
 2.  Conventions Used in This Document
@@ -165,9 +165,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 3]
+Melnikov                Expires 28 December 2026                [Page 3]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    the server MUST fail authentication and SHOULD return either
@@ -194,14 +194,15 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
    presents some other alternatives on how to use other SASL mechanisms
    with the reauthentication token.]]
 
-   When the HT-* mechanism [draft-schmaus-kitten-sasl-ht] is used for
-   the reauthentication after a successful SCRAM authentication, the
+   When the HT2-* mechanism [draft-ietf-kitten-sasl-ht] is used for the
+   reauthentication after a successful SCRAM authentication, the
    reauthentication token is the SASL-HT token (see
-   [draft-schmaus-kitten-sasl-ht]).  [[Note that the HT hash should
-   probably match the SCRAM hash used or "be better".]]
+   [draft-ietf-kitten-sasl-ht]).  Note that the HT2 hash MUST match the
+   SCRAM hash used to create it.
 
-   Alternatively, the REMEMBERME mechanism [[add ref]] can be used to
-   reauthenticate after a successful SCRAM authentication.
+   Alternatively, the SASL REMEMBERME mechanism
+   [draft-ietf-kitten-sasl-rememberme] can be used to reauthenticate
+   after a successful SCRAM authentication.
 
 5.  Formal Syntax
 
@@ -220,13 +221,12 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-
-Melnikov                   Expires 5 June 2025                  [Page 4]
+Melnikov                Expires 28 December 2026                [Page 4]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
-   *  l: This attribute is used by some second factors (e.g.  CTAP1) to
+   *  l: This attribute is used by some second factors (e.g. CTAP1) to
       specify the challenge returned by the SCRAM server.
 
    *  o: This attribute specifies the base64-encoded value of the
@@ -277,9 +277,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 5]
+Melnikov                Expires 28 December 2026                [Page 5]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    *  f: This attribute specifies the value of the second factor.  For
@@ -333,9 +333,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 6]
+Melnikov                Expires 28 December 2026                [Page 6]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    *  f: This attribute specifies the value of the second factor.  For
@@ -389,9 +389,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 7]
+Melnikov                Expires 28 December 2026                [Page 7]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    *  Use clientDataHash parameter of [CTAP2] request as CTAP1/U2F
@@ -445,9 +445,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 8]
+Melnikov                Expires 28 December 2026                [Page 8]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
    Let authenticatorData is a byte string of following structure:
@@ -501,9 +501,9 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                  [Page 9]
+Melnikov                Expires 28 December 2026                [Page 9]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
 11.  IANA Considerations
@@ -557,17 +557,24 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
 
 
 
-Melnikov                   Expires 5 June 2025                 [Page 10]
+Melnikov                Expires 28 December 2026               [Page 10]
 
-Internet-Draft            SCRAM 2FA extensions             December 2024
+Internet-Draft            SCRAM 2FA extensions                 June 2026
 
 
-   [draft-schmaus-kitten-sasl-ht]
-              Schmaus, F. and C. Egger, "The Hashed Token SASL
-              Mechanism", Work in Progress, Internet-Draft, draft-
-              schmaus-kitten-sasl-ht-09, 6 November 2022,
-              <https://www.ietf.org/archive/id/draft-schmaus-kitten-
-              sasl-ht-09.txt>.
+   [draft-ietf-kitten-sasl-ht]
+              Schmaus, F., Molitor, T., and C. Egger, "The Hashed Token
+              SASL Mechanism", Work in Progress, Internet-Draft, draft-
+              ietf-kitten-sasl-ht-02, 22 June 2026,
+              <https://www.ietf.org/archive/id/draft-ietf-kitten-sasl-
+              ht-02.txt>.
+
+   [draft-ietf-kitten-sasl-rememberme]
+              Bucksch, B. and S. Farrell, "SASL Remember Me", Work in
+              Progress, Internet-Draft, draft-ietf-kitten-sasl-
+              rememberme-00, 28 February 2025,
+              <https://www.ietf.org/archive/id/draft-ietf-kitten-sasl-
+              rememberme-00.txt>.
 
    [FIDO-U2F-Raw-Message-Formats]
               Balfanz, D., Ehrensvard, J., and J. Lang, "FIDO U2F Raw
@@ -600,6 +607,17 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
               DOI 10.17487/RFC5234, January 2008,
               <https://www.rfc-editor.org/info/rfc5234>.
 
+
+
+
+
+
+
+Melnikov                Expires 28 December 2026               [Page 11]
+
+Internet-Draft            SCRAM 2FA extensions                 June 2026
+
+
    [RFC5802]  Newman, C., Menon-Sen, A., Melnikov, A., and N. Williams,
               "Salted Challenge Response Authentication Mechanism
               (SCRAM) SASL and GSS-API Mechanisms", RFC 5802,
@@ -610,13 +628,6 @@ Internet-Draft            SCRAM 2FA extensions             December 2024
               Time-Based One-Time Password Algorithm", RFC 6238,
               DOI 10.17487/RFC6238, May 2011,
               <https://www.rfc-editor.org/info/rfc6238>.
-
-
-
-Melnikov                   Expires 5 June 2025                 [Page 11]
-
-Internet-Draft            SCRAM 2FA extensions             December 2024
-
 
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               DOI 10.17487/RFC6454, December 2011,
@@ -658,15 +669,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Melnikov                   Expires 5 June 2025                 [Page 12]
+Melnikov                Expires 28 December 2026               [Page 12]

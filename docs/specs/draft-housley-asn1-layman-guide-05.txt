@@ -5,16 +5,16 @@
 Network Working Group                                         B. Kaliski
 Internet-Draft                                             Verisign Labs
 Intended status: Informational                                C. Bonnell
-Expires: 16 April 2027                         TurboLight Solutions, LLC
+Expires: 3 May 2027                            TurboLight Solutions, LLC
                                                                  D. Hook
                                                                Keyfactor
                                                               R. Housley
                                                           Vigil Security
-                                                         13 October 2026
+                                                         30 October 2026
 
 
           A Layman's Guide to a Subset of ASN.1, BER, and DER
-                   draft-housley-asn1-layman-guide-04
+                   draft-housley-asn1-layman-guide-05
 
 Abstract
 
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 3 May 2027.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Kaliski, et al.           Expires 16 April 2027                 [Page 1]
+Kaliski, et al.            Expires 3 May 2027                   [Page 1]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -70,112 +70,113 @@ Table of Contents
      1.1.  Background  . . . . . . . . . . . . . . . . . . . . . . .   5
      1.2.  Terminology and notation  . . . . . . . . . . . . . . . .   6
    2.  Abstract Syntax Notation One  . . . . . . . . . . . . . . . .   7
-     2.1.  Simple types  . . . . . . . . . . . . . . . . . . . . . .   9
-     2.2.  Structured types  . . . . . . . . . . . . . . . . . . . .  10
+     2.1.  Simple types  . . . . . . . . . . . . . . . . . . . . . .  10
+     2.2.  Structured types  . . . . . . . . . . . . . . . . . . . .  11
      2.3.  Implicitly and explicitly tagged types  . . . . . . . . .  11
-     2.4.  Other types . . . . . . . . . . . . . . . . . . . . . . .  11
-   3.  Basic Encoding Rules  . . . . . . . . . . . . . . . . . . . .  11
-     3.1.  Primitive, definite-length method . . . . . . . . . . . .  12
+     2.4.  Other types . . . . . . . . . . . . . . . . . . . . . . .  12
+   3.  Basic Encoding Rules  . . . . . . . . . . . . . . . . . . . .  12
+     3.1.  Primitive, definite-length method . . . . . . . . . . . .  13
        3.1.1.  Prefixes and Magic Numbers  . . . . . . . . . . . . .  14
-     3.2.  Constructed, definite-length method . . . . . . . . . . .  15
-     3.3.  Constructed, indefinite-length method . . . . . . . . . .  15
-   4.  Distinguished Encoding Rules  . . . . . . . . . . . . . . . .  16
-   5.  Notation and encodings for some types . . . . . . . . . . . .  16
-     5.1.  Implicitly tagged types . . . . . . . . . . . . . . . . .  17
-       5.1.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  18
-       5.1.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  18
-     5.2.  Explicitly tagged types . . . . . . . . . . . . . . . . .  18
-       5.2.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  19
-       5.2.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  19
-     5.3.  ANY . . . . . . . . . . . . . . . . . . . . . . . . . . .  20
-       5.3.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  20
-       5.3.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  21
-     5.4.  BIT STRING  . . . . . . . . . . . . . . . . . . . . . . .  21
-       5.4.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  22
-       5.4.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  23
-     5.5.  BOOLEAN . . . . . . . . . . . . . . . . . . . . . . . . .  23
-       5.5.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  23
-       5.5.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  23
-     5.6.  CHOICE  . . . . . . . . . . . . . . . . . . . . . . . . .  23
-       5.6.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  24
-       5.6.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  24
-     5.7.  IA5String . . . . . . . . . . . . . . . . . . . . . . . .  24
-       5.7.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  25
-       5.7.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  25
-     5.8.  INTEGER . . . . . . . . . . . . . . . . . . . . . . . . .  25
-       5.8.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  26
-       5.8.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  27
-     5.9.  NULL  . . . . . . . . . . . . . . . . . . . . . . . . . .  27
+     3.2.  Constructed, definite-length method . . . . . . . . . . .  16
+     3.3.  Constructed, indefinite-length method . . . . . . . . . .  16
+   4.  Distinguished Encoding Rules  . . . . . . . . . . . . . . . .  17
+   5.  Notation and encodings for some types . . . . . . . . . . . .  17
+     5.1.  Implicitly tagged types . . . . . . . . . . . . . . . . .  18
+       5.1.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  19
+       5.1.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  19
+     5.2.  Explicitly tagged types . . . . . . . . . . . . . . . . .  19
+       5.2.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  20
+       5.2.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  21
+     5.3.  ANY . . . . . . . . . . . . . . . . . . . . . . . . . . .  21
+       5.3.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  22
+       5.3.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  22
+     5.4.  BIT STRING  . . . . . . . . . . . . . . . . . . . . . . .  22
+       5.4.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  23
+       5.4.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  24
+     5.5.  BOOLEAN . . . . . . . . . . . . . . . . . . . . . . . . .  24
+       5.5.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  24
+       5.5.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  25
+     5.6.  CHOICE  . . . . . . . . . . . . . . . . . . . . . . . . .  25
+       5.6.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  26
+       5.6.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  26
+     5.7.  IA5String . . . . . . . . . . . . . . . . . . . . . . . .  26
+       5.7.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  26
+       5.7.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  27
+     5.8.  INTEGER . . . . . . . . . . . . . . . . . . . . . . . . .  27
+       5.8.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  28
+       5.8.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  28
+     5.9.  NULL  . . . . . . . . . . . . . . . . . . . . . . . . . .  28
 
 
 
-Kaliski, et al.           Expires 16 April 2027                 [Page 2]
+Kaliski, et al.            Expires 3 May 2027                   [Page 2]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
-       5.9.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  27
-       5.9.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  27
-     5.10. OBJECT IDENTIFIER . . . . . . . . . . . . . . . . . . . .  27
-       5.10.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  29
-       5.10.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  30
-     5.11. OCTET STRING  . . . . . . . . . . . . . . . . . . . . . .  30
-       5.11.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  30
-       5.11.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  31
-     5.12. PrintableString . . . . . . . . . . . . . . . . . . . . .  31
-       5.12.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  31
-       5.12.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  32
-     5.13. RELATIVE-OID  . . . . . . . . . . . . . . . . . . . . . .  32
-       5.13.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  33
-       5.13.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  33
-     5.14. SEQUENCE  . . . . . . . . . . . . . . . . . . . . . . . .  33
-       5.14.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  34
-       5.14.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  35
-     5.15. SEQUENCE OF . . . . . . . . . . . . . . . . . . . . . . .  35
-       5.15.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  35
-       5.15.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  35
-     5.16. SET . . . . . . . . . . . . . . . . . . . . . . . . . . .  36
-       5.16.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  37
-       5.16.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  37
-     5.17. SET OF  . . . . . . . . . . . . . . . . . . . . . . . . .  39
-       5.17.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  40
-       5.17.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  40
-     5.18. T61String . . . . . . . . . . . . . . . . . . . . . . . .  40
-       5.18.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  41
-       5.18.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  41
-     5.19. UTCTime . . . . . . . . . . . . . . . . . . . . . . . . .  41
-       5.19.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  42
-       5.19.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  43
-     5.20. GeneralizedTime . . . . . . . . . . . . . . . . . . . . .  43
-       5.20.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  44
-       5.20.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  44
-     5.21. UTF8String  . . . . . . . . . . . . . . . . . . . . . . .  45
-       5.21.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  45
-   6.  An example  . . . . . . . . . . . . . . . . . . . . . . . . .  45
-     6.1.  Abstract notation . . . . . . . . . . . . . . . . . . . .  45
-     6.2.  DER encoding  . . . . . . . . . . . . . . . . . . . . . .  46
-       6.2.1.  AttributeType . . . . . . . . . . . . . . . . . . . .  47
-       6.2.2.  AttributeValue  . . . . . . . . . . . . . . . . . . .  48
-       6.2.3.  AttributeTypeAndValue . . . . . . . . . . . . . . . .  48
-       6.2.4.  RelativeDistinguishedName . . . . . . . . . . . . . .  48
-       6.2.5.  RDNSequence . . . . . . . . . . . . . . . . . . . . .  49
-       6.2.6.  Name  . . . . . . . . . . . . . . . . . . . . . . . .  49
-   7.  Useful Links  . . . . . . . . . . . . . . . . . . . . . . . .  52
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  52
+       5.9.1.  BER Encoding  . . . . . . . . . . . . . . . . . . . .  29
+       5.9.2.  DER Encoding  . . . . . . . . . . . . . . . . . . . .  29
+     5.10. OBJECT IDENTIFIER . . . . . . . . . . . . . . . . . . . .  29
+       5.10.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  31
+       5.10.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  31
+     5.11. OCTET STRING  . . . . . . . . . . . . . . . . . . . . . .  31
+       5.11.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  32
+       5.11.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  32
+     5.12. PrintableString . . . . . . . . . . . . . . . . . . . . .  33
+       5.12.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  33
+       5.12.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  33
+     5.13. RELATIVE-OID  . . . . . . . . . . . . . . . . . . . . . .  34
+       5.13.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  34
+       5.13.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  35
+     5.14. SEQUENCE  . . . . . . . . . . . . . . . . . . . . . . . .  35
+       5.14.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  36
+       5.14.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  36
+     5.15. SEQUENCE OF . . . . . . . . . . . . . . . . . . . . . . .  36
+       5.15.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  37
+       5.15.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  37
+     5.16. SET . . . . . . . . . . . . . . . . . . . . . . . . . . .  37
+       5.16.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  38
+       5.16.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  38
+     5.17. SET OF  . . . . . . . . . . . . . . . . . . . . . . . . .  41
+       5.17.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  41
+       5.17.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  42
+     5.18. T61String . . . . . . . . . . . . . . . . . . . . . . . .  42
+       5.18.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  42
+       5.18.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  43
+     5.19. UTCTime . . . . . . . . . . . . . . . . . . . . . . . . .  43
+       5.19.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  44
+       5.19.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  45
+     5.20. GeneralizedTime . . . . . . . . . . . . . . . . . . . . .  45
+       5.20.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  46
+       5.20.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  47
+     5.21. UTF8String  . . . . . . . . . . . . . . . . . . . . . . .  47
+       5.21.1.  BER Encoding . . . . . . . . . . . . . . . . . . . .  47
+       5.21.2.  DER Encoding . . . . . . . . . . . . . . . . . . . .  48
+   6.  An example  . . . . . . . . . . . . . . . . . . . . . . . . .  48
+     6.1.  Abstract notation . . . . . . . . . . . . . . . . . . . .  48
+     6.2.  DER encoding  . . . . . . . . . . . . . . . . . . . . . .  49
+       6.2.1.  AttributeType . . . . . . . . . . . . . . . . . . . .  50
+       6.2.2.  AttributeValue  . . . . . . . . . . . . . . . . . . .  50
+       6.2.3.  AttributeTypeAndValue . . . . . . . . . . . . . . . .  51
+       6.2.4.  RelativeDistinguishedName . . . . . . . . . . . . . .  51
+       6.2.5.  RDNSequence . . . . . . . . . . . . . . . . . . . . .  52
+       6.2.6.  Name  . . . . . . . . . . . . . . . . . . . . . . . .  52
+   7.  Useful Links  . . . . . . . . . . . . . . . . . . . . . . . .  54
 
 
 
-Kaliski, et al.           Expires 16 April 2027                 [Page 3]
+Kaliski, et al.            Expires 3 May 2027                   [Page 3]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  52
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  53
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  53
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  53
-   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  55
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  55
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  54
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  55
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  55
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  55
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  56
+   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  58
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  58
 
 1.  Introduction
 
@@ -205,27 +206,27 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Syntax Notation One) [X680], and one set of rules for representing
    such objects as strings of ones and zeros is called the BER (Basic
    Encoding Rules) [X690].  ASN.1 is a flexible notation that allows one
-   to define a variety data types, from simple types such as integers
+   to define a variety of data types, from simple types such as integers
    and bit strings to structured types such as sets and sequences, as
    well as complex types defined in terms of others.  BER describes how
    to represent or encode values of each ASN.1 type as a string of
    eight-bit octets.  There is generally more than one way to BER-encode
    a given value.  Another set of rules, DER (Distinguished Encoding
-   Rules [X690], which is a subset of BER, gives a unique encoding to
+   Rules) [X690], which is a subset of BER, gives a unique encoding to
    each ASN.1 value.
 
    The purpose of this note is to describe a subset of ASN.1, BER and
    DER sufficient to understand and implement OSI-based applications,
    Public-Key Cryptography Standards (PKCS), and Internet protocols that
-   make use of ASN.1.  The features described include an overview of
 
 
 
-Kaliski, et al.           Expires 16 April 2027                 [Page 4]
+Kaliski, et al.            Expires 3 May 2027                   [Page 4]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
+   make use of ASN.1.  The features described include an overview of
    ASN.1, BER, and DER and an abridged list of ASN.1 types and their BER
    and DER encodings.  Features that are not used in the specifications
    listed above are not described in this note.  For information on the
@@ -276,8 +277,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
 
-
-Kaliski, et al.           Expires 16 April 2027                 [Page 5]
+Kaliski, et al.            Expires 3 May 2027                   [Page 5]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -292,9 +292,51 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    In this note, an octet is an eight-bit unsigned integer.  Bit 8 of
    the octet is the most significant and bit 1 is the least significant.
+   When an octet is written in binary, bit 8 is the leftmost bit; for
+   example, the octet 80 has only bit 8 set and the octet 01 has only
+   bit 1 set.  Bit numbers are used only to describe the fields within a
+   single octet.  A sequence of octets is always written, and
+   transmitted, with the first octet first.
 
    The following meta-syntax is used for describing ASN.1 notation in
    the ASN.1 notation figures and accompanying text:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                   [Page 6]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
          +==========+============================================+
          | Notation | Meaning                                    |
@@ -327,17 +369,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
                     Table 1: ASN.1 notation meta-syntax.
 
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                 [Page 6]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
    "OPTIONAL" in this document are to be interpreted as described in
@@ -355,6 +386,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    set.  ASN.1 has four kinds of type: simple types, which are "atomic"
    and have no components; structured types, which have components;
    tagged types, which are derived from other types; and other types,
+
+
+
+Kaliski, et al.            Expires 3 May 2027                   [Page 7]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    which include the CHOICE type and the ANY type.  Types and values can
    be given names with the ASN.1 assignment operator (::=) , and those
    names can be used in defining other types and values.
@@ -368,8 +407,11 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    itu-t(2) ds(5) 4 }.
 
    Every ASN.1 type other than CHOICE and ANY has a tag, which consists
-   of a class and a nonnegative tag number.  There are four classes of
-   tag:
+   of a class and a nonnegative tag number.  An encoding carries its tag
+   instead of a type name, so a decoder uses the tag to learn what kind
+   of value it is.  Section 2.3 explains how tags distinguish the
+   components of a structured type, and Section 3 shows how a tag is
+   encoded.  There are four classes of tag:
 
    Universal:
       for types whose meaning is the same in all applications; these
@@ -384,31 +426,35 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       for types whose meaning is specific to a given enterprise.
 
    Context-specific:
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                 [Page 7]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
       for types whose meaning is specific to a given structured type;
       context-specific tags are used to distinguish between component
       types with the same underlying tag within the context of a given
       structured type, and component types in two different structured
       types may have the same tag and different meanings.
 
-   The types with universal tags are defined in X.208, which also gives
+   The types with universal tags are defined in [X680], which also gives
    the types' universal tag numbers.  Types with other tags are defined
    in many places, and are always obtained by implicit or explicit
    tagging (see Section 2.3).  Table 1 lists some ASN.1 types and their
    universal-class tags.
 
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                   [Page 8]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
     +===================+====================+========================+
     | Type              | Decimal Tag Number | Hexadecimal Tag Number |
     +===================+====================+========================+
+    | BOOLEAN           | 1                  | 01                     |
+    +-------------------+--------------------+------------------------+
     | INTEGER           | 2                  | 02                     |
     +-------------------+--------------------+------------------------+
     | BIT STRING        | 3                  | 03                     |
@@ -441,15 +487,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
             Table 2: Some types and their universal-class tags.
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                 [Page 8]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    ASN.1 types and values are expressed in a flexible, programming-
    language-like notation, with the following special rules:
 
@@ -462,10 +499,19 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       also begin with /* and end with */; this form can span multiple
       lines.
 
+
+
+Kaliski, et al.            Expires 3 May 2027                   [Page 9]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    *  Identifiers (names of values and fields) and type references
       (names of types) consist of upper- and lower-case letters, digits,
-      hyphens, and spaces; identifiers begin with lower-case letters;
-      type references begin with upper-case letters.
+      and hyphens; identifiers begin with lower-case letters; type
+      references begin with upper-case letters.  A hyphen can appear
+      within a name, but it cannot be the last character or be followed
+      by another hyphen, since two hyphens begin a comment.
 
    The following four subsections give an overview of simple types,
    structured types, implicitly and explicitly tagged types, and other
@@ -478,6 +524,8 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    to the PKCS standards are the following:
 
       BIT STRING  an arbitrary string of bits (ones and zeroes).
+
+      BOOLEAN  a Boolean value, either true or false.
 
       IA5String  an arbitrary string of IA5 (ASCII) characters
          [RFC0020].
@@ -499,13 +547,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       UTF8String  an arbitrary string of international characters using
          UTF-8 encoding.
 
-
-
-Kaliski, et al.           Expires 16 April 2027                 [Page 9]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
       PrintableString  an arbitrary string of printable characters.  The
          allowable characters are listed in Section 5.12.
 
@@ -513,6 +554,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
       UTCTime  a "coordinated universal time" or Greenwich Mean Time
          (GMT) value.
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 10]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
       GeneralizedTime  a time value in the local time zone, GMT, or the
          difference between local and GMT.
@@ -529,7 +577,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    consisting of components, where the components are substrings.  This
    view allows one to encode a value whose length is not known in
    advance (e.g., an octet string value input from a file stream) with a
-   constructed, indefinite- length encoding (see Section 3).
+   constructed, indefinite-length encoding (see Section 3).
 
    The string types can be given size constraints limiting the length of
    values.
@@ -552,16 +600,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    The structured types can have optional components, possibly with
    default values.
 
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 10]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 2.3.  Implicitly and explicitly tagged types
 
    Tagging is useful to distinguish types within an application; it is
@@ -571,6 +609,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    ambiguity.
 
    There are two ways to tag a type: implicitly and explicitly.
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 11]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    Implicitly tagged types are derived from other types by changing the
    tag of the underlying type.  Implicit tagging is denoted by the ASN.1
@@ -611,13 +657,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    itself does not dictate the encoding but BER is the standard for
    interchanging such values in OSI.)
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 11]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    There are three methods to encode an ASN.1 value under BER, the
    choice of which depends on the type of value and whether the length
    of the value is known.  The three methods are primitive, definite-
@@ -627,6 +666,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    primitive, definite-length method; structured types employ either of
    the constructed methods; and simple string types employ any of the
    methods, depending on whether the length of the value is known.
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 12]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    Types derived by implicit tagging employ the method of the underlying
    type and types derived by explicit tagging employ the constructed
    methods.
@@ -666,14 +713,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       and greater).
 
       low-tag-number form.  One octet.  Bits 8 and 7 specify the class
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 12]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
          (see Table 2), bit 6 has value "0", indicating that the
          encoding is primitive, and bits 5-1 give the tag number.
 
@@ -682,6 +721,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
          Second and following octets give the tag number, base 128, most
          significant digit first, with as few digits as possible, and
          with the bit 8 of each octet except the last set to "1".
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 13]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
                    +==================+=======+=======+
                    | Class            | Bit 8 | Bit 7 |
@@ -699,16 +746,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
                             identifier octets.
 
    length octets.  There are two forms: short (for lengths between 0 and
-      127), and long definite (for lengths between 0 and 2^1008 -1).
+      127), and long definite (for lengths between 0 and 2^1008 - 1).
 
       short form.  One octet.  Bit 8 has value "0" and bits 7-1 give the
-         length.  For example the length for an encoding that has 32
-         contents octets would encode simply as 20
+         length.  For example, the length for an encoding that has 32
+         contents octets would encode simply as 20.
 
       long form.  Two to 127 octets.  Bit 8 of first octet has value "1"
          and bits 7-1 give the number of additional length octets.
          Second and following octets give the length, base 256, most
-         significant digit first.  For example the length for an
+         significant digit first.  For example, the length for an
          encoding that has 3200 contents octets would encode simply as
          82 0c 80, the first octet indicating that the length is in the
          following 2 octets and the next two octets give the value of
@@ -719,17 +766,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       implicit tagging).  Details for particular types are given in
       Section 5.
 
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 13]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 3.1.1.  Prefixes and Magic Numbers
 
    It is worth noting that definite-length encodings, by their nature,
@@ -739,7 +775,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    following.
 
    For example, the private key field of an encoded ML-DSA-44 private
-   key, which is defined as a CHOICE item with the following structure:
+   key, which is defined in [RFC9881] as a CHOICE item with the
+   following structure:
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 14]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    ML-DSA-44-PrivateKey ::= CHOICE {
         seed [0] OCTET STRING (SIZE (32)),
@@ -750,7 +795,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
             }
         }
 
-   can be recomposed as a series of contents octets preceeded by one of
+   can be recomposed as a series of contents octets preceded by one of
    the following prefixes and breakdowns:
 
           +========+=============+=============================+
@@ -775,13 +820,24 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The three-octet lengths for expandedKey and both start with 0x82 and
    indicate that the real length of the contents octets is two octets
-   long.  In the case both CHOICE item, the contents octets will contain
-   the the prefixes given in the first two rows, as they appear at the
-   start of the encodings of each of the elements in the SEQUENCE.
+   long.
+
+   Consider the both item within the CHOICE, where the contents octets
+   are the encodings of the two elements of the SEQUENCE.  These
+   elements have no context-specific tags.  The seed inside the SEQUENCE
+   is a plain OCTET STRING, so its prefix is 04 20.  It is not the 80 20
+   prefix of the seed CHOICE item, which carries the [0] tag.  The
+   expandedKey inside the SEQUENCE has the same 04 82 0a 00 prefix as
+   the second row.  The contents octets of both are therefore the 34
+   octets of the seed encoding followed by the 2564 octets of the
+   expandedKey encoding, 2598 octets in total.
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 14]
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 15]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -805,9 +861,9 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       -  For simple string types and types derived from them by implicit
          tagging, the concatenation of the BER encodings of consecutive
          substrings of the value (underlying value for implicit
-         tagging).  For example an OCTET STRING of length 8 encoded as a
-         definite-length constructed encoding would encode as: 24 0c 04
-         04 00000000 04 04 00000000
+         tagging).  For example, an OCTET STRING of length 8 encoded as
+         a definite-length constructed encoding would encode as: 24 0c
+         04 04 00000000 04 04 00000000.
 
       -  For structured types and types derived from them by implicit
          tagging, the concatenation of the BER encodings of components
@@ -837,7 +893,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 15]
+Kaliski, et al.            Expires 3 May 2027                  [Page 16]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -851,7 +907,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    Considering our previous example of an 8 byte OCTET STRING in
    constructed form with 4 byte elements, the indefinite length encoding
-   would produce: 24 80 04 04 00000000 04 04 00000000 0000
+   would produce: 24 80 04 04 00000000 04 04 00000000 0000.
 
 4.  Distinguished Encoding Rules
 
@@ -893,7 +949,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 16]
+Kaliski, et al.            Expires 3 May 2027                  [Page 17]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -929,7 +985,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    In ASN.1 modules whose default tagging method is implicit tagging,
    the notation [[class] number] Type is also acceptable, and the
-   keyword IMPLICIT is implied.  (See Section 2.3.)  For definitions
+   keyword IMPLICIT is implied (see Section 2.3).  For definitions
    stated outside a module, the explicit inclusion of the keyword
    IMPLICIT is preferable to prevent ambiguity.
 
@@ -949,7 +1005,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 17]
+Kaliski, et al.            Expires 3 May 2027                  [Page 18]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
@@ -983,11 +1039,11 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    an outer tag to the underlying type.
 
    Explicit tagging is used for optional SEQUENCE components with
-   underlying type ANY throughout in many protocols, including the
-   version component of the TBSCertificate type [RFC5280].
-
-   Implicit tagging is used for optional SEQUENCE components with
-   underlying type other than ANY.
+   underlying type ANY in many protocols, including the content
+   component of the ContentInfo type [RFC5652].  It is also used for
+   components of any underlying type when the default tagging for an
+   ASN.1 module is explicit, as is the case for the version component of
+   the TBSCertificate type [RFC5280].
 
    ASN.1 notation:
 
@@ -998,21 +1054,21 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    where 'Type' is a type, 'class' is an optional class name, and
    'number' is the tag number within the class, a nonnegative integer.
 
-   If the class name is absent, then the tag is context- specific.
+   If the class name is absent, then the tag is context-specific.
    Context-specific tags can only appear in a component of a SEQUENCE,
    SET or CHOICE type.
 
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 18]
+Kaliski, et al.            Expires 3 May 2027                  [Page 19]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
    In ASN.1 "modules" whose default tagging method is explicit tagging,
    the notation [[class] number ] Type is also acceptable, and the
-   keyword EXPLICIT is implied.  (See Section 2.3.)  For definitions
+   keyword EXPLICIT is implied (see Section 2.3).  For definitions
    stated outside a module, the explicit inclusion of the keyword
    EXPLICIT is preferable to prevent ambiguity.
 
@@ -1028,7 +1084,8 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    is 0.
 
    Example 2: the TBSCertificate type [RFC5280] has a version component
-   with an explicit, context-specific tag:
+   of type Version, which is an INTEGER type (see Section 5.8), with an
+   explicit, context-specific tag:
 
    TBSCertificate ::= SEQUENCE {
      version [0] Version DEFAULT v1,
@@ -1054,17 +1111,21 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       -  contents octets are the BER encoding of the underlying ANY
          DEFINED BY contentType value
 
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 20]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.2.2.  DER Encoding
 
    Constructed.  The contents octets are the DER encoding of the
    underlying value.
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 19]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
 5.3.  ANY
 
@@ -1106,6 +1167,17 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    of the algorithm component.  The actual type would be defined in the
    registration of object identifier values for the algorithm component.
 
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 21]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.3.1.  BER Encoding
 
    Same as the BER encoding of the actual value.
@@ -1113,14 +1185,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Example: The BER encoding of the value of the parameter component is
    the BER encoding of the value of the actual type as defined in the
    registration of object identifier values for the algorithm component.
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 20]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
 5.3.2.  DER Encoding
 
@@ -1157,26 +1221,23 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    zeroes).  A BIT STRING value can have any length, including zero.
    This type is a string type.
 
-   The BIT STRING type is used for digital signatures on for digital
-   signatures on certificates and for public keys in certificates in
-   SubjectPublicKeyInfo type [RFC5280].
+   The BIT STRING type is used for digital signatures on certificates
+   and for public keys in the SubjectPublicKeyInfo type [RFC5280].
 
    ASN.1 notation:
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 22]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    BIT STRING
 
    Example: SubjectPublicKeyInfo type [RFC5280] has a component of type
    BIT STRING:
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 21]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    SubjectPublicKeyInfo ::= SEQUENCE {
      algorithm AlgorithmIdentifier,
@@ -1189,7 +1250,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    bit string is less than the next multiple of eight (this is called
    the "number of unused bits").  The first contents octet is always
    encoded; if the length of the bit string is 0 bits, then the first
-   contents octet will have the value 0 and there not be any subsequent
+   contents octet will have the value 0 and there will be no subsequent
    contents octets.  The second and following contents octets give the
    value of the bit string, converted to an octet string.  The
    conversion process is as follows:
@@ -1204,6 +1265,12 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
        bit 1, and so on through the last eight bits of the padded bit
        string.
 
+   Put another way, the first bit of the bit string becomes bit 8, the
+   leftmost and most significant bit, of the first octet.  A bit string
+   written left to right therefore reads in the same order as the binary
+   digits of the octets that encode it, and the examples below can be
+   checked by grouping the bits of the string into groups of eight.
+
    In a constructed encoding, the contents octets give the concatenation
    of the BER encodings of consecutive substrings of the bit string,
    where each substring except the last has a length that is a multiple
@@ -1213,6 +1280,15 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    "011011100101110111" can be any of the following, among others,
    depending on the choice of padding bits, the form of length octets,
    and whether the encoding is primitive or constructed:
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 23]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    03 04 06 6e 5d c0                               DER encoding
 
@@ -1224,23 +1300,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       03 03 00 6e 5d
       03 02 06 c0
 
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 22]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 5.4.2.  DER Encoding
 
    Primitive.  The contents octets are as for a primitive BER encoding,
    except that the bit string is padded with zero-valued bits.
    Additionally, BIT STRINGs that represent named bit lists, such as the
    value of the Key Usage certificate extension [RFC5280], have all
-   trailing 0 bits removed before it is encoded.
+   trailing 0 bits removed before they are encoded.
 
    Example: The DER encoding of the BIT STRING value
    "011011100101110111" is:
@@ -1254,10 +1320,31 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 5.5.  BOOLEAN
 
+   The BOOLEAN type denotes a Boolean value, which is either true or
+   false.  This type is a non-string type.
+
+   The BOOLEAN type is used for flags such as the cA component of the
+   BasicConstraints type [RFC5280].
+
+   ASN.1 notation:
+
+   BOOLEAN
+
+   The ASN.1 value notation is TRUE or FALSE.
+
 5.5.1.  BER Encoding
 
    Primitive.  A single octet in length, for FALSE the octet is set to
    zero, for TRUE, the octet is non-zero.
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 24]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 5.5.2.  DER Encoding
 
@@ -1283,13 +1370,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
      ...,
      [identifierN] TypeN }
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 23]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    where 'identifier1', ..., 'identifierN' are optional, distinct
    identifiers for the alternatives, and 'Type1', ..., 'TypeN' are the
    types of the alternatives.  The identifiers are primarily for
@@ -1310,6 +1390,17 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Here the identifiers for the alternatives are certificate and
    extendedCertificate, and the types of the alternatives are
    Certificate and [0] IMPLICIT ExtendedCertificate.
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 25]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 5.6.1.  BER Encoding
 
@@ -1338,14 +1429,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    ASN.1 notation:
 
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 24]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    IA5String
 
 5.7.1.  BER Encoding
@@ -1358,6 +1441,22 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Example: The BER encoding of the IA5String value "test1@example.com"
    can be any of the following, among others, depending on the form of
    length octets and whether the encoding is primitive or constructed:
+
+
+
+
+
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 26]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    16 11                                           DER encoding
       74 65 73 74 31 40 65 78 61 6d 70 6c 65 2e 63 6f 6d
@@ -1395,13 +1494,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    INTEGER [{ identifier1(value1) ... identifierN(valueN) }]
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 25]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    where 'identifier1', ..., 'identifierN' are optional distinct
    identifiers and 'value1', ..., 'valueN' are optional integer values.
    The identifiers, when present, are associated with values of the
@@ -1411,6 +1503,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    values:
 
    Version ::= INTEGER  { v1(0), v2(1), v3(2) }
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 27]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    The identifier v1 is associated with the value 0.  The TBSCertificate
    type [RFC5280] uses the identifier v1 to give a default value of 0
@@ -1449,15 +1551,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
                            Table 5: Example BER
                        encodings of INTEGER values.
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 26]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 5.8.2.  DER Encoding
 
    Primitive.  The contents octets are as for a primitive BER encoding.
@@ -1466,8 +1559,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The NULL type denotes a null value.
 
-   The NULL type is used for algorithm parameters in several places in
-   as required algorithm parameters, including [RFC4055].
+   The NULL type is used in several places as a required placeholder for
+   algorithm parameters, including [RFC4055].
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 28]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    ASN.1 notation:
 
@@ -1507,13 +1608,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    for particular types of object.  There are always at least two
    components.
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 27]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    The OBJECT IDENTIFIER type is used to identify content in ContentInfo
    type [RFC5652], to identify algorithms in AlgorithmIdentifier type
    [RFC5280] and [RFC5652].
@@ -1524,12 +1618,22 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The ASN.1 notation for values of the OBJECT IDENTIFIER type is
 
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 29]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    { [identifier] component1 ... componentN }
 
    componentI = identifierI | identifierI (valueI) | valueI
 
    where 'identifier', 'identifier1', ..., 'identifierN' are
-   identifiers, and 'value1', ..., 'valueI' are optional integer values.
+   identifiers, 'value1', ..., 'valueN' are optional integer values, and
+   each 'componentI', for I from 1 to N, takes one of the three forms
+   shown.
 
    The form without 'identifier' is the "complete" value with all its
    components; the form with 'identifier' abbreviates the beginning
@@ -1550,26 +1654,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    identifier values are decimal, not hexadecimal.)  Table 4 gives some
    other object identifier values and their meanings.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 28]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
         +=========================+===============================+
         | Object identifier value | Meaning                       |
         +=========================+===============================+
@@ -1588,10 +1672,20 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
          Table 6: Some object identifier values and their meanings.
 
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 30]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.10.1.  BER Encoding
 
    Primitive.  The contents octets are as follows, where 'value1', ...,
-   'valuen' denote the integer values of the components in the complete
+   'valueN' denote the integer values of the components in the complete
    object identifier:
 
    1.  The first two components ('value1' and 'value2') are encoded as a
@@ -1601,11 +1695,11 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
        range 0 to 39, so this combined value fits in a single octet
        (This is unambiguous, since 'value1' is limited to values 0, 1,
        and 2; 'value2' is limited to the range 0 to 39 when 'value1' is
-       0 or 1; and, according to [X680], n is always at least 2.).  When
+       0 or 1; and, according to [X680], N is always at least 2.).  When
        'value1' is 2, 'value2' is unbounded, so 'value1' and 'value2'
        may require multiple octets.
 
-   2.  The following octets, if any, encode 'value3', ..., 'valuen'.
+   2.  The following octets, if any, encode 'value3', ..., 'valueN'.
        Each value is encoded base 128, most significant digit first,
        with as few digits as possible, and the most significant bit of
        each octet except the last in the value's encoding set to "1".
@@ -1616,15 +1710,8 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Example: The first octet of the BER encoding of RSA Data Security,
    Inc.'s object identifier is 40 * 1 + 2 = 42 = 2a (hexadecimal).  The
    encoding of 840 = 6 * 128 + 48 (hexadecimal) is 86 48 and the
-   encoding of 113549 = 6 * 1282 + 77 (hexadecimal) * 128 + d
+   encoding of 113549 = 6 * 128^2 + 77 (hexadecimal) * 128 + d
    (hexadecimal) is 86 f7 0d.  This leads to the following BER encoding:
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 29]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    06 06 2a 86 48 86 f7 0d
 
@@ -1643,6 +1730,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    encrypted message digests, and encrypted content in [RFC5652].  The
    OCTET STRING type is used for private keys and encrypted private keys
    in PKCS #8 [RFC5958].
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 31]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    ASN.1 notation:
 
@@ -1675,13 +1769,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    form of length octets and whether the encoding is primitive or
    constructed:
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 30]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    04 08 01 23 45 67 89 ab cd ef                   DER encoding
 
    04 81 08 01 23 45 67 89 ab cd ef  long form of length octets
@@ -1694,10 +1781,18 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    Primitive.  The contents octets are as for a primitive BER encoding.
 
-   Example: The BER encoding of the OCTET STRING value 01 23 45 67 89 ab
+   Example: The DER encoding of the OCTET STRING value 01 23 45 67 89 ab
    cd ef is
 
    04 08 01 23 45 67 89 ab cd ef
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 32]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 5.12.  PrintableString
 
@@ -1730,14 +1825,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    can be any of the following, among others, depending on the form of
    length octets and whether the encoding is primitive or constructed:
 
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 31]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    13 0b 54 65 73 74 20 55 73 65 72 20 31          DER encoding
 
    13 81 0b                          long form of length octets
@@ -1755,6 +1842,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    is
 
    13 0b 54 65 73 74 20 55 73 65 72 20 31
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 33]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 5.13.  RELATIVE-OID
 
@@ -1785,15 +1879,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    IDENTIFIER, the identifiers are intended primarily for documentation,
    but they must correspond to the integer value when both are present.
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 32]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    Example: If the base object identifier established by context is that
    assigned to RSA Data Security, Inc., { 1 2 840 113549 }, then the
    following RELATIVE-OID value identifies { 1 2 840 113549 1 1 }:
@@ -1805,14 +1890,22 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 5.13.1.  BER Encoding
 
-   Primitive.  The contents octets encode 'value1', ..., 'valuen', where
-   'value1', ..., 'valuen' denote the integer values of the components
+   Primitive.  The contents octets encode 'value1', ..., 'valueN', where
+   'value1', ..., 'valueN' denote the integer values of the components
    in the relative object identifier.  Each value is encoded base 128,
    most significant digit first, with as few digits as possible, and the
    most significant bit of each octet except the last in the value's
    encoding set to "1".  As a consequence of encoding each component
    with as few digits as possible, the first octet of a component's
    encoding is never 0x80 (128 decimal).  Unlike OBJECT IDENTIFIER, the
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 34]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    first two components are not combined; every component is encoded
    independently.
 
@@ -1840,19 +1933,9 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
      ...,
      [identifierN] TypeN [{OPTIONAL | DEFAULT valueN}] }
 
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 33]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    where 'identifier1', ..., 'identifierN' are optional, distinct
    identifiers for the components, 'Type1', ..., 'TypeN' are the types
-   of the components, and 'value1', ..., 'valuen' are optional default
+   of the components, and 'value1', ..., 'valueN' are optional default
    values for the components.  The identifiers are primarily for
    documentation; they do not affect values of the type or their
    encodings in any way.
@@ -1871,6 +1954,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    Example: Validity type [RFC5280] is a SEQUENCE type with two
    components:
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 35]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    Validity ::= SEQUENCE {
      start Time,
@@ -1894,18 +1984,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       default value, then the encoding of that component may or may not
       be included in the contents octets
 
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 34]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 5.14.2.  DER Encoding
 
    Constructed.  The contents octets are the same as the BER encoding,
@@ -1927,14 +2005,43 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    where 'Type' is a type, and where 'size', 'size1', and 'size2' are
    optional size constraints.  In the SEQUENCE SIZE (size1..size2) OF
    form, the SEQUENCE must have between 'size1' and 'size2' items
-   present.  In the SEQUENCE OF form, the SEQUENCE can have any number
-   of items, including zero.
+   present.  In the SEQUENCE SIZE (size) OF form, the SEQUENCE must have
+   exactly 'size' items present.  In the SEQUENCE OF form, the SEQUENCE
+   can have any number of items, including zero.
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 36]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    Example: The RDNSequence type [RFC5280] consists of zero or more
    occurrences of the RelativeDistinguishedName type, most significant
    occurrence first:
 
    RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+   Example: The Extensions type in [RFC5280] requires that at least one
+   item be present in the SEQUENCE OF:
+
+   Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
+
+   To require exactly a given number of items, use a single size value
+   instead of a range.  For example, the following (illustrative, not
+   taken from a published specification) type always contains exactly
+   two integers:
+
+   IntegerPair  ::=  SEQUENCE SIZE (2) OF INTEGER
+
+   There are some widely used ASN.1 specifications that define an
+   OPTIONAL SEQUENCE OF component without a size constraint.  In this
+   case, the sender can encode either an empty SEQUENCE, or it can elect
+   to not encode the SEQUENCE.  Absent some requirement established in
+   the prose of the specification, it is preferable to not encode the
+   empty SEQUENCE OF, as it minimizes the size of the message.
 
 5.15.1.  BER Encoding
 
@@ -1948,31 +2055,10 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    encodings of the values of the occurrences in the collection, in
    order of occurrence.
 
-   Example: The Extensions type in [RFC5280] requires that at least one
-   item be present in the SEQUENCE OF:
-
-   Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 35]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
-   There are some widely used ASN.1 specifications that define an
-   OPTIONAL SEQUENCE OF component without a size constraint.  In this
-   case, the sender can encode either an empty SEQUENCE, or it can elect
-   to not encode the SEQUENCE.  Absent some requirement established in
-   the prose of the specification, it is preferable to not encode the
-   empty SEQUENCE OF, as it minimizes the size of the message.
-
 5.16.  SET
 
    The SET type denotes an unordered collection of one or more types.
-   The SET type is not used in the ESSSecurityLabel [RFC5035].
+   The SET type is used in the ESSSecurityLabel type [RFC5035].
 
    ASN.1 notation:
 
@@ -1980,6 +2066,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
      [identifier1] Type1 [{OPTIONAL | DEFAULT value1}],
      ...,
      [identifierN] TypeN [{OPTIONAL | DEFAULT valueN}] }
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 37]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    where 'identifier1', ..., 'identifierN' are optional, distinct
    identifiers for the components, 'Type1', ..., 'TypeN' are the types
@@ -2006,18 +2099,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
      privacy-mark ESSPrivacyMark OPTIONAL,
      security-categories SecurityCategories OPTIONAL }
 
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 36]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 5.16.1.  BER Encoding
 
    Constructed.  The contents octets are the concatenation of the BER
@@ -2041,6 +2122,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    1.  If the value of a component with the DEFAULT qualifier is the
        default value, the encoding of that component is not included.
 
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 38]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    2.  There is an order to the components, namely ascending order by
        tag (care: the CONSTRUCTED bit is not part of the tag value, see
        below).  By ascending order, imagine every set element's encoding
@@ -2052,9 +2141,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    // NOTE: every octet of an encoding is treated as an unsigned value in the
    // range 0..255, both when the tag octet is masked and when octets are
-   // compared. Languages with signed byte types, such as Java and C#, must
-   // mask each octet with 0xFF before comparing it, otherwise octets of 0x80
-   // and above compare as negative and the resulting order is wrong.
+   // compared. Languages with signed byte types, such as Java, or C# if
+   // sbyte is used, must mask each octet with 0xFF before comparing it,
+   // otherwise octets of 0x80 and above compare as negative and
+   // produce incorrect ordering.
+
+   // Bit 6 of the identifier octet, which indicates a constructed encoding.
+   CONSTRUCTED = 0x20
 
    Sort(ASN1Object[] elements)
    {
@@ -2063,17 +2156,9 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
            return;
        }
 
-       boolean swapped = true;
+       var swapped = true;
        while (swapped)
        {
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 37]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
            swapped = false;
            for (var i = 0; i < Length(elements) - 1; i++)
            {
@@ -2093,6 +2178,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    {
        // clear CONSTRUCTED bit in tag byte if set
        var a0 = encA[0] & ~CONSTRUCTED
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 39]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
        var b0 = encB[0] & ~CONSTRUCTED
        if (a0 != b0)
        {
@@ -2111,24 +2204,18 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
           Figure 1: Pseudo-code for sorting SET components for DER
 
-   Where Length() returns the length of an array, Min() returns the
-   mathematical minimum of two values and DER() returns the DER encoding
-   of the ASN1Object passed to it, and the ~ operator provides the ones
-   compliment of a value, as it does in languages like C, Java, and C#.
-   Likewise for & - the bitwise AND.
+   CONSTRUCTED is the constructed-encoding bit of the identifier octet
+   (see Section 3.2).  Length() returns the length of an array, Min()
+   returns the mathematical minimum of two values and DER() returns the
+   DER encoding of the ASN1Object passed to it, and the ~ operator
+   provides the one's complement of a value, as it does in languages
+   like C, Java, and C#. Likewise for & - the bitwise AND.
 
    The comparison stops at the last octet the two encodings have in
    common.  This is consistent with the padding described above because,
    for two definite-length DER encodings with the same tag, the length
    octets differ before the contents octets do, so one encoding can
    never be a strict prefix of the other.
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 38]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    NOTE: As you can see from the LessThanOrEqual() function, SET
    elements in DER encodings are ordered first according to their tags
@@ -2148,6 +2235,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    general it is best to make sure it is not present in the encoding of
    the tag.
 
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 40]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.17.  SET OF
 
    The SET OF type denotes an unordered collection of zero or more
@@ -2165,7 +2259,9 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    where 'Type' is a type, and where 'size', 'size1', and 'size2' are
    optional size constraints.  In the SET SIZE (size1..size2) OF form,
    the SET must have between 'size1' and 'size2' items present.  In the
-   SET OF form, the SET can have any number of items, including zero.
+   SET SIZE (size) OF form, the SET must have exactly 'size' items
+   present.  In the SET OF form, the SET can have any number of items,
+   including zero.
 
    Example: The RelativeDistinguishedName type [RFC5280] consists of one
    or more occurrences of the AttributeTypeAndValue type, where the
@@ -2174,23 +2270,33 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    RelativeDistinguishedName ::=
      SET SIZE (1..MAX) OF AttributeTypeAndValue
 
+   To require exactly a given number of items, use a single size value
+   instead of a range.  For example, the following (illustrative, not
+   taken from a published specification) type always contains exactly
+   two integers, in no particular order:
 
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 39]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
+   IntegerSet  ::=  SET SIZE (2) OF INTEGER
 
 5.17.1.  BER Encoding
 
    Constructed.  The contents octets are the concatenation of the BER
    encodings of the values of the occurrences in the collection, in any
    order.
+
+
+
+
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 41]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 5.17.2.  DER Encoding
 
@@ -2214,14 +2320,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The T61String type denotes an arbitrary string of T.61 characters.
    T.61 is an eight-bit extension to the ASCII character set.  Special
-   "escape" sequences specify shift the character interpretation
-   dynamically, where interpretation of subsequent character values as,
-   for example, Japanese; the initial interpretation is Latin.  The
-   character set includes non-printing control characters.  The
-   T61String type allows only the Latin and Japanese character
-   interpretations, and implementors' agreements for directory names
-   exclude control characters [NIST92].  A T61String value can have any
-   length, including zero.  This type is a string type.
+   "escape" sequences shift the character interpretation dynamically, so
+   that subsequent character values are interpreted as, for example,
+   Japanese; the initial interpretation is Latin.  The character set
+   includes non-printing control characters.  The T61String type allows
+   only the Latin and Japanese character interpretations, and
+   implementors' agreements for directory names exclude control
+   characters [NIST92].  A T61String value can have any length,
+   including zero.  This type is a string type.
 
    The T61String type is used in PKCS #9 unstructured-address and
    challenge-password attributes [RFC2985], and in several attributes
@@ -2234,20 +2340,19 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    T61String
 
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 40]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 5.18.1.  BER Encoding
 
    Primitive or constructed.  In a primitive encoding, the contents
    octets give the characters in the T.61 string, encoded in ASCII.  In
    a constructed encoding, the contents octets give the concatenation of
    the BER encodings of consecutive substrings of the T.61 string.
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 42]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    Example: The BER encoding of the T61String value "clés publiques"
    (French for "public keys") can be any of the following, among others,
@@ -2290,14 +2395,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    YYMMDDhhmmss+hh'mm'
    YYMMDDhhmmss-hh'mm'
 
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 41]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    where:
 
       YY is the least significant two digits of the year (00 to 99)
@@ -2305,6 +2402,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
       MM is the month (01 to 12)
 
       DD is the day (01 to 31)
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 43]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
       hh is the hour (00 to 23)
 
@@ -2347,30 +2451,44 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    "910506234540Z"
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 42]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    These values have the following BER encodings, among others:
 
    17 11 39 31 30 35 30 36 31 36 34 35 34 30 2D 30 37 30 30
 
    17 0d 39 31 30 35 30 36 32 33 34 35 34 30 5a
 
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 44]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.19.2.  DER Encoding
 
-   Primitive.  The contents octets are as for a primitive BER encoding.
+   Primitive.  The contents octets are as for a primitive BER encoding,
+   except that the optional parts of the BER forms are fixed.  The time
+   is always in GMT, so the string always ends with Z, and the seconds
+   are always present.  The only DER form is therefore:
+
+   YYMMDDhhmmssZ
+
+   Midnight is encoded as YYMMDD000000Z.
+
+   Example: The DER encoding of the UTCTime value "910506234540Z" is
+
+   17 0d 39 31 30 35 30 36 32 33 34 35 34 30 5a
 
 5.20.  GeneralizedTime
 
    The GeneralizedTime type consists of a calendar date and time.  A
-   GeneralizedTime value includes the local time precise to fractions of
-   seconds.  A GeneralizedTime value can include midnight at the start
-   of a day, but it excludes midnight at the end of a day.  A
-   GeneralizedTime value uses one of the following three forms:
+   GeneralizedTime value includes the local time, which can be as
+   precise as fractions of seconds but need not be.  A GeneralizedTime
+   value can include midnight at the start of a day, but it excludes
+   midnight at the end of a day.  A GeneralizedTime value uses one of
+   the following three forms:
 
    1.  a local time of day;
 
@@ -2395,29 +2513,31 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    year, a two-digit representation of the month, and a two-digit
    representation of the day, without use of separators.
 
-   The VisibleString continues with the time of day to an accuracy of
-   one hour, one minute, one second, or fractions of a second, using
-   either comma or full stop as the decimal sign.
-
-   The VisibleString ends with upper-case letter Z to indicate a UTC
-   time.
 
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 43]
+Kaliski, et al.            Expires 3 May 2027                  [Page 45]
 
 Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
-   The VisibleString ends the signed difference between local time and
-   UTC, with the minutes component optionally omitted if the difference
-   is an integral number of hours.
+   The VisibleString continues with the time of day to an accuracy of
+   one hour, one minute, one second, or fractions of a second, using
+   either comma or full stop as the decimal sign.
+
+   What follows the time of day depends on which of the three forms is
+   used.  For a local time of day, nothing follows it.  For a UTC time
+   of day, the VisibleString ends with the upper-case letter Z.  For a
+   local time of day with the difference between local time and UTC, the
+   VisibleString ends with the signed difference (a plus or minus sign
+   followed by hours and minutes), with the minutes component optionally
+   omitted if the difference is an integral number of hours.
 
    All possible forms of GeneralizedTime cannot be enumerated, but it is
-   worth noting that [RFC5280] requires dates after 2049 use the
-   following form, which uses the same as above, except that a four
-   digit year is provided:
+   worth noting that [RFC5280] requires that dates in 2050 and later be
+   encoded as GeneralizedTime using the following form, which is the
+   UTCTime form with a four-digit year:
 
    YYYYMMDDhhmmssZ
 
@@ -2447,9 +2567,37 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    18 10 32 30 35 30 31 31 30 36 32 31 30 36 32 37 2e 33
 
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 46]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
 5.20.2.  DER Encoding
 
-   Primitive.  The contents octets are as for a primitive BER encoding.
+   Primitive.  The contents octets are as for a primitive BER encoding,
+   except that the optional parts of the BER forms are fixed so that
+   each value has exactly one encoding.  The rules are:
+
+   *  the time is always expressed in UTC, so the string always ends
+      with Z and the local time forms are not used;
+
+   *  the seconds are always present, so the hours-only and hours-and-
+      minutes accuracies are not used;
+
+   *  if fractions of a second are present, the decimal sign is a full
+      stop, and the fraction has no trailing zeros; if the fraction is
+      zero, the full stop and fraction are omitted entirely; and
+
+   *  midnight is encoded as YYYYMMDD000000Z.
+
+   Individual protocols may restrict the encoding further.  For example,
+   [RFC5280] does not allow fractional seconds in certificates.
 
    Example: [RFC5280] uses the GeneralizedTime value of
    "99991231235959Z" to indicate that a certificate has no well-defined
@@ -2458,13 +2606,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    This value has the following DER encoding:
 
    18 0f 39 39 39 39 31 32 33 31 32 33 35 39 35 39 5a
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 44]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
 5.21.  UTF8String
 
@@ -2485,9 +2626,32 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    encoding, the contents octets give the concatenation of the BER
    encodings of consecutive substrings of the UTF-8 string.
 
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 47]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    Example: The character sequence U+D55C U+AD6D U+C5B4 (Korean
    "hangugeo", meaning "the Korean language") is encoded in UTF-8, and
-   then this value has the following DER encodings, among others:
+   then this value has the following BER encodings, among others:
+
+   0c 09 ed 95 9c ea b5 ad ec 96 b4                DER encoding
+
+   0c 81 09 ed 95 9c ea b5 ad ec 96 b4   long form of length octets
+
+   2c 0d                  constructed encoding: U+D55C + U+AD6D U+C5B4
+      0c 03 ed 95 9c
+      0c 06 ea b5 ad ec 96 b4
+
+5.21.2.  DER Encoding
+
+   Primitive.  The contents octets are as for a primitive BER encoding.
+
+   Example: The DER encoding of the UTF8String value U+D55C U+AD6D
+   U+C5B4 is
 
    0c 09 ed 95 9c ea b5 ad ec 96 b4
 
@@ -2499,28 +2663,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 6.1.  Abstract notation
 
    This section gives the ASN.1 notation for the Name type [RFC5280].
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 45]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    Name ::= CHOICE {
      RDNSequence }
@@ -2537,6 +2679,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    AttributeType ::= OBJECT IDENTIFIER
 
    AttributeValue ::= ANY
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 48]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    The Name type identifies an object in an X.500 directory.  Name is a
    CHOICE type consisting of one alternative: RDNSequence.  (Future
@@ -2569,15 +2721,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    The name is that of User 1.  The name is represented by the following
    path:
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 46]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
                           (root)
                              |
                       countryName = "US"
@@ -2594,6 +2737,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The countryName, organizationName, and commonName are attribute types
    defined in [RFC5280] as:
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 49]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    attributeType OBJECT IDENTIFIER ::= { joint-iso-ccitt(2) ds(5) 4 }
 
@@ -2625,15 +2776,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    subidentifiers: 40 * 2 + 5 = 85 = 55 (hexadecimal); 4; and 6, 10, or
    3.
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 47]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
 6.2.2.  AttributeValue
 
    The three AttributeValue values are PrintableString values, so their
@@ -2651,6 +2793,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    6 has value "0" since the encoding is primitive.  The length octets
    follow the short form, and the contents octets are the ASCII
    representation of the attribute value.
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 50]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 6.2.3.  AttributeTypeAndValue
 
@@ -2681,15 +2831,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    The three RelativeDistinguishedName values are SET OF values, so
    their DER encodings follow the constructed, definite-length method:
 
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 48]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    31 0b
       30 09 ... 55 53
 
@@ -2701,11 +2842,21 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The identifier octets follow the low-tag-number form, since the tag
    for SET OF, 17 (decimal), is between 0 and 30.  Bits 8 and 7 have
-   value "0" since SET OF is in the universal class Bit 6 has value "1"
-   since the encoding is constructed.  The lengths octets follow the
+   value "0" since SET OF is in the universal class.  Bit 6 has value
+   "1" since the encoding is constructed.  The length octets follow the
    short form, and the contents octets are the DER encodings of the
    respective AttributeTypeAndValue values, since there is only one
    value in each set.
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 51]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 6.2.5.  RDNSequence
 
@@ -2720,7 +2871,7 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    The identifier octets follow the low-tag-number form, since the tag
    for SEQUENCE OF, 16 (decimal), is between 0 and 30.  Bits 8 and 7
    have value "0" since SEQUENCE OF is in the universal class.  Bit 6
-   has value "1" since the encoding is constructed.  The lengths octets
+   has value "1" since the encoding is constructed.  The length octets
    follow the short form, and the contents octets are the concatenation
    of the DER encodings of the three RelativeDistinguishedName values,
    in order of occurrence.
@@ -2729,22 +2880,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    The Name value is a CHOICE value, so its DER encoding is the same as
    that of the RDNSequence value:
-
-
-
-
-
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 49]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    30 35
       31 0b
@@ -2772,6 +2907,13 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    countryName=US,organizationName=Example Inc.+commonName=User 1
 
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 52]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    This case is interesting, the reason for this being that the '+'
    means the last two attribute value pairs end up in the same RDN, or
    more specifically the same SET as can be seen in the encoding below.
@@ -2793,14 +2935,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    While the above is a correct definite-length encoding of this X.500
    name, it is not the correct DER encoding, which looks like:
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 50]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    30 33
       31 0b
@@ -2826,8 +2960,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    There are a few morals to this particular tale.  As you can imagine
    '+' in an X.500 name is best avoided as sometimes people forget about
-   the sorting or insist on definite-length encoding to preserver order
+   the sorting or insist on definite-length encoding to preserve order
    requiring DER encoding to be done every time for signature generation
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 53]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    and verification.  Ideally if you have to include a '+' (it really
    does happen) it is also better to write out the X.500 name in DER
    format at the start, so anyone else trying to verify a signature that
@@ -2841,22 +2983,11 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
    One final note, as Name is of type CHOICE, whenever it is tagged it
    will always encode as explicitly tagged, even if it's in a module
-   with which starts with a definitions block reading DEFINITIONS
-   IMPLICIT TAGS ::=. This convention is followed as CHOICE encodings
-   need to maintain the original encoding of the ASN.1 primitive, or
-   structure, making up the CHOICE.  Overwriting the tag by following
-   the implicit tagging rule could change the meaning of the CHOICE item
-   completely!
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 51]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
+   that starts with a definitions block reading DEFINITIONS IMPLICIT
+   TAGS ::=. This convention is followed as CHOICE encodings need to
+   maintain the original encoding of the ASN.1 primitive, or structure,
+   making up the CHOICE.  Overwriting the tag by following the implicit
+   tagging rule could change the meaning of the CHOICE item completely!
 
 7.  Useful Links
 
@@ -2881,6 +3012,19 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 8.  IANA Considerations
 
    This document has no IANA actions.
+
+
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 54]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
 9.  Security Considerations
 
@@ -2907,13 +3051,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    situations resulting in high CPU and/or memory usage when producing
    or verifying the sorted, distinguished encoded value for a SET type.
 
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 52]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
-
    Implementers of ASN.1 parsers and decoders are encouraged to use fuzz
    testing to identify security vulnerabilities and other flaws.
 
@@ -2934,6 +3071,16 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
               One (ASN.1): Specification of basic notation", ITU-T
               Recommendation X.680, ISO/IEC 8824-1:2021, February 2021,
               <https://www.itu.int/rec/T-REC-X.680>.
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 55]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
 
    [X690]     ITU-T, "Information technology -- ASN.1 encoding rules:
               Specification of Basic Encoding Rules (BER), Canonical
@@ -2956,19 +3103,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
               <https://github.com/bcgit/bc-
               java/blob/126ac9e14a0f/core/src/main/java/org/
               bouncycastle/asn1/ASN1Set.java#L500>.
-
-
-
-
-
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 53]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    [I-D.kaliski-asn1-layman-guide]
               Kaliski, B., "A Layman's Guide to a Subset of ASN.1, BER,
@@ -2996,6 +3130,14 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
               DOI 10.17487/RFC2985, November 2000,
               <https://www.rfc-editor.org/info/rfc2985>.
 
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 56]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
    [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
               10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
               2003, <https://www.rfc-editor.org/info/rfc3629>.
@@ -3017,14 +3159,6 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
               Infrastructure Certificate and Certificate Revocation List
               (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
               <https://www.rfc-editor.org/info/rfc5280>.
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 54]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    [RFC5652]  Housley, R., "Cryptographic Message Syntax (CMS)", STD 70,
               RFC 5652, DOI 10.17487/RFC5652, September 2009,
@@ -3049,6 +3183,21 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
               RFC 8018, DOI 10.17487/RFC8018, January 2017,
               <https://www.rfc-editor.org/info/rfc8018>.
 
+   [RFC9881]  Massimo, J., Kampanakis, P., Turner, S., and B. E.
+              Westerbaan, "Internet X.509 Public Key Infrastructure --
+              Algorithm Identifiers for the Module-Lattice-Based Digital
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 57]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
+
+
+              Signature Algorithm (ML-DSA)", RFC 9881,
+              DOI 10.17487/RFC9881, October 2025,
+              <https://www.rfc-editor.org/info/rfc9881>.
+
    [RUSTCRYPTO-DER-SET]
               RustCrypto, "RustCrypto: DER SET encoding sort
               implementation (set_of.rs)", n.d.,
@@ -3067,20 +3216,12 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 Acknowledgments
 
-   The authors thank Adrian Farrel, Carl Wallace, Daniel Van Geest,
-   Eliot Lear, Lijun Liao, Mike StJohns, and Sean Turner for their
-   reviews and insightful feedback which meaningfully improved this
-   document.
+   The authors thank Adrian Farrel, Alex Railean, Carl Wallace, Daniel
+   Van Geest, Eliot Lear, Joe Mandel, Lijun Liao, Mike StJohns, Sean
+   Turner, and Zaid AlBanna for their reviews and insightful feedback
+   which meaningfully improved this document.
 
 Authors' Addresses
-
-
-
-
-Kaliski, et al.           Expires 16 April 2027                [Page 55]
-
-Internet-Draft           Layman's Guide to ASN.1            October 2026
-
 
    Burton S. Kaliski Jr.
    Verisign
@@ -3101,6 +3242,12 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
    Keyfactor
    Australia
    Email: david.hook@keyfactor.com
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 58]
+
+Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
    Russ Housley
@@ -3133,4 +3280,25 @@ Internet-Draft           Layman's Guide to ASN.1            October 2026
 
 
 
-Kaliski, et al.           Expires 16 April 2027                [Page 56]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kaliski, et al.            Expires 3 May 2027                  [Page 59]
