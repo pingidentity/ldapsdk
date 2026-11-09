@@ -14,6 +14,17 @@ ${TARGET="offline"}                <br>
 
               <ul>
                 <li>
+                  Updated the SSLUtil class to provide support for setting the key exchange named
+                  groups that should be used when negotiating TLS-protected connections.  Note that
+                  this is only supported in Java versions that provide the
+                  SSLParameters.setNamedGroups method, which was introduced in Java 20.  Attempting
+                  to set named groups in JVMs that don't provide this method will have no effect.
+                  The SSLUtil.supportsSettingSSLNamedGroups method can be used to determine whether
+                  the running JVM provides the necessary support.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include the latest revisions of
                   draft-housley-asn1-layman-guide and draft-ietf-kitten-scram-2fa in the set of
                   LDAP-related specifications.

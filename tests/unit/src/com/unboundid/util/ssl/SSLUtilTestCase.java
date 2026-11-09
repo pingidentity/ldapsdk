@@ -37,19 +37,25 @@ package com.unboundid.util.ssl;
 
 
 
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.Provider;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -59,6 +65,10 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.CryptoHelper;
+import com.unboundid.util.Debug;
+import com.unboundid.util.DebugType;
+import com.unboundid.util.StaticUtils;
+import com.unboundid.util.TestLogHandler;
 
 
 
@@ -68,6 +78,22 @@ import com.unboundid.util.CryptoHelper;
 public class SSLUtilTestCase
        extends SSLTestCase
 {
+  // Indicates whether the logger was enabled before running these test cases.
+  private boolean enabledBeforeStarting;
+
+  // Indicates whether the logger was using parent handlers before running
+  // these test cases.
+  private boolean useParentHandlersBeforeStarting;
+
+  // The log level that was in use before running these test cases.
+  private Level levelBeforeStarting;
+
+  // The logger that is in use by the debug subsystem.
+  private Logger logger;
+  // The set of configured debug types that were in use before running these
+  // test cases.
+  private EnumSet<DebugType> debugTypesBeforeStarting;
+
   // The default SSL protocol configured when the SSLUtils class was loaded by
   // the JVM.
   private final String originalDefaultSSLProtocol =
@@ -97,6 +123,49 @@ public class SSLUtilTestCase
   // was loaded by the JVM.
   private final Set<String> originalEnabledSSLCipherSuites =
        SSLUtil.getEnabledSSLCipherSuites();
+
+  // The test log handler that we will use to receive debug messages.
+  private TestLogHandler testLogHandler;
+
+
+
+  /**
+   * Enables debug logging for this class to improve coverage.
+   */
+  @BeforeClass()
+  public void setUp()
+  {
+    enabledBeforeStarting    = Debug.debugEnabled();
+    debugTypesBeforeStarting = Debug.getDebugTypes();
+
+    logger = Debug.getLogger();
+    levelBeforeStarting = logger.getLevel();
+    useParentHandlersBeforeStarting = logger.getUseParentHandlers();
+    logger.setLevel(Level.ALL);
+    logger.setUseParentHandlers(false);
+
+    testLogHandler = new TestLogHandler();
+    testLogHandler.setFilter(null);
+    testLogHandler.setLevel(Level.ALL);
+    logger.addHandler(testLogHandler);
+
+    Debug.setEnabled(true);
+  }
+
+
+
+  /**
+   * Disables debug logging for this class to improve coverage.
+   */
+  @AfterClass()
+  public void cleanUp()
+  {
+    logger.removeHandler(testLogHandler);
+
+    Debug.setEnabled(enabledBeforeStarting, debugTypesBeforeStarting);
+    logger.setLevel(levelBeforeStarting);
+    logger.setUseParentHandlers(useParentHandlersBeforeStarting);
+  }
 
 
 
@@ -1454,5 +1523,150 @@ public class SSLUtilTestCase
       s.getOutputStream().flush();
       s.close();
     }
+  }
+
+
+
+  /**
+   * Tests a number of methods that are associated with TLS key exchange named
+   * groups.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSSLNamedGroups()
+         throws Exception
+  {
+    SSLUtil.supportsSettingSSLNamedGroups();
+
+    assertNull(SSLUtil.getEnabledSSLNamedGroups());
+
+    SSLUtil.setEnabledSSLNamedGroups(StaticUtils.setOf("x25519"));
+
+    assertNotNull(SSLUtil.getEnabledSSLNamedGroups());
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups(),
+         StaticUtils.setOf("x25519"));
+
+    SSLUtil.setEnabledSSLNamedGroups(StaticUtils.setOf("x25519", "secp256r1"));
+
+    assertNotNull(SSLUtil.getEnabledSSLNamedGroups());
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups(),
+         StaticUtils.setOf("x25519", "secp256r1"));
+
+    SSLUtil.setEnabledSSLNamedGroups(null);
+
+    assertNull(SSLUtil.getEnabledSSLNamedGroups());
+  }
+
+
+
+  /**
+   * Provides test coverage for the {@code applyEnabledSSLNamedGroups} method.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testApplyEnabledSSLNamedGroups()
+         throws Exception
+  {
+    // Get a port that's not currently in use.
+    final int listenPort;
+    try (Socket s = new Socket())
+    {
+      s.bind(null);
+      listenPort = s.getLocalPort();
+    }
+
+
+    // Test with non-SSL-enabled client and server sockets.
+    final InMemoryDirectoryServer ds = getTestDSWithSSL();
+    ds.getConfig().getListenerConfigs().get(0).getServerSocketFactory();
+
+    try (Socket clientSocket = new Socket("127.0.0.1", ds.getListenPort()))
+    {
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket);
+
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket,
+           StaticUtils.setOf("x25519"));
+
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket,
+           StaticUtils.setOf("x25519", "secp256r1"));
+    }
+
+    try (ServerSocket serverSocket = new ServerSocket(listenPort))
+    {
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket, null);
+
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket,
+           StaticUtils.setOf("x25519"));
+
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket,
+           StaticUtils.setOf("x25519", "secp256r1"));
+    }
+
+
+    // Test with non-SSL-enabled client and server sockets.
+    final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+    try (Socket clientSocket =
+              sslUtil.createSSLSocketFactory().createSocket("127.0.0.1",
+              ds.getListenPort()))
+    {
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket);
+
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket,
+           StaticUtils.setOf("x25519"));
+
+      SSLUtil.applyEnabledSSLNamedGroups(clientSocket,
+           StaticUtils.setOf("x25519", "secp256r1"));
+    }
+
+    try (ServerSocket serverSocket = sslUtil.createSSLServerSocketFactory().
+              createServerSocket(listenPort))
+    {
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket, null);
+
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket,
+           StaticUtils.setOf("x25519"));
+
+      SSLUtil.applyEnabledSSLNamedGroups(serverSocket,
+           StaticUtils.setOf("x25519", "secp256r1"));
+    }
+  }
+
+
+
+  /**
+   * Tests the ability to set named groups via a system property.
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSetNamedGroupsViaSystemProperty()
+         throws Exception
+  {
+    assertNull(System.getProperty(
+         "com.unboundid.util.SSLUtil.enabledSSLNamedGroups"));
+    SSLUtil.configureSSLDefaults();
+    assertNull(SSLUtil.getEnabledSSLNamedGroups());
+
+    System.setProperty("com.unboundid.util.SSLUtil.enabledSSLNamedGroups",
+         "x25519");
+    SSLUtil.configureSSLDefaults();
+    assertNotNull(SSLUtil.getEnabledSSLNamedGroups());
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups().size(), 1);
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups(),
+         StaticUtils.setOf("x25519"));
+
+    System.setProperty("com.unboundid.util.SSLUtil.enabledSSLNamedGroups",
+         "x25519,secp256r1");
+    SSLUtil.configureSSLDefaults();
+    assertNotNull(SSLUtil.getEnabledSSLNamedGroups());
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups().size(), 2);
+    assertEquals(SSLUtil.getEnabledSSLNamedGroups(),
+         StaticUtils.setOf("x25519", "secp256r1"));
+
+    System.clearProperty("com.unboundid.util.SSLUtil.enabledSSLNamedGroups");
+    SSLUtil.configureSSLDefaults();
+    assertNull(SSLUtil.getEnabledSSLNamedGroups());
   }
 }

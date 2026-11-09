@@ -49,6 +49,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import com.unboundid.util.InternalUseOnly;
 import com.unboundid.util.NotMutable;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import com.unboundid.util.ThreadSafety;
 import com.unboundid.util.ThreadSafetyLevel;
 
@@ -56,10 +57,11 @@ import com.unboundid.util.ThreadSafetyLevel;
 
 /**
  * This class provides an implementation of an {@code SSLServerSocketFactory}
- * that will update the set of enabled protocols and cipher suites for a
- * {@code ServerSocket} upon creating the socket.  Note that although not all
- * server socket factory implementations are threadsafe, the LDAP SDK will only
- * use this factory in a way that is threadsafe.
+ * that will update the set of enabled protocols, cipher suites, and key
+ * exchange named groups for a {@code ServerSocket} upon creating the socket.
+ * Note that although not all server socket factory implementations are
+ * threadsafe, the LDAP SDK will only use this factory in a way that is
+ * threadsafe.
  */
 @InternalUseOnly()
 @NotMutable()
@@ -70,6 +72,10 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
   // The set of cipher suites that should be enabled for server sockets created
   // by this socket factory.
   @NotNull private final Set<String> cipherSuites;
+
+  // The set of key exchange named groups that should be used for sockets
+  // created by this socket factory.
+  @NotNull private final Set<String> namedGroups;
 
   // The set of protocols that should be enabled for server sockets created by
   // this socket factory.
@@ -89,14 +95,18 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    * @param  defaultProtocol  The default protocol to use.
    * @param  cipherSuites     The cipher suites to be enabled on sockets created
    *                          by this socket factory.
+   * @param  namedGroups      The key exchange named groups that should be used
+   *                          for sockets created by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
        @NotNull final SSLServerSocketFactory delegateFactory,
        @NotNull final String defaultProtocol,
-       @NotNull final Set<String> cipherSuites)
+       @NotNull final Set<String> cipherSuites,
+       @Nullable final Set<String> namedGroups)
   {
     this.delegateFactory = delegateFactory;
     this.cipherSuites = cipherSuites;
+    this.namedGroups = namedGroups;
 
     if (defaultProtocol.equalsIgnoreCase(SSLUtil.SSL_PROTOCOL_TLS_1_3))
     {
@@ -137,15 +147,19 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
    *                          this socket factory.
    * @param  cipherSuites     The cipher suites to be enabled on sockets created
    *                          by this socket factory.
+   * @param  namedGroups      The key exchange named groups that should be used
+   *                          for sockets created by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
        @NotNull final SSLServerSocketFactory delegateFactory,
        @NotNull final Set<String> protocols,
-       @NotNull final Set<String> cipherSuites)
+       @NotNull final Set<String> cipherSuites,
+       @Nullable final Set<String> namedGroups)
   {
     this.delegateFactory = delegateFactory;
     this.protocols       = protocols;
     this.cipherSuites    = cipherSuites;
+    this.namedGroups     = namedGroups;
   }
 
 
@@ -166,6 +180,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
     final ServerSocket serverSocket = delegateFactory.createServerSocket();
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
     SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
+    SSLUtil.applyEnabledSSLNamedGroups(serverSocket, namedGroups);
     return serverSocket;
   }
 
@@ -189,6 +204,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
     final ServerSocket serverSocket = delegateFactory.createServerSocket(port);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
     SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
+    SSLUtil.applyEnabledSSLNamedGroups(serverSocket, namedGroups);
     return serverSocket;
   }
 
@@ -216,6 +232,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
          delegateFactory.createServerSocket(port, backlog);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
     SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
+    SSLUtil.applyEnabledSSLNamedGroups(serverSocket, namedGroups);
     return serverSocket;
   }
 
@@ -246,6 +263,7 @@ final class SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory
          delegateFactory.createServerSocket(port, backlog, ifAddress);
     SSLUtil.applyEnabledSSLProtocols(serverSocket, protocols);
     SSLUtil.applyEnabledSSLCipherSuites(serverSocket, cipherSuites);
+    SSLUtil.applyEnabledSSLNamedGroups(serverSocket, namedGroups);
     return serverSocket;
   }
 

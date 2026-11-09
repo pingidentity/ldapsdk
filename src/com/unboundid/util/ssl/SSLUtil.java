@@ -38,6 +38,7 @@ package com.unboundid.util.ssl;
 
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -52,8 +53,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -65,6 +68,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.util.CryptoHelper;
 import com.unboundid.util.Debug;
+import com.unboundid.util.DebugType;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import com.unboundid.util.PropertyManager;
@@ -367,6 +371,19 @@ public final class SSLUtil
 
 
   /**
+   * The name of a system property
+   * (com.unboundid.util.SSLUtil.enabledSSLNamedGroups) that can be used to
+   * provide the initial set of enabled SSL key exchange named groups that
+   * should be used, as a comma-delimited list.  If this is not set, then the
+   * LDAP SDK will allow the JVM to select an appropriate default set of named
+   * groups.
+   */
+  @NotNull public static final String PROPERTY_ENABLED_SSL_NAMED_GROUPS =
+       "com.unboundid.util.SSLUtil.enabledSSLNamedGroups";
+
+
+
+  /**
    * The name of the SSL protocol that can be used to request TLSv1.3.
    */
   @NotNull public static final String SSL_PROTOCOL_TLS_1_3 = "TLSv1.3";
@@ -429,6 +446,26 @@ public final class SSLUtil
 
 
   /**
+   * The default set of SSL named groups that will be applied to SSL sockets
+   * created within the LDAP SDK.  This is unset by default, and the ability to
+   * interact with named groups is only supported in certain versions of Java
+   * (it was introduced in Java 20, although it's conceivable that it could be
+   * backported to older Java versions).
+   */
+  @NotNull private static final AtomicReference<Set<String>>
+       ENABLED_SSL_NAMED_GROUPS = new AtomicReference<>();
+
+
+
+  /**
+   * A reference to a method that can be invoked to set the named groups in a
+   * set of {@code SSLParameters}.
+   */
+  @Nullable() private static final Method SET_NAMED_GROUPS_METHOD;
+
+
+
+  /**
    * The default set of SSL protocols that will be enabled for use if available
    * for SSL sockets created within the LDAP SDK.
    */
@@ -459,6 +496,19 @@ public final class SSLUtil
   static
   {
     configureSSLDefaults();
+
+    Method setNamedGroupsMethod = null;
+    try
+    {
+      setNamedGroupsMethod = SSLParameters.class.getMethod("setNamedGroups",
+           String[].class);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+    }
+
+    SET_NAMED_GROUPS_METHOD = setNamedGroupsMethod;
   }
 
 
@@ -717,11 +767,8 @@ public final class SSLUtil
       if ((pkcs11JSSEProvider != null) && (pkcs11JSSEProvider.getService(
            PROVIDER_SERVICE_TYPE_SSL_CONTEXT, protocol) != null))
       {
-        if (JVM_SSL_DEBUGGING_ENABLED)
-        {
-          System.err.println("SSLUtil.createSSLContext creating a PKCS #11 " +
-               "SSLContext for protocol " + protocol);
-        }
+        debug(Level.INFO, "SSLUtil.createSSLContext creating a PKCS #11 " +
+             "SSLContext for protocol ", protocol);
 
         sslContext = CryptoHelper.getSSLContext(protocol, pkcs11JSSEProvider);
       }
@@ -729,11 +776,8 @@ public final class SSLUtil
 
     if (sslContext == null)
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.createSSLContext creating an SSLContext " +
-             "for protocol " + protocol);
-      }
+      debug(Level.INFO, "SSLUtil.createSSLContext creating an SSLContext for " +
+           "protocol ", protocol);
 
       sslContext = CryptoHelper.getSSLContext(protocol);
     }
@@ -768,11 +812,8 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(protocol, provider);
 
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLContext creating an SSLContext " +
-           "for protocol " + protocol + " and provider " + provider);
-    }
+    debug(Level.INFO, "SSLUtil.createSSLContext creating an SSLContext " +
+         "for protocol ", protocol, " and provider ", provider);
 
     final SSLContext sslContext =
          CryptoHelper.getSSLContext(protocol, provider);
@@ -796,17 +837,16 @@ public final class SSLUtil
   public SSLSocketFactory createSSLSocketFactory()
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLSocketFactory creating a " +
-           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with enabled " +
-           "protocols " + ENABLED_SSL_PROTOCOLS.get() +
-           " and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLSocketFactory creating a " +
+         "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with enabled " +
+         "protocols ", ENABLED_SSL_PROTOCOLS.get(), ", enabled cipher suites ",
+         ENABLED_SSL_CIPHER_SUITES.get() , ", and enabled named groups ",
+         ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
          createSSLContext().getSocketFactory(),
-         ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get());
+         ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get(),
+         ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -831,17 +871,14 @@ public final class SSLUtil
                                @NotNull final String protocol)
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLSocketFactory creating a " +
-           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol " +
-           protocol + " and enabled cipher suites " +
-           ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLSocketFactory creating a " +
+         "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol ",
+         protocol, ", enabled cipher suites ", ENABLED_SSL_CIPHER_SUITES.get(),
+         ", and enabled named groups ", ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
          createSSLContext(protocol).getSocketFactory(), protocol,
-         ENABLED_SSL_CIPHER_SUITES.get());
+         ENABLED_SSL_CIPHER_SUITES.get(), ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -867,18 +904,15 @@ public final class SSLUtil
                                                  @NotNull final String provider)
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLSocketFactory creating an " +
-
-           "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol " +
-           protocol + ", provider " + provider +
-           ", and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLSocketFactory creating an " +
+         "SetEnabledProtocolsAndCipherSuitesSSLSocketFactory with protocol ",
+         protocol, ", provider ", provider, ", enabled cipher suites ",
+         ENABLED_SSL_CIPHER_SUITES.get(), ", and enabled named groups ",
+         ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLSocketFactory(
          createSSLContext(protocol, provider).getSocketFactory(), protocol,
-         ENABLED_SSL_CIPHER_SUITES.get());
+         ENABLED_SSL_CIPHER_SUITES.get(), ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -898,17 +932,16 @@ public final class SSLUtil
   public SSLServerSocketFactory createSSLServerSocketFactory()
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
-           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
-           "enabled protocols " + ENABLED_SSL_PROTOCOLS.get() +
-           " and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLServerSocketFactory creating a " +
+         "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+         "enabled protocols ", ENABLED_SSL_PROTOCOLS.get(),
+         ", enabled cipher suites ", ENABLED_SSL_CIPHER_SUITES.get(),
+         ", and enabled named groups ", ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
          createSSLContext().getServerSocketFactory(),
-         ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get());
+         ENABLED_SSL_PROTOCOLS.get(), ENABLED_SSL_CIPHER_SUITES.get(),
+         ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -934,17 +967,15 @@ public final class SSLUtil
                                      @NotNull final String protocol)
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
-           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
-           "protocol " + protocol + " and enabled cipher suites " +
-           ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLServerSocketFactory creating a " +
+         "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+         "protocol ", protocol, " enabled cipher suites ",
+         ENABLED_SSL_CIPHER_SUITES.get(), ", and enabled named groups ",
+         ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
          createSSLContext(protocol).getServerSocketFactory(), protocol,
-         ENABLED_SSL_CIPHER_SUITES.get());
+         ENABLED_SSL_CIPHER_SUITES.get(), ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -973,17 +1004,16 @@ public final class SSLUtil
                                      @NotNull final String provider)
          throws GeneralSecurityException
   {
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.createSSLServerSocketFactory creating a " +
-           "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
-           "protocol " + protocol + ", provider " + provider +
-           ", and enabled cipher suites " + ENABLED_SSL_CIPHER_SUITES.get());
-    }
+    debug(Level.INFO, "SSLUtil.createSSLServerSocketFactory creating a " +
+         "SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory with " +
+         "protocol ", protocol, ", provider ", provider,
+         ", enabled cipher suites ", ENABLED_SSL_CIPHER_SUITES.get(),
+         ", and enabled named groups ", ENABLED_SSL_NAMED_GROUPS.get());
 
     return new SetEnabledProtocolsAndCipherSuitesSSLServerSocketFactory(
          createSSLContext(protocol, provider).getServerSocketFactory(),
-         protocol, ENABLED_SSL_CIPHER_SUITES.get());
+         protocol, ENABLED_SSL_CIPHER_SUITES.get(),
+         ENABLED_SSL_NAMED_GROUPS.get());
   }
 
 
@@ -1019,11 +1049,8 @@ public final class SSLUtil
   {
     Validator.ensureNotNull(defaultSSLProtocol);
 
-    if (JVM_SSL_DEBUGGING_ENABLED)
-    {
-      System.err.println("SSLUtil.setDefaultSSLProtocol setting the " +
-           "default SSL protocol to " + defaultSSLProtocol);
-    }
+    debug(Level.INFO, "SSLUtil.setDefaultSSLProtocol setting the " +
+         "default SSL protocol to ", defaultSSLProtocol);
 
     DEFAULT_SSL_PROTOCOL.set(defaultSSLProtocol);
   }
@@ -1066,21 +1093,15 @@ public final class SSLUtil
   {
     if (enabledSSLProtocols == null)
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.setEnabledSSLProtocols setting the " +
-             "enabled SSL protocols to an empty set");
-      }
+      debug(Level.INFO, "SSLUtil.setEnabledSSLProtocols setting the enabled " +
+           "SSL protocols to an empty set");
 
-      ENABLED_SSL_PROTOCOLS.set(Collections.<String>emptySet());
+      ENABLED_SSL_PROTOCOLS.set(Collections.emptySet());
     }
     else
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.setEnabledSSLProtocols setting the " +
-             "enabled SSL protocols to " + enabledSSLProtocols);
-      }
+      debug(Level.INFO, "SSLUtil.setEnabledSSLProtocols setting the enabled " +
+           "SSL protocols to ", enabledSSLProtocols);
 
       ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(
            new LinkedHashSet<>(enabledSSLProtocols)));
@@ -1150,18 +1171,20 @@ public final class SSLUtil
 
     try
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.applyEnabledSSLProtocols applying " +
-             "protocolsToEnable " + Arrays.toString(protocolsToEnable) +
-             " to SSLSocket " + sslSocket);
-      }
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLProtocols applying " +
+           "protocolsToEnable ", Arrays.toString(protocolsToEnable),
+           " to SSLSocket ", sslSocket);
 
       sslSocket.setEnabledProtocols(protocolsToEnable);
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLProtocols failed to " +
+           "apply protocolsToEnable ", Arrays.toString(protocolsToEnable),
+           " to SSL socket ", sslSocket, ":  ",
+           StaticUtils.getExceptionMessage(e));
     }
   }
 
@@ -1201,18 +1224,20 @@ public final class SSLUtil
 
     try
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.applyEnabledSSLProtocols applying " +
-             "protocolsToEnable " + Arrays.toString(protocolsToEnable) +
-             " to SSLServerSocket " + sslServerSocket);
-      }
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLProtocols applying " +
+           "protocolsToEnable ", Arrays.toString(protocolsToEnable) +
+           " to SSLServerSocket ", sslServerSocket);
 
       sslServerSocket.setEnabledProtocols(protocolsToEnable);
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLProtocols failed to " +
+           "apply protocolsToEnable ", Arrays.toString(protocolsToEnable),
+           " to SSL socket ", sslServerSocket, ":  ",
+           StaticUtils.getExceptionMessage(e));
     }
   }
 
@@ -1334,21 +1359,15 @@ public final class SSLUtil
   {
     if (enabledSSLCipherSuites == null)
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.setEnabledSSLCipherSuites setting the " +
-             "enabled SSL cipher suites to an empty set");
-      }
+      debug(Level.INFO, "SSLUtil.setEnabledSSLCipherSuites setting the " +
+           "enabled SSL cipher suites to an empty set");
 
-      ENABLED_SSL_CIPHER_SUITES.set(Collections.<String>emptySet());
+      ENABLED_SSL_CIPHER_SUITES.set(Collections.emptySet());
     }
     else
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.setEnabledSSLCipherSuites setting the " +
-             "enabled SSL cipher suites to " + enabledSSLCipherSuites);
-      }
+      debug(Level.INFO, "SSLUtil.setEnabledSSLCipherSuites setting the " +
+           "enabled SSL cipher suites to ", enabledSSLCipherSuites);
 
       ENABLED_SSL_CIPHER_SUITES.set(Collections.unmodifiableSet(
            new LinkedHashSet<>(enabledSSLCipherSuites)));
@@ -1419,18 +1438,20 @@ public final class SSLUtil
               sslSocket.getSupportedCipherSuites());
     try
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.applyEnabledSSLCipherSuites applying " +
-             "cinpherSuitesToEnable " + Arrays.toString(cipherSuitesToEnable) +
-             " to SSLSocket " + sslSocket);
-      }
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLCipherSuites applying " +
+           "cipherSuitesToEnable ", Arrays.toString(cipherSuitesToEnable) +
+           " to SSLSocket ", sslSocket);
 
       sslSocket.setEnabledCipherSuites(cipherSuitesToEnable);
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLCipherSuites failed to " +
+           "apply cipherSuitesToEnable ", Arrays.toString(cipherSuitesToEnable),
+           " to SSL socket ", sslSocket, ":  ",
+           StaticUtils.getExceptionMessage(e));
     }
   }
 
@@ -1471,18 +1492,20 @@ public final class SSLUtil
 
     try
     {
-      if (JVM_SSL_DEBUGGING_ENABLED)
-      {
-        System.err.println("SSLUtil.applyEnabledSSLCipherSuites applying " +
-             "cinpherSuitesToEnable " + Arrays.toString(cipherSuitesToEnable) +
-             " to SSLServerSocket " + sslServerSocket);
-      }
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLCipherSuites applying " +
+           "cipherSuitesToEnable ", Arrays.toString(cipherSuitesToEnable),
+           " to SSLServerSocket ", sslServerSocket);
 
       sslServerSocket.setEnabledCipherSuites(cipherSuitesToEnable);
     }
     catch (final Exception e)
     {
       Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLCipherSuites failed to " +
+           "apply cipherSuitesToEnable ", Arrays.toString(cipherSuitesToEnable),
+           " to SSL socket ", sslServerSocket, ":  ",
+           StaticUtils.getExceptionMessage(e));
     }
   }
 
@@ -1570,6 +1593,245 @@ public final class SSLUtil
 
 
   /**
+   * Indicates whether the JVM supports setting the allowed key exchange named
+   * groups for SSL sockets created using this class.  This capability was
+   * first introduced in Java version 20 (although it's possible that it may be
+   * backported to earlier versions).
+   *
+   * @return  {@code true} if the JVM supports setting allowed key exchange
+   *          named groups, or {@code false} if not.
+   */
+  public static boolean supportsSettingSSLNamedGroups()
+  {
+    return (SET_NAMED_GROUPS_METHOD != null);
+  }
+
+
+
+  /**
+   * Retrieves the set of SSL key exchange named groups that will be enabled for
+   * use, if available, for SSL sockets created within the LDAP SDK.  Note that
+   * this set will only be used if the {@link #supportsSettingSSLNamedGroups()}
+   * method returns {@code true}.
+   *
+   * @return  The set of SSL key exchange named groups that will be enabled for
+   *          use, if available, for SSL sockets created within the LDAP SDK.
+   *          This may be {@code null} if the JVM should select an appropriate
+   *          default set of named groups.
+   */
+  @Nullable()
+  public static Set<String> getEnabledSSLNamedGroups()
+  {
+    return ENABLED_SSL_NAMED_GROUPS.get();
+  }
+
+
+
+  /**
+   * Specifies the set of SSL key exchange named groups that will be enabled for
+   * use, if available, for SSL sockets created within the LDAP SDK.  Note that
+   * using this method will only have any effect ive the
+   * {@link #supportsSettingSSLNamedGroups()} method returns {@code true}.
+   *
+   * @param  enabledSSLNamedGroups  The set of SSL key exchange named groups
+   *                                that will be enabled for use, if available,
+   *                                for SSL sockets created within the LDAP SDK.
+   *                                This may be {@code null} if the JVM should
+   *                                select an appropriate set of named groups.
+   *                                If a non-{@code null} value is provided,
+   *                                then the order of the values in the provided
+   *                                collection will represent the priority in
+   *                                which they will be used.
+   */
+  public static void setEnabledSSLNamedGroups(
+              @Nullable final Collection<String> enabledSSLNamedGroups)
+  {
+    if (enabledSSLNamedGroups == null)
+    {
+      debug(Level.INFO, "SSLUtil.setEnabledSSLNamedGroups setting the " +
+           "enabled SSL key exchange named groups to null so that the " +
+           "JVM's default set will be used.");
+
+      ENABLED_SSL_NAMED_GROUPS.set(null);
+    }
+    else
+    {
+      final Set<String> namedGroupsSet = Collections.unmodifiableSet(
+           new LinkedHashSet<>(enabledSSLNamedGroups));
+
+      debug(Level.INFO, "SSLUtil.setEnabledSSLNamedGroups setting the " +
+           "enabled SSL key exchange named groups to ", namedGroupsSet +
+           ".  supportsSettingSSLNamedGroups is ",
+           supportsSettingSSLNamedGroups());
+
+      ENABLED_SSL_NAMED_GROUPS.set(namedGroupsSet);
+    }
+  }
+
+
+
+  /**
+   * Updates the provided socket to apply the appropriate set of enabled SSL
+   * key exchange named groups.  This will only have any effect if the JVM
+   * supports this ability (that is, if {@link #supportsSettingSSLNamedGroups()}
+   * returns {@code true}), and if the provided socket is an instance of
+   * {@code SSLSocket}.  This should be called before attempting any
+   * communication over the socket.
+   *
+   * @param  socket  The socket on which to apply the configured set of enabled
+   *                 SSL key exchange named groups.
+   */
+  public static void applyEnabledSSLNamedGroups(@NotNull final Socket socket)
+  {
+    applyEnabledSSLNamedGroups(socket, ENABLED_SSL_NAMED_GROUPS.get());
+  }
+
+
+
+  /**
+   * Updates the provided socket to apply the appropriate set of enabled SSL
+   * key exchange named groups.  This will only have any effect if the JVM
+   * supports this ability (that is, if {@link #supportsSettingSSLNamedGroups()}
+   * returns {@code true}), if the provided {@code namedGroups} value is
+   * non-{@code null}, and if the provided socket is an instance of
+   * {@code SSLSocket}.  This should be called before attempting any
+   * communication over the socket.
+   *
+   * @param  socket       The socket on which to apply the configured set of
+   *                      enabled SSL key exchange named groups.
+   * @param  namedGroups  The set of named groups to use for the socket.  This
+   *                      may be {@code null} if the JVM should select an
+   *                      appropriate default set of named groups.
+   */
+  public static void applyEnabledSSLNamedGroups(@NotNull final Socket socket,
+              @Nullable final Set<String> namedGroups)
+  {
+    if (namedGroups == null)
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the the provided set of " +
+           "named groups is null.");
+
+      return;
+    }
+
+    if (! (socket instanceof SSLSocket))
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the the provided socket is " +
+           "not an SSL socket.");
+
+      return;
+    }
+
+    if (SET_NAMED_GROUPS_METHOD == null)
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the JVM does not appear to " +
+           "support setting the key exchange named groups.");
+
+      return;
+    }
+
+    final SSLSocket sslSocket = (SSLSocket) socket;
+    final String[] namedGroupsArray =
+         StaticUtils.toArray(namedGroups, String.class);
+    try
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups applying " +
+           "namedGroups ", Arrays.toString(namedGroupsArray),
+           " to SSL socket ", sslSocket);
+
+      final SSLParameters parameters = sslSocket.getSSLParameters();
+      SET_NAMED_GROUPS_METHOD.invoke(parameters, (Object) namedGroupsArray);
+      sslSocket.setSSLParameters(parameters);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLNamedGroups failed to " +
+           "apply namedGroups ", Arrays.toString(namedGroupsArray),
+           " to SSL socket ", sslSocket, ":  ",
+           StaticUtils.getExceptionMessage(e));
+    }
+  }
+
+
+
+  /**
+   * Updates the provided server socket to apply the appropriate set of enabled
+   * SSL key exchange named groups.  This will only have any effect if the JVM
+   * supports this ability (that is, if {@link #supportsSettingSSLNamedGroups()}
+   * returns {@code true}), if the provided {@code namedGroups} value is
+   * non-{@code null}, and if the provided server socket is an instance of
+   * {@code SSLServerSocket}.  This should be called before attempting any
+   * communication over the socket.
+   *
+   * @param  serverSocket  The server socket on which to apply the configured
+   *                       set of enabled SSL key exchange named groups.
+   * @param  namedGroups   The set of named groups to use for the socket.  This
+   *                       may be {@code null} if the JVM should select an
+   *                       appropriate default set of named groups.
+   */
+  public static void applyEnabledSSLNamedGroups(
+              @NotNull final ServerSocket serverSocket,
+              @Nullable final Set<String> namedGroups)
+  {
+    if (namedGroups == null)
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the the provided set of " +
+           "named groups is null.");
+
+      return;
+    }
+
+    if (! (serverSocket instanceof SSLServerSocket))
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the the provided server " +
+           "socket is not an SSL serve socket.");
+
+      return;
+    }
+
+    if (SET_NAMED_GROUPS_METHOD == null)
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups is returning " +
+           "without taking any action because the JVM does not appear to " +
+           "support setting the key exchange named groups.");
+
+      return;
+    }
+
+    final SSLServerSocket sslServerSocket = (SSLServerSocket) serverSocket;
+    final String[] namedGroupsArray =
+         StaticUtils.toArray(namedGroups, String.class);
+    try
+    {
+      debug(Level.INFO, "SSLUtil.applyEnabledSSLNamedGroups applying " +
+           "namedGroups ", Arrays.toString(namedGroupsArray),
+           " to SSL server socket ", sslServerSocket);
+
+      final SSLParameters parameters = sslServerSocket.getSSLParameters();
+      SET_NAMED_GROUPS_METHOD.invoke(parameters, (Object) namedGroupsArray);
+      sslServerSocket.setSSLParameters(parameters);
+    }
+    catch (final Exception e)
+    {
+      Debug.debugException(e);
+
+      debug(Level.SEVERE, "SSLUtil.applyEnabledSSLNamedGroups failed to " +
+           "apply namedGroups " + Arrays.toString(namedGroupsArray) +
+           " to SSL server socket " + sslServerSocket + ":  " +
+           StaticUtils.getExceptionMessage(e));
+    }
+  }
+
+
+
+  /**
    * Configures SSL default settings for the LDAP SDK.  This method is
    * non-private for purposes of easier test coverage.
    */
@@ -1626,6 +1888,11 @@ public final class SSLUtil
           enabledProtocols.add(enabledProtocol);
         }
       }
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting enabled SSL " +
+           "protocols to ", enabledProtocolsPropertyValue, " based on value '",
+           enabledProtocolsPropertyValue, "' of system property '",
+           PROPERTY_ENABLED_SSL_PROTOCOLS, "'.");
     }
     else
     {
@@ -1649,6 +1916,9 @@ public final class SSLUtil
       {
         enabledProtocols.add(tls1Protocol);
       }
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting enabled SSL " +
+           "protocols to a default of ", enabledProtocols);
     }
 
     ENABLED_SSL_PROTOCOLS.set(Collections.unmodifiableSet(enabledProtocols));
@@ -1661,10 +1931,18 @@ public final class SSLUtil
     if (defaultProtocolPropertyValue != null)
     {
       defaultProtocol = defaultProtocolPropertyValue;
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting default SSL " +
+           "protocol to ", defaultProtocol,
+           " based on the value of system property '",
+           PROPERTY_DEFAULT_SSL_PROTOCOL + "'.");
     }
     else
     {
       defaultProtocol = enabledProtocols.iterator().next();
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting default SSL " +
+           "protocol to ", defaultProtocol);
     }
 
     DEFAULT_SSL_PROTOCOL.set(defaultProtocol);
@@ -1688,14 +1966,55 @@ public final class SSLUtil
           enabledCipherSuites.add(token);
         }
       }
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting enabled SSL " +
+           "cipher suites  to ", enabledCipherSuites, " based on value '",
+           enabledSuitesPropertyValue, "' of system property '",
+           PROPERTY_ENABLED_SSL_CIPHER_SUITES, "'.");
     }
     else
     {
       enabledCipherSuites.addAll(
            TLSCipherSuiteSelector.getRecommendedCipherSuites());
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting enabled SSL " +
+           "protocols to a default value of ", enabledCipherSuites);
     }
 
     ENABLED_SSL_CIPHER_SUITES.set(enabledCipherSuites);
+
+
+    // Determine the set of TLS key exchange named groups to enable by default.
+    final String enabledNamedGroupsPropertyValue =
+         PropertyManager.get(PROPERTY_ENABLED_SSL_NAMED_GROUPS);
+    if ((enabledNamedGroupsPropertyValue != null) &&
+         (! enabledNamedGroupsPropertyValue.isEmpty()))
+    {
+      final StringTokenizer tokenizer =
+           new StringTokenizer(enabledNamedGroupsPropertyValue, ", ", false);
+      final LinkedHashSet<String> enabledNamedGroups = new LinkedHashSet<>();
+      while (tokenizer.hasMoreTokens())
+      {
+        final String token = tokenizer.nextToken().trim();
+        if (! token.isEmpty())
+        {
+          enabledNamedGroups.add(token);
+        }
+      }
+
+
+      debug(Level.INFO, "SSLUtil.configureSSLDefaults setting enabled TLS " +
+           "key exchange named groups to ", enabledNamedGroups,
+           " based on value '", enabledNamedGroupsPropertyValue,
+           "' of system property '", PROPERTY_ENABLED_SSL_NAMED_GROUPS, "'.");
+
+      ENABLED_SSL_NAMED_GROUPS.set(
+           Collections.unmodifiableSet(enabledNamedGroups));
+    }
+    else
+    {
+      ENABLED_SSL_NAMED_GROUPS.set(null);
+    }
   }
 
 
@@ -1751,5 +2070,41 @@ public final class SSLUtil
     buffer.append(
          certificate.getIssuerX500Principal().getName(X500Principal.RFC2253));
     buffer.append("')");
+  }
+
+
+
+  /**
+   * Records a debug message with the provided information.  If LDAP SDK
+   * debugging is enabled, then the debug message will be sent to that debugging
+   * subsystem.  And if {@link #JVM_SSL_DEBUGGING_ENABLED} is {@code true}, then
+   * the message will be written to standard error.
+   *
+   * @param  debugLevel         The debug level to use for the message.
+   * @param  messageComponents  The components to use for the debug message.
+   */
+  private static void debug(@NotNull final Level debugLevel,
+                            @NotNull final Object... messageComponents)
+  {
+    if (JVM_SSL_DEBUGGING_ENABLED || Debug.debugEnabled())
+    {
+      final StringBuilder messageBuffer = new StringBuilder();
+      for (final Object o : messageComponents)
+      {
+        messageBuffer.append(o);
+      }
+
+      final String messageString = messageBuffer.toString();
+
+      if (JVM_SSL_DEBUGGING_ENABLED)
+      {
+        System.err.println(messageString);
+      }
+
+      if (Debug.debugEnabled())
+      {
+        Debug.debug(debugLevel, DebugType.CONNECT, messageString);
+      }
+    }
   }
 }

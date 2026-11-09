@@ -77,6 +77,10 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
   // The cipher suites to be enabled when this socket is connected.
   @NotNull private final Set<String> cipherSuites;
 
+  // The set of key exchange named groups that should be used for sockets
+  // created by this socket factory.
+  @NotNull private final Set<String> namedGroups;
+
   // The protocols to be enabled when this socket is connected.
   @NotNull private final Set<String> protocols;
 
@@ -95,10 +99,13 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
    *                         connected.
    * @param  cipherSuites    The cipher suites to be enabled when this socket is
    *                         connected.
+   * @param  namedGroups     The key exchange named groups that should be used
+   *                         for sockets created by this socket factory.
    */
   SetEnabledProtocolsAndCipherSuitesSocket(@NotNull final Socket delegateSocket,
        @NotNull final Set<String> protocols,
-       @NotNull final Set<String> cipherSuites)
+       @NotNull final Set<String> cipherSuites,
+       @Nullable final Set<String> namedGroups)
   {
     super();
 
@@ -108,6 +115,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
     this.delegateSocket = (SSLSocket) delegateSocket;
     this.protocols = protocols;
     this.cipherSuites = cipherSuites;
+    this.namedGroups = namedGroups;
   }
 
 
@@ -148,6 +156,7 @@ final class SetEnabledProtocolsAndCipherSuitesSocket
     delegateSocket.connect(endpoint, timeout);
     SSLUtil.applyEnabledSSLProtocols(delegateSocket, protocols);
     SSLUtil.applyEnabledSSLCipherSuites(delegateSocket, cipherSuites);
+    SSLUtil.applyEnabledSSLNamedGroups(delegateSocket, namedGroups);
   }
 
 
