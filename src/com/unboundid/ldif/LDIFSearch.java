@@ -1474,8 +1474,8 @@ public final class LDIFSearch
    * @throws  Exception  If a problem is encountered while loading the schema.
    */
   @NotNull()
-  private static Schema getSchema(@NotNull final List<File> paths)
-          throws Exception
+  static Schema getSchema(@NotNull final List<File> paths)
+         throws Exception
   {
     final Set<File> schemaFiles = new LinkedHashSet<>();
     for (final File f : paths)

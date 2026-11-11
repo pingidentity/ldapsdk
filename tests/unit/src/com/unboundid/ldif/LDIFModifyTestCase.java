@@ -59,6 +59,10 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPSDKTestCase;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.schema.AttributeTypeDefinition;
+import com.unboundid.ldap.sdk.schema.ObjectClassDefinition;
+import com.unboundid.ldap.sdk.schema.ObjectClassType;
+import com.unboundid.ldap.sdk.schema.Schema;
 import com.unboundid.ldap.sdk.unboundidds.tools.ToolUtils;
 import com.unboundid.util.PassphraseEncryptedInputStream;
 import com.unboundid.util.PassphraseEncryptedOutputStream;
@@ -3705,6 +3709,152 @@ public final class LDIFModifyTestCase
               "--changesLDIF", changesLDIF.getAbsolutePath(),
               "--targetLDIF", changesLDIF.getAbsolutePath()),
          ResultCode.PARAM_ERROR);
+  }
+
+
+
+  /**
+   * Tests to ensure that it's possible to use a custom schema to handle
+   * certain kinds of updates (e.g., an entry that results in two values that
+   * differ only in capitalization).
+   *
+   * @throws  Exception  If an unexpected problem occurs.
+   */
+  @Test()
+  public void testSchemaAwareUpdates()
+         throws Exception
+  {
+    // Start with the default standard schema, and define a couple of custom
+    // attribute types and a custom object class.
+    final Entry schemaEntry =
+         Schema.getDefaultStandardSchema().getSchemaEntry().duplicate();
+    schemaEntry.addAttribute("attributeTypes",
+         new AttributeTypeDefinition("insensitive-attr-oid",
+              "case-insensitive-attr", null, "caseIgnoreMatch",
+              "caseIgnoreOrderingMatch", "caseIgnoreSubstringsMatch",
+              "1.3.6.1.4.1.1466.115.121.1.15", false, null).toString());
+    schemaEntry.addAttribute("attributeTypes",
+         new AttributeTypeDefinition("sensitive-attr-oid",
+              "case-sensitive-attr", null, "caseExactMatch",
+              "caseExactOrderingMatch", "caseExactSubstringsMatch",
+              "1.3.6.1.4.1.1466.115.121.1.15", false, null).toString());
+    schemaEntry.addAttribute("objectClasses",
+         new ObjectClassDefinition("test-oc-oid", "test-oc", null, "top",
+              ObjectClassType.STRUCTURAL, StaticUtils.setOf("cn"),
+              StaticUtils.setOf("case-insensitive-attr", "case-sensitive-attr"),
+              null).toString());
+
+    final Schema schema = new Schema(schemaEntry);
+    final File schemaFile = createTempFile(schemaEntry.toLDIF());
+
+
+    // Create an LDIF File with a base entry to use for testing.
+    final File sourceLDIFFile = createTempFile(
+         "dn: cn=test,dc=example,dc=com",
+         "objectClass: top",
+         "objectClass: test-oc",
+         "cn: test",
+         "case-insensitive-attr: case-insensitive-value",
+         "case-sensitive-attr: case-sensitive-value");
+
+
+    // Create an LDIF file with a modify request that will add values to the
+    // test attributes that differ from their existing values only by
+    // capitalization.
+    final File changesLDIFFile = createTempFile(
+         "dn: cn=test,dc=example,dc=com",
+         "changetype: modify",
+         "add: case-insensitive-attr",
+         "case-insensitive-attr: Case-Insensitive-Value",
+         "-",
+         "add: case-sensitive-attr",
+         "case-sensitive-attr: Case-Sensitive-Value");
+
+
+    // Test ldifmodify without specifying any schema file.  This should use the
+    // default standard schema, and it will treat unrecognized attributes
+    // (including the two custom ones) as case-insensitive directory strings.
+    // This means that the entry should end up unchanged.
+    final File outputLDIFFile = createTempFile();
+    assertTrue(outputLDIFFile.delete());
+
+    ldifModify(sourceLDIFFile, changesLDIFFile, outputLDIFFile,
+         ResultCode.SUCCESS);
+
+    try (LDIFReader ldifReader = new LDIFReader(outputLDIFFile))
+    {
+      // Even though we didn't use it for the modify, set the schema for the
+      // LDIF reader so that we'll use the correct case sensitivity when reading
+      // values.
+      ldifReader.setSchema(schema);
+
+      final Entry outputEntry = ldifReader.readEntry();
+      assertNotNull(outputEntry);
+
+      assertEquals(outputEntry.getAttribute("case-insensitive-attr").size(), 1);
+      assertTrue(outputEntry.getAttribute("case-insensitive-attr").hasValue(
+           "case-insensitive-value"));
+
+      assertEquals(outputEntry.getAttribute("case-sensitive-attr").size(), 1);
+      assertTrue(outputEntry.getAttribute("case-sensitive-attr").hasValue(
+           "case-sensitive-value"));
+    }
+
+
+    // Test ldifmodify when specifying the custom schema.  This should result
+    // in two values for the case-sensitive attribute.
+    assertTrue(outputLDIFFile.delete());
+
+    ldifModify(sourceLDIFFile, changesLDIFFile, outputLDIFFile,
+         ResultCode.SUCCESS,
+         "--schemaPath", schemaFile.getAbsolutePath());
+
+    try (LDIFReader ldifReader = new LDIFReader(outputLDIFFile))
+    {
+      ldifReader.setSchema(schema);
+
+      final Entry outputEntry = ldifReader.readEntry();
+      assertNotNull(outputEntry);
+
+      assertEquals(outputEntry.getAttribute("case-insensitive-attr").size(), 1);
+      assertTrue(outputEntry.getAttribute("case-insensitive-attr").hasValue(
+           "case-insensitive-value"));
+
+      assertEquals(outputEntry.getAttribute("case-sensitive-attr").size(), 2);
+      assertTrue(outputEntry.getAttribute("case-sensitive-attr").hasValue(
+           "case-sensitive-value"));
+      assertTrue(outputEntry.getAttribute("case-sensitive-attr").hasValue(
+           "Case-Sensitive-Value"));
+    }
+
+
+    // Test ldifmodify when telling it to not use any schema.  This should
+    // yield the same results as the original test, with all attributes treated
+    // as case-insensitive directory strings.
+    assertTrue(outputLDIFFile.delete());
+
+    ldifModify(sourceLDIFFile, changesLDIFFile, outputLDIFFile,
+         ResultCode.SUCCESS,
+         "--noSchemaCheck");
+
+    try (LDIFReader ldifReader = new LDIFReader(outputLDIFFile))
+    {
+      // Even though we didn't use it for the modify, set the schema for the
+      // LDIF reader so that we'll use the correct case sensitivity when reading
+      // values.
+      ldifReader.setSchema(schema);
+
+      final Entry outputEntry = ldifReader.readEntry();
+      assertNotNull(outputEntry);
+
+      assertEquals(outputEntry.getAttribute("case-insensitive-attr").size(), 1);
+      assertTrue(outputEntry.getAttribute("case-insensitive-attr").hasValue(
+           "case-insensitive-value"));
+
+      assertEquals(outputEntry.getAttribute("case-sensitive-attr").size(), 1);
+      assertTrue(outputEntry.getAttribute("case-sensitive-attr").hasValue(
+           "case-sensitive-value"));
+    }
   }
 
 

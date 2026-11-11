@@ -25,6 +25,15 @@ ${TARGET="offline"}                <br>
                 </li>
 
                 <li>
+                  Updated the ldifmodify command-line tool to provide an option to specify which
+                  schema to use when processing the provided LDIF data.  This can help the tool
+                  exhibit more correct behavior for changes targeting attributes that are not in
+                  the LDAP SDK's default standard schema and require an equality matching rule
+                  other than caseIgnoreMatch.
+                  <br><br>
+                </li>
+
+                <li>
                   Updated the documentation to include the latest revisions of
                   draft-housley-asn1-layman-guide and draft-ietf-kitten-scram-2fa in the set of
                   LDAP-related specifications.

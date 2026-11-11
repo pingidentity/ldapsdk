@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -141,6 +142,7 @@ public final class LDIFModify
   @Nullable private BooleanArgument suppressComments;
   @Nullable private FileArgument changesEncryptionPassphraseFile;
   @Nullable private FileArgument changesLDIF;
+  @Nullable private FileArgument schemaPath;
   @Nullable private FileArgument sourceEncryptionPassphraseFile;
   @Nullable private FileArgument sourceLDIF;
   @Nullable private FileArgument targetEncryptionPassphraseFile;
@@ -299,6 +301,7 @@ public final class LDIFModify
     ignoreModifiesOfNonexistentEntries = null;
     lenientModifications = null;
     noSchemaCheck = null;
+    schemaPath = null;
     strictModifications = null;
     stripTrailingSpaces = null;
     suppressComments = null;
@@ -789,6 +792,27 @@ public final class LDIFModify
     suppressComments.setArgumentGroupName(
          INFO_LDIFMODIFY_ARG_GROUP_OUTPUT.get());
     parser.addArgument(suppressComments);
+
+
+    final String schemaPathDesc;
+    if (PING_SERVER_AVAILABLE)
+    {
+      schemaPathDesc = INFO_LDIFMODIFY_ARG_DESC_SCHEMA_PATH_PING_SERVER.get();
+    }
+    else
+    {
+      schemaPathDesc = INFO_LDIFMODIFY_ARG_DESC_SCHEMA_PATH_STANDALONE.get();
+    }
+    schemaPath = new FileArgument(null, "schemaPath", false, 0, null,
+         schemaPathDesc, true, true, false, false);
+    schemaPath.addLongIdentifier("schema-path", true);
+    schemaPath.addLongIdentifier("schemaFile", true);
+    schemaPath.addLongIdentifier("schema-file", true);
+    schemaPath.addLongIdentifier("schemaDirectory", true);
+    schemaPath.addLongIdentifier("schema-directory", true);
+    schemaPath.addLongIdentifier("schema", true);
+    schemaPath.setArgumentGroupName(INFO_LDIFSEARCH_ARG_GROUP_INPUT.get());
+    parser.addArgument(schemaPath);
 
 
     noSchemaCheck = new BooleanArgument(null, "noSchemaCheck", 1,
@@ -1811,7 +1835,42 @@ changeRecordLoop:
         ldifReader.setTrailingSpaceBehavior(TrailingSpaceBehavior.REJECT);
       }
 
-      ldifReader.setSchema(Schema.getDefaultStandardSchema());
+
+      final Schema schema;
+      if ((noSchemaCheck == null) || noSchemaCheck.isPresent())
+      {
+        schema = null;
+      }
+      else
+      {
+        try
+        {
+          if (schemaPath.isPresent())
+          {
+            schema = LDIFSearch.getSchema(schemaPath.getValues());
+          }
+          else if (PING_SERVER_AVAILABLE)
+          {
+            schema = LDIFSearch.getSchema(Collections.singletonList(
+                 StaticUtils.constructPath(PING_SERVER_ROOT, "config",
+                      "schema")));
+          }
+          else
+          {
+            schema = Schema.getDefaultStandardSchema();
+          }
+        }
+        catch (final Exception e)
+        {
+          Debug.debugException(e);
+          throw new LDAPException(ResultCode.LOCAL_ERROR,
+               ERR_LDIFMODIFY_CANNOT_GET_SCHEMA.get(
+                    StaticUtils.getExceptionMessage(e)),
+               e);
+        }
+      }
+
+      ldifReader.setSchema(schema);
 
       closeStream = false;
       return ldifReader;
